@@ -1,0 +1,2195 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Math Tutoring — by Deni</title>
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.css">
+<script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.js"></script>
+<script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/contrib/auto-render.min.js"></script>
+<script src="https://cdn.tailwindcss.com"></script>
+<style>
+:root {
+  --bg: #0b1121; --bg2: #111827; --card: rgba(17,24,39,0.85);
+  --fg: #e2e8f0; --muted: #64748b; --accent: #10b981;
+  --accent2: #f59e0b; --danger: #ef4444; --border: rgba(100,116,139,0.2);
+  --glass: rgba(16,185,129,0.08);
+}
+* { box-sizing: border-box; margin: 0; padding: 0; }
+body { font-family: 'Space Grotesk', sans-serif; background: var(--bg); color: var(--fg); min-height: 100vh; overflow-x: hidden; }
+.font-mono { font-family: 'JetBrains Mono', monospace; }
+
+/* Latar belakang animasi */
+.bg-grid {
+  position: fixed; inset: 0; z-index: 0; pointer-events: none;
+  background-image:
+    radial-gradient(circle at 20% 50%, rgba(16,185,129,0.06) 0%, transparent 50%),
+    radial-gradient(circle at 80% 20%, rgba(245,158,11,0.04) 0%, transparent 50%),
+    radial-gradient(circle at 50% 80%, rgba(16,185,129,0.03) 0%, transparent 50%);
+}
+.bg-grid::after {
+  content: ''; position: absolute; inset: 0;
+  background-image: linear-gradient(rgba(16,185,129,0.03) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(16,185,129,0.03) 1px, transparent 1px);
+  background-size: 60px 60px;
+}
+
+/* Transisi halaman */
+.view { display: none; position: relative; z-index: 1; }
+.view.active { display: block; animation: fadeSlideIn 0.4s ease; }
+@keyframes fadeSlideIn { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
+
+/* Peta node */
+.map-node {
+  width: 72px; height: 72px; border-radius: 50%; display: flex; align-items: center; justify-content: center;
+  font-weight: 700; font-size: 1.2rem; cursor: pointer; transition: all 0.3s ease;
+  position: relative; border: 3px solid var(--border);
+  background: var(--bg2);
+}
+.map-node.unlocked { border-color: var(--accent); box-shadow: 0 0 20px rgba(16,185,129,0.2); }
+.map-node.unlocked:hover { transform: scale(1.12); box-shadow: 0 0 30px rgba(16,185,129,0.4); }
+.map-node.completed { background: var(--accent); border-color: var(--accent); color: var(--bg); }
+.map-node.completed:hover { transform: scale(1.08); }
+.map-node.locked { opacity: 0.35; cursor: not-allowed; }
+.map-node.current { animation: pulseGlow 2s ease-in-out infinite; }
+@keyframes pulseGlow {
+  0%,100% { box-shadow: 0 0 15px rgba(16,185,129,0.3); }
+  50% { box-shadow: 0 0 35px rgba(16,185,129,0.6); }
+}
+
+/* Koneksi garis peta */
+.map-line { width: 3px; height: 40px; margin: 0 auto; background: var(--border); transition: background 0.5s; }
+.map-line.done { background: var(--accent); }
+.map-branch-line { height: 3px; width: 60px; background: var(--border); transition: background 0.5s; }
+.map-branch-line.done { background: var(--accent); }
+
+/* Lesson node di peta detail */
+.lesson-node {
+  width: 56px; height: 56px; border-radius: 16px; display: flex; align-items: center; justify-content: center;
+  font-size: 0.85rem; cursor: pointer; transition: all 0.3s; border: 2px solid var(--border); background: var(--bg2);
+}
+.lesson-node.theory { border-radius: 50%; }
+.lesson-node.exercise { border-radius: 16px; }
+.lesson-node.unlocked { border-color: var(--accent); }
+.lesson-node.unlocked:hover { transform: scale(1.15); box-shadow: 0 0 20px rgba(16,185,129,0.3); }
+.lesson-node.completed { background: var(--accent); border-color: var(--accent); color: var(--bg); }
+.lesson-node.locked { opacity: 0.3; cursor: not-allowed; }
+.lesson-connector { width: 2px; height: 24px; margin: 0 auto; background: var(--border); }
+.lesson-connector.done { background: var(--accent); }
+
+/* Tombol */
+.btn-primary {
+  background: var(--accent); color: var(--bg); font-weight: 600; padding: 14px 32px; border-radius: 14px;
+  border: none; cursor: pointer; font-size: 1rem; font-family: inherit; transition: all 0.2s;
+  display: inline-flex; align-items: center; gap: 8px;
+}
+.btn-primary:hover { filter: brightness(1.15); transform: translateY(-2px); box-shadow: 0 6px 20px rgba(16,185,129,0.3); }
+.btn-primary:disabled { opacity: 0.4; cursor: not-allowed; transform: none; filter: none; }
+.btn-secondary {
+  background: transparent; color: var(--accent); font-weight: 600; padding: 12px 24px; border-radius: 14px;
+  border: 2px solid var(--accent); cursor: pointer; font-size: 0.9rem; font-family: inherit; transition: all 0.2s;
+}
+.btn-secondary:hover { background: rgba(16,185,129,0.1); }
+
+/* Opsi exercise */
+.opt-card {
+  padding: 16px 20px; border: 2px solid var(--border); border-radius: 14px; cursor: pointer;
+  transition: all 0.2s; background: var(--card); min-height: 52px; display: flex; align-items: center; gap: 12px;
+}
+.opt-card:hover { border-color: rgba(16,185,129,0.4); background: var(--glass); }
+.opt-card.selected { border-color: var(--accent); background: rgba(16,185,129,0.12); }
+.opt-card.correct { border-color: #10b981; background: rgba(16,185,129,0.15); }
+.opt-card.wrong { border-color: #ef4444; background: rgba(239,68,68,0.1); }
+.opt-card.disabled { pointer-events: none; opacity: 0.7; }
+
+/* Input exercise */
+.ex-input {
+  background: var(--bg2); border: 2px solid var(--border); border-radius: 12px; padding: 14px 18px;
+  color: var(--fg); font-size: 1rem; font-family: inherit; width: 100%; outline: none; transition: border-color 0.2s;
+}
+.ex-input:focus { border-color: var(--accent); }
+.ex-input.correct { border-color: #10b981; }
+.ex-input.wrong { border-color: #ef4444; }
+
+/* Code block */
+.code-block {
+  background: #0d1117; border: 1px solid rgba(100,116,139,0.2); border-radius: 12px;
+  padding: 20px; font-family: 'JetBrains Mono', monospace; font-size: 0.9rem;
+  line-height: 1.7; overflow-x: auto; white-space: pre;
+}
+
+/* Progress bar */
+.prog-bar { height: 6px; border-radius: 3px; background: rgba(100,116,139,0.2); overflow: hidden; }
+.prog-fill { height: 100%; border-radius: 3px; background: var(--accent); transition: width 0.5s ease; }
+
+/* Toast */
+.toast {
+  position: fixed; bottom: 30px; left: 50%; transform: translateX(-50%) translateY(100px);
+  padding: 14px 28px; border-radius: 14px; font-weight: 600; z-index: 999;
+  transition: transform 0.4s ease; pointer-events: none;
+}
+.toast.show { transform: translateX(-50%) translateY(0); }
+.toast.success { background: #10b981; color: #0b1121; }
+.toast.error { background: #ef4444; color: white; }
+.toast.info { background: #f59e0b; color: #0b1121; }
+
+/* XP popup */
+.xp-popup {
+  position: fixed; top: 50%; left: 50%; transform: translate(-50%,-50%) scale(0);
+  background: var(--bg2); border: 2px solid var(--accent2); border-radius: 24px;
+  padding: 40px 60px; z-index: 100; text-align: center;
+  transition: transform 0.4s cubic-bezier(0.175,0.885,0.32,1.275);
+}
+.xp-popup.show { transform: translate(-50%,-50%) scale(1); }
+
+/* Celebration particles */
+.confetti { position: fixed; top: -10px; z-index: 99; pointer-events: none; animation: confettiFall 2s ease-out forwards; }
+@keyframes confettiFall {
+  0% { transform: translateY(0) rotate(0deg); opacity: 1; }
+  100% { transform: translateY(100vh) rotate(720deg); opacity: 0; }
+}
+
+/* Match exercise */
+.match-item {
+  padding: 12px 18px; border: 2px solid var(--border); border-radius: 12px; cursor: pointer;
+  transition: all 0.2s; background: var(--card); text-align: center; user-select: none;
+}
+.match-item:hover { border-color: rgba(16,185,129,0.4); }
+.match-item.active { border-color: var(--accent); background: rgba(16,185,129,0.12); box-shadow: 0 0 15px rgba(16,185,129,0.2); }
+.match-item.matched { border-color: #10b981; background: rgba(16,185,129,0.15); opacity: 0.6; pointer-events: none; }
+.match-item.wrong-match { border-color: #ef4444; background: rgba(239,68,68,0.1); }
+
+/* Order exercise */
+.order-item {
+  padding: 14px 20px; border: 2px solid var(--border); border-radius: 12px; cursor: pointer;
+  transition: all 0.2s; background: var(--card); user-select: none;
+}
+.order-item:hover { border-color: rgba(16,185,129,0.4); }
+.order-item.ordered { border-color: var(--accent2); background: rgba(245,158,11,0.1); opacity: 0.5; }
+
+/* Scrollbar */
+::-webkit-scrollbar { width: 6px; }
+::-webkit-scrollbar-track { background: transparent; }
+::-webkit-scrollbar-thumb { background: rgba(100,116,139,0.3); border-radius: 3px; }
+
+/* Responsif */
+@media (max-width: 640px) {
+  .map-node { width: 56px; height: 56px; font-size: 1rem; }
+  .lesson-node { width: 48px; height: 48px; font-size: 0.75rem; }
+}
+
+/* Animasi masuk */
+.stagger-in > * { opacity: 0; transform: translateY(15px); animation: staggerFade 0.4s ease forwards; }
+.stagger-in > *:nth-child(1) { animation-delay: 0.05s; }
+.stagger-in > *:nth-child(2) { animation-delay: 0.1s; }
+.stagger-in > *:nth-child(3) { animation-delay: 0.15s; }
+.stagger-in > *:nth-child(4) { animation-delay: 0.2s; }
+.stagger-in > *:nth-child(5) { animation-delay: 0.25s; }
+.stagger-in > *:nth-child(6) { animation-delay: 0.3s; }
+.stagger-in > *:nth-child(7) { animation-delay: 0.35s; }
+.stagger-in > *:nth-child(8) { animation-delay: 0.4s; }
+.stagger-in > *:nth-child(9) { animation-delay: 0.45s; }
+.stagger-in > *:nth-child(10) { animation-delay: 0.5s; }
+@keyframes staggerFade { to { opacity: 1; transform: translateY(0); } }
+
+/* Feedback benar/salah */
+.feedback-bar {
+  padding: 18px 24px; border-radius: 14px; font-weight: 600; display: flex; align-items: center; gap: 12px;
+  animation: fadeSlideIn 0.3s ease;
+}
+.feedback-bar.correct-fb { background: rgba(16,185,129,0.15); border: 1px solid rgba(16,185,129,0.3); color: #10b981; }
+.feedback-bar.wrong-fb { background: rgba(239,68,68,0.1); border: 1px solid rgba(239,68,68,0.3); color: #ef4444; }
+
+/* Terjemahan bahasa Indonesia di bawah teks utama */
+.id-lang { display: block; font-size: 0.75rem; color: #94a3b8; margin-top: 2px; line-height: 1.4; }
+
+/* Khusus label di node peta/lesson: tidak wrap, indo di bawah inggris */
+.node-title { text-align: center; white-space: nowrap; }
+.node-title .id-lang { display: block; white-space: nowrap; margin-top: 2px; }
+
+/* Modal Rules */
+.modal-overlay {
+  position: fixed; inset: 0; background: rgba(0,0,0,0.7); z-index: 200;
+  display: none; align-items: center; justify-content: center;
+}
+.modal-overlay.active { display: flex; animation: fadeIn 0.3s ease; }
+.modal-box {
+  background: var(--bg2); border: 1px solid var(--border); border-radius: 20px;
+  padding: 30px; max-width: 450px; width: 90%; position: relative;
+  animation: scaleIn 0.3s ease;
+}
+@keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+@keyframes scaleIn { from { transform: scale(0.9); opacity: 0; } to { transform: scale(1); opacity: 1; } }
+</style>
+</head>
+<body>
+<div class="bg-grid"></div>
+<!-- Rules Modal -->
+<div id="rulesModal" class="modal-overlay">
+  <div class="modal-box">
+    <button onclick="closeRules()" class="absolute top-4 right-4 text-slate-500 hover:text-slate-300 transition">
+      <i class="fa-solid fa-xmark text-lg"></i>
+    </button>
+    <h3 class="text-xl font-bold mb-5 text-amber-400">
+      <i class="fa-solid fa-gavel mr-2"></i>Class Rules <span class="id-lang" style="display:inline; color:#f59e0b;">Aturan Kelas</span>
+    </h3>
+    <ul class="space-y-4 text-slate-300">
+      <li class="flex items-start gap-3">
+        <span class="w-8 h-8 rounded-lg bg-emerald-500/10 flex items-center justify-center flex-shrink-0 mt-0.5"><i class="fa-solid fa-comments text-emerald-400"></i></span>
+        <div>
+          <strong>Take turns speaking</strong>
+          <span class="id-lang">Berbicara secara bergantian</span>
+        </div>
+      </li>
+      <li class="flex items-start gap-3">
+        <span class="w-8 h-8 rounded-lg bg-amber-500/10 flex items-center justify-center flex-shrink-0 mt-0.5"><i class="fa-solid fa-video text-amber-400"></i></span>
+        <div>
+          <strong>Turn on camera & microphone when required</strong>
+          <span class="id-lang">Menyalakan kamera & microphone jika diperlukan</span>
+        </div>
+      </li>
+      <li class="flex items-start gap-3">
+        <span class="w-8 h-8 rounded-lg bg-violet-500/10 flex items-center justify-center flex-shrink-0 mt-0.5"><i class="fa-solid fa-hand text-violet-400"></i></span>
+        <div>
+          <strong>Ask for permission to leave the class</strong>
+          <span class="id-lang">Meminta izin jika ingin meninggalkan kelas</span>
+        </div>
+      </li>
+    </ul>
+    <div class="mt-6 text-right">
+      <button onclick="closeRules()" class="btn-primary">Got it! <span class="id-lang" style="color:rgba(11,17,33,0.7); display:inline;">Mengerti!</span></button>
+    </div>
+  </div>
+</div>
+
+<!-- Toast -->
+<div id="toast" class="toast"></div>
+
+<!-- XP Popup -->
+<div id="xpPopup" class="xp-popup">
+  <div class="text-5xl font-bold text-amber-400 mb-2">+<span id="xpAmount">10</span> XP</div>
+  <div class="text-lg text-slate-400">Correct answer! <span class="id-lang">Jawaban benar!</span></div>
+</div>
+
+<!-- ========== MAP VIEW ========== -->
+<div id="mapView" class="view active">
+  <header class="sticky top-0 z-10 backdrop-blur-xl bg-[#0b1121]/80 border-b border-white/5">
+    <div class="max-w-4xl mx-auto px-4 py-4 flex items-center justify-between">
+      <div class="flex items-center gap-3">
+        <div class="w-10 h-10 rounded-xl bg-emerald-500/20 flex items-center justify-center">
+          <i class="fa-solid fa-square-root-variable text-emerald-400"></i>
+        </div>
+        <div>
+          <div class="font-bold text-lg leading-tight">Math Tutoring</div>
+          <div class="text-xs text-slate-500">by Deni</div>
+        </div>
+      </div>
+      <div class="flex items-center gap-5">
+        <button onclick="openRules()" class="text-xs text-slate-500 hover:text-amber-400 transition flex items-center gap-1 border border-transparent hover:border-amber-400/30 rounded-lg px-2 py-1" title="Class Rules">
+          <i class="fa-solid fa-gavel"></i> Rules
+        </button>
+        <button onclick="resetProgress()" class="text-xs text-slate-500 hover:text-red-400 transition flex items-center gap-1 border border-transparent hover:border-red-400/30 rounded-lg px-2 py-1" title="Reset Semua Progress">
+          <i class="fa-solid fa-rotate-left"></i> Reset
+        </button>
+        <div class="flex items-center gap-2 text-amber-400 font-semibold">
+          <i class="fa-solid fa-bolt"></i><span id="headerXP">0</span> XP
+        </div>
+        <div class="flex items-center gap-2 text-orange-400 font-semibold">
+          <i class="fa-solid fa-fire"></i><span id="headerStreak">0</span>
+        </div>
+      </div>
+    </div>
+  </header>
+
+  <main class="max-w-4xl mx-auto px-4 pt-8 pb-20">
+    <div class="text-center mb-10">
+		<h1 class="text-2xl md:text-3xl font-extrabold mb-3 bg-gradient-to-r from-emerald-400 to-teal-300 bg-clip-text text-transparent leading-tight">
+		  Change of Base Formula & Evaluation
+		  <span class="id-lang" style="display:block; color:#94a3b8; margin-top: 4px; font-size: 1.25rem;">Rumus Ganti Basis & Evaluasi</span>
+		</h1>
+            <div class="text-slate-400 mx-auto text-center" style="max-width: 90%;">
+        <div style="white-space: nowrap;">Complete each map to unlock the next. Collect XP and build your learning streak!</div>
+        <div class="id-lang" style="white-space: nowrap;">Selesaikan setiap peta untuk membuka peta berikutnya. Kumpulkan XP dan bangun streak belajarmu!</div>
+      </div>
+    </div>
+
+    <!-- Progress keseluruhan -->
+    <div class="max-w-md mx-auto mb-10">
+      <div class="flex justify-between text-sm mb-2">
+        <span class="text-slate-400">Overall Progress <span class="id-lang" style="display:inline; color:#64748b;">Progress Keseluruhan</span></span>
+        <span class="text-emerald-400 font-semibold" id="totalProgress">0%</span>
+      </div>
+      <div class="prog-bar">
+        <div class="prog-fill" id="totalProgFill" style="width:0%"></div>
+      </div>
+    </div>
+
+    <!-- Peta nodes akan dirender oleh JS -->
+    <div id="mapContainer" class="flex flex-col items-center gap-0"></div>
+  </main>
+</div>
+
+<!-- ========== PETA VIEW (detail lesson) ========== -->
+<div id="petaView" class="view">
+  <header class="sticky top-0 z-10 backdrop-blur-xl bg-[#0b1121]/80 border-b border-white/5">
+    <div class="max-w-2xl mx-auto px-4 py-4 flex items-center gap-4">
+      <button onclick="showMap()" class="w-10 h-10 rounded-xl bg-white/5 flex items-center justify-center hover:bg-white/10 transition">
+        <i class="fa-solid fa-arrow-left text-slate-400"></i>
+      </button>
+      <div>
+        <div class="font-bold text-lg" id="petaTitle"></div>
+        <div class="text-xs text-slate-500" id="petaSubtitle"></div>
+      </div>
+    </div>
+  </header>
+  <main class="max-w-2xl mx-auto px-4 pt-8 pb-20">
+    <div id="lessonContainer" class="flex flex-col items-center"></div>
+  </main>
+</div>
+
+<!-- ========== LESSON VIEW ========== -->
+<div id="lessonView" class="view">
+  <header class="sticky top-0 z-10 backdrop-blur-xl bg-[#0b1121]/80 border-b border-white/5">
+    <div class="max-w-2xl mx-auto px-4 py-4 flex items-center gap-4">
+      <button onclick="closeLesson()" class="w-10 h-10 rounded-xl bg-white/5 flex items-center justify-center hover:bg-white/10 transition">
+        <i class="fa-solid fa-xmark text-slate-400"></i>
+      </button>
+      <div class="flex-1">
+        <div class="prog-bar">
+          <div class="prog-fill" id="lessonProgFill" style="width:0%"></div>
+        </div>
+      </div>
+      <div class="text-sm text-slate-400 font-mono" id="lessonCounter">1/10</div>
+    </div>
+  </header>
+  <main class="max-w-2xl mx-auto px-4 pt-6 pb-20" id="lessonContent"></main>
+</div>
+
+<script>
+// ============================================================
+// DATA KURSUS — Seluruh konten pembelajaran
+// ============================================================
+const COURSE = {
+  title: "Change of Base Formula & Evaluation",
+  maps: [
+    // ==================== SECTION 1 ====================
+    {
+      id:1, title:"Spiral Review Warm-up <span class='id-lang'>Pemanasan</span>", icon:"fa-rotate", color:"#10b981", branch:false,
+      lessons:[
+        // T1
+        {type:"T",title:"Log Properties Review <span class='id-lang'>Review Sifat Logaritma</span>",
+         body:`<p>Before learning the Change of Base formula, let's review fundamental log properties. <span class='id-lang'>Sebelum mempelajari rumus ganti basis, mari kita review sifat dasar logaritma.</span></p>
+         <div class="mt-4 space-y-3">
+           <div class="p-4 rounded-xl bg-emerald-500/10 border border-emerald-500/20">
+             <div class="text-emerald-400 font-semibold mb-2"><i class="fa-solid fa-plus mr-2"></i>Product Property <span class='id-lang'>Sifat Perkalian</span></div>
+             <p class="text-sm text-slate-300">\\( \\log_b(MN) = \\log_b(M) + \\log_b(N) \\) <span class='id-lang'>Penjumlahan dari dua logaritma dengan basis sama.</span></p>
+           </div>
+           <div class="p-4 rounded-xl bg-cyan-500/10 border border-cyan-500/20">
+             <div class="text-cyan-400 font-semibold mb-2"><i class="fa-solid fa-minus mr-2"></i>Quotient Property <span class='id-lang'>Sifat Pembagian</span></div>
+             <p class="text-sm text-slate-300">\\( \\log_b\\left(\\frac{M}{N}\\right) = \\log_b(M) - \\log_b(N) \\) <span class='id-lang'>Pengurangan dari dua logaritma dengan basis sama.</span></p>
+           </div>
+         </div>`},
+        // E1 mc
+        {type:"E",etype:"mc",
+         q:"Solve \\( \\log_2(8) + \\log_2(4) \\) using the product property. <span class='id-lang'>Selesaikan \\( \\log_2(8) + \\log_2(4) \\) menggunakan sifat perkalian.</span>",
+         o:["\\( \\log_2(12) \\) <span class='id-lang'>\\( \\log_2(12) \\)</span>","\\( \\log_2(32) \\) <span class='id-lang'>\\( \\log_2(32) \\)</span>","\\( \\log_2(4) \\) <span class='id-lang'>\\( \\log_2(4) \\)</span>","\\( \\log_4(8) \\) <span class='id-lang'>\\( \\log_4(8) \\)</span>"],
+         a:1,
+         h:"\\( \\log_b(MN) = \\log_b(M) + \\log_b(N) \\). Multiply the arguments. <span class='id-lang'>Kali argumennya.</span>"},
+        // E2 fb
+        {type:"E",etype:"fb",
+         q:"Expand \\( \\log_3\\left(\\frac{x}{y}\\right) \\) using the quotient property. Type the expression without spaces (e.g., log_b(m)-log_b(n)). <span class='id-lang'>Uraikan \\( \\log_3\\left(\\frac{x}{y}\\right) \\). Ketik tanpa spasi (contoh: log_b(m)-log_b(n)).</span>",
+         a:"log_3(x)-log_3(y)",
+         h:"Quotient property means subtraction. <span class='id-lang'>Sifat pembagian berarti pengurangan.</span>"},
+        // E3 tf
+        {type:"E",etype:"tf",
+         q:"\\( \\log_2(4) + \\log_2(8) = \\log_2(12) \\). <span class='id-lang'>\\( \\log_2(4) + \\log_2(8) = \\log_2(12) \\).</span>",
+         a:false,
+         h:"You must multiply 4 and 8, not add them. <span class='id-lang'>Harus dikali, bukan ditambah.</span>"},
+        // T2
+        {type:"T",title:"Basic Evaluation <span class='id-lang'>Evaluasi Dasar</span>",
+         body:`<p>A logarithm asks 'what exponent do I need?' For \\( \\log_b(a) = c \\), it means \\( b^c = a \\). <span class='id-lang'>Logaritma bertanya 'pangkat berapa yang aku butuhkan?'. \\( b^c = a \\).</span></p>
+         <div class="mt-4 p-4 rounded-xl bg-violet-500/10 border border-violet-500/20">
+           <div class="text-violet-400 font-semibold mb-2">Example <span class='id-lang'>Contoh</span></div>
+           <p class="text-sm text-slate-300">Evaluate \\( \\log_5(25) \\). We ask: 5 to what power equals 25? Since \\( 5^2 = 25 \\), the answer is 2. <span class='id-lang'>5 pangkat berapa sama dengan 25? Karena \\( 5^2 = 25 \\), jawabannya 2.</span></p>
+         </div>`},
+        // E4 mc
+        {type:"E",etype:"mc",
+         q:"Evaluate \\( \\log_5(25) \\) without a calculator. <span class='id-lang'>Hitung \\( \\log_5(25) \\) tanpa kalkulator.</span>",
+         o:["\\( 2 \\) <span class='id-lang'>\\( 2 \\)</span>","\\( 5 \\) <span class='id-lang'>\\( 5 \\)</span>","\\( 25 \\) <span class='id-lang'>\\( 25 \\)</span>","\\( 125 \\) <span class='id-lang'>\\( 125 \\)</span>"],
+         a:0,
+         h:"\\( 5^2 = 25 \\). <span class='id-lang'>\\( 5^2 = 25 \\).</span>"},
+        // E5 fb
+        {type:"E",etype:"fb",
+         q:"Evaluate \\( \\log_2(16) \\). <span class='id-lang'>Hitung \\( \\log_2(16) \\).</span>",
+         a:"4",
+         h:"\\( 2^4 = 16 \\). <span class='id-lang'>\\( 2^4 = 16 \\).</span>"},
+        // E6 ord
+        {type:"E",etype:"ord",
+         q:"Order the steps to evaluate \\( \\log_b(a) = c \\): <span class='id-lang'>Urutkan langkah mengevaluasi \\( \\log_b(a) = c \\):</span>",
+         o:["Ask: 'b to what power equals a?' <span class='id-lang'>Tanya: 'b pangkat berapa sama dengan a?'</span>","Identify base b and argument a <span class='id-lang'>Identifikasi basis b dan argumen a</span>","Find the exponent c <span class='id-lang'>Temukan pangkat c</span>","Write in exponential form: \\( b^c = a \\) <span class='id-lang'>Tulis bentuk eksponen: \\( b^c = a \\)</span>"],
+         a:[1,0,3,2],
+         h:"Identify -> Ask -> Exponential form -> Find exponent. <span class='id-lang'>Identifikasi -> Tanya -> Eksponen -> Cari pangkat.</span>"},
+        // T3
+        {type:"T",title:"Calculator Limitations <span class='id-lang'>Keterbatasan Kalkulator</span>",
+         body:`<p>Most scientific calculators only have two log buttons: 'log' (for base 10) and 'ln' (for base \\( e \\)). <span class='id-lang'>Kalkulator ilmiah umumnya hanya punya dua tombol log: 'log' (basis 10) dan 'ln' (basis \\( e \\)).</span></p>
+         <div class="mt-4 p-4 rounded-xl bg-amber-500/10 border border-amber-500/20">
+           <div class="text-amber-400 font-semibold mb-2">The Problem <span class='id-lang'>Masalah</span></div>
+           <p class="text-sm text-slate-300">What if your sensor gives you data in base 7, like \\( \\log_7(10) \\)? Your calculator doesn't have a 'base 7' button! <span class='id-lang'>Bagaimana jika sensormu memberi data basis 7? Kalkulatormu tidak punya tombol basis 7!</span></p>
+         </div>`},
+        // E7 mc
+        {type:"E",etype:"mc",
+         q:"Which calculator button computes logarithms with base 10? <span class='id-lang'>Tombol kalkulator mana yang menghitung logaritma basis 10?</span>",
+         o:["ln <span class='id-lang'>ln</span>","log <span class='id-lang'>log</span>","sin <span class='id-lang'>sin</span>","\\( x^y \\) <span class='id-lang'>\\( x^y \\)</span>"],
+         a:1,
+         h:"'log' implies base 10 (common log). <span class='id-lang'>'log' berarti basis 10.</span>"},
+        // E8 fb
+        {type:"E",etype:"fb",
+         q:"Which calculator button computes logarithms with base \\( e \\)? (Type ln or log) <span class='id-lang'>Tombol kalkulator mana yang menghitung logaritma basis \\( e \\)? (Ketik ln atau log)</span>",
+         a:"ln",
+         h:"'ln' stands for natural log (base e). <span class='id-lang'>'ln' berarti natural log (basis e).</span>"},
+        // E9 tf
+        {type:"E",etype:"tf",
+         q:"Standard scientific calculators have a dedicated button for \\( \\log_7 \\). <span class='id-lang'>Kalkulator ilmiah standar punya tombol khusus untuk \\( \\log_7 \\).</span>",
+         a:false,
+         h:"They only have 'log' and 'ln'. <span class='id-lang'>Mereka hanya punya 'log' dan 'ln'.</span>"},
+        // E10 sa
+        {type:"E",etype:"sa",
+         q:"Select all true statements about logarithms: <span class='id-lang'>Pilih semua pernyataan benar tentang logaritma:</span>",
+         o:["\\( \\log_2(8) = 3 \\) <span class='id-lang'>\\( \\log_2(8) = 3 \\)</span>","\\( \\log_3(9) = 2 \\) <span class='id-lang'>\\( \\log_3(9) = 2 \\)</span>","\\( \\log_5(25) = 5 \\) <span class='id-lang'>\\( \\log_5(25) = 5 \\)</span>","\\( \\log_b(1) = 0 \\) <span class='id-lang'>\\( \\log_b(1) = 0 \\)</span>"],
+         a:[0,1,3],
+         h:"\\( 5^2 = 25 \\), not 5. <span class='id-lang'>\\( 5^2 = 25 \\), bukan 5.</span>"}
+      ]
+    },
+    // ==================== SECTION 2 ====================
+    {
+      id:2, title:"Real-World Connection <span class='id-lang'>Koneksi Dunia Nyata</span>", icon:"fa-lightbulb", color:"#06b6d4", branch:false,
+      lessons:[
+        // T1
+        {type:"T",title:"Sensors and Different Bases <span class='id-lang'>Sensor dan Basis Berbeda</span>",
+         body:`<p>Sophisticated sensors in engineering—like earthquake seismographs or pH meters—often use different 'bases' for their calculations. <span class='id-lang'>Sensor canggih di teknik—seperti seismograf gempa atau pH meter—sering menggunakan 'basis' berbeda.</span></p>
+         <div class="mt-4 p-4 rounded-xl bg-cyan-500/10 border border-cyan-500/20">
+           <div class="text-cyan-400 font-semibold mb-2">The 'Universal Translator' <span class='id-lang'>'Penerjemah Universal'</span></div>
+           <p class="text-sm text-slate-300">Today, we learn the Change of Base Formula. It acts as a translator, allowing us to calculate any logarithm using only the standard 'log' or 'ln' buttons. <span class='id-lang'>Hari ini kita belajar Rumus Ganti Basis. Ini bertindak sebagai penerjemah, memungkinkan kita menghitung logaritma apa pun hanya dengan tombol 'log' atau 'ln'.</span></p>
+         </div>`},
+        // E1 mc
+        {type:"E",etype:"mc",
+         q:"Why do engineers need the Change of Base formula? <span class='id-lang'>Mengapa insinyur butuh Rumus Ganti Basis?</span>",
+         o:["To make calculations slower <span class='id-lang'>Agar perhitungan lebih lambat</span>","Because calculators lack buttons for every base <span class='id-lang'>Karena kalkulator tak punya tombol untuk semua basis</span>","To convert logs to exponents <span class='id-lang'>Untuk mengubah log jadi eksponen</span>","To delete data <span class='id-lang'>Untuk menghapus data</span>"],
+         a:1,
+         h:"Calculators only have 'log' and 'ln'. <span class='id-lang'>Kalkulator hanya punya 'log' dan 'ln'.</span>"},
+        // E2 tf
+        {type:"E",etype:"tf",
+         q:"A seismograph might give data in base 7, which a standard calculator can evaluate directly without changing bases. <span class='id-lang'>Seismograf mungkin memberi data basis 7, yang bisa dihitung langsung kalkulator tanpa ganti basis.</span>",
+         a:false,
+         h:"You must change the base first! <span class='id-lang'>Kamu harus ganti basis dulu!</span>"},
+        // E3 fb
+        {type:"E",etype:"fb",
+         q:"The 'ln' button on a calculator calculates logarithms with base ____. <span class='id-lang'>Tombol 'ln' pada kalkulator menghitung logaritma dengan basis ____.</span>",
+         a:"e",
+         h:"Natural log uses base e. <span class='id-lang'>Natural log pakai basis e.</span>"},
+        // T2
+        {type:"T",title:"The Universal Translator <span class='id-lang'>Penerjemah Universal</span>",
+         body:`<p>The Change of Base Formula allows us to convert any logarithm into a fraction of two logs with the same base. <span class='id-lang'>Rumus Ganti Basis memungkinkan kita mengubah logaritma apa pun menjadi pecahan dua log dengan basis sama.</span></p>
+         <div class="mt-4 p-4 rounded-xl bg-emerald-500/10 border border-emerald-500/20">
+           <div class="text-emerald-400 font-semibold mb-2">The Formula <span class='id-lang'>Rumus</span></div>
+           <p class="text-sm text-slate-300">\\( \\log_b(a) = \\frac{\\log_x(a)}{\\log_x(b)} \\)</p>
+           <p class="text-xs text-slate-400 mt-1">Where \\( x \\) can be any base, but usually we use 10 or \\( e \\). <span class='id-lang'>Di mana \\( x \\) bisa basis apa saja, tapi biasanya kita pakai 10 atau \\( e \\).</span></p>
+         </div>`},
+        // E4 mc
+        {type:"E",etype:"mc",
+         q:"What does the Change of Base formula allow us to do? <span class='id-lang'>Apa yang memungkinkan dilakukan oleh Rumus Ganti Basis?</span>",
+         o:["Convert any log to a fraction of two logs with a standard base <span class='id-lang'>Mengubah log apa pun jadi pecahan dua log dengan basis standar</span>","Add two logs together <span class='id-lang'>Menjumlahkan dua log</span>","Calculate exponents <span class='id-lang'>Menghitung eksponen</span>","Change numbers to binary <span class='id-lang'>Mengubah angka ke biner</span>"],
+         a:0,
+         h:"It translates non-standard bases to standard ones. <span class='id-lang'>Ia menerjemahkan basis non-standar ke standar.</span>"},
+        // E5 fb
+        {type:"E",etype:"fb",
+         q:"In the formula \\( \\log_b(a) = \\frac{\\log_x(a)}{\\log_x(b)} \\), what can \\( x \\) be? (Answer 10 or e) <span class='id-lang'>Pada rumus tersebut, apa yang \\( x \\) bisa? (Jawab 10 atau e)</span>",
+         a:"10",
+         h:"We usually use 10 or e. <span class='id-lang'>Biasanya kita pakai 10 atau e.</span>"},
+        // E6 match
+        {type:"E",etype:"match",
+         q:"Match the parts of the formula \\( \\log_b(a) \\): <span class='id-lang'>Cocokkan bagian rumus \\( \\log_b(a) \\):</span>",
+         left:["\\( b \\)","\\( a \\)","\\( \\log_b(a) \\)"],
+         right:["Old Base <span class='id-lang'>Basis Lama</span>","Argument <span class='id-lang'>Argumen</span>","Entire Logarithm <span class='id-lang'>Logaritma Utuh</span>"],
+         a:[0,1,2],
+         h:"Identify the base and the argument. <span class='id-lang'>Identifikasi basis dan argumen.</span>"},
+        // T3
+        {type:"T",title:"Common vs Natural Log <span class='id-lang'>Log Umum vs Natural</span>",
+         body:`<p>When we use base 10, we call it the Common Logarithm, written as \\( \\log(a) \\). When we use base \\( e \\), we call it the Natural Logarithm, written as \\( \\ln(a) \\). <span class='id-lang'>Saat kita pakai basis 10, disebut Logaritma Umum. Saat pakai basis \\( e \\), disebut Logaritma Natural.</span></p>
+         <div class="mt-4 p-4 rounded-xl bg-teal-500/10 border border-teal-500/20">
+           <p class="text-sm text-slate-300">Both \\( \\frac{\\log(20)}{\\log(1.5)} \\) and \\( \\frac{\\ln(20)}{\\ln(1.5)} \\) will give the exact same answer! <span class='id-lang'>Baik pakai log maupun ln, hasilnya sama persis!</span></p>
+         </div>`},
+        // E7 mc
+        {type:"E",etype:"mc",
+         q:"Which notation represents a Common Logarithm (base 10)? <span class='id-lang'>Notasi mana yang mewakili Logaritma Umum (basis 10)?</span>",
+         o:["\\( \\ln(x) \\) <span class='id-lang'>\\( \\ln(x) \\)</span>","\\( \\log(x) \\) <span class='id-lang'>\\( \\log(x) \\)</span>","\\( \\log_2(x) \\) <span class='id-lang'>\\( \\log_2(x) \\)</span>","\\( e^x \\) <span class='id-lang'>\\( e^x \\)</span>"],
+         a:1,
+         h:"'log' without a base means base 10. <span class='id-lang'>'log' tanpa basis berarti basis 10.</span>"},
+        // E8 tf
+        {type:"E",etype:"tf",
+         q:"\\( \\ln(x) \\) means \\( \\log_{10}(x) \\). <span class='id-lang'>\\( \\ln(x) \\) berarti \\( \\log_{10}(x) \\).</span>",
+         a:false,
+         h:"\\( \\ln(x) \\) means base \\( e \\). <span class='id-lang'>\\( \\ln(x) \\) berarti basis \\( e \\).</span>"},
+        // E9 fb
+        {type:"E",etype:"fb",
+         q:"Base \\( e \\) logarithm is called the ____ logarithm. <span class='id-lang'>Logaritma basis \\( e \\) disebut logaritma ____.</span>",
+         a:"natural",
+         h:"It's 'natural', not 'common'. <span class='id-lang'>Itu 'natural', bukan 'common'.</span>"},
+        // E10 sa
+        {type:"E",etype:"sa",
+         q:"Select all true statements: <span class='id-lang'>Pilih semua pernyataan benar:</span>",
+         o:["\\( \\log(x) \\) has base 10 <span class='id-lang'>\\( \\log(x) \\) basis 10</span>","\\( \\ln(x) \\) has base \\( e \\) <span class='id-lang'>\\( \\ln(x) \\) basis \\( e \\)</span>","\\( \\log_7(10) \\) can be evaluated using base 10 <span class='id-lang'>\\( \\log_7(10) \\) bisa dihitung pakai basis 10</span>","\\( \\ln(x) \\) has base 10 <span class='id-lang'>\\( \\ln(x) \\) basis 10</span>"],
+         a:[0,1,2],
+         h:"ln has base e. <span class='id-lang'>ln basis e.</span>"}
+      ]
+    },
+    // ==================== SECTION 3 ====================
+    {
+      id:3, title:"Review Prior Knowledge <span class='id-lang'>Review Pengetahuan</span>", icon:"fa-brain", color:"#8b5cf6", branch:false,
+      lessons:[
+        // T1
+        {type:"T",title:"What is a Logarithm? <span class='id-lang'>Apa itu Logaritma?</span>",
+         body:`<p>Refresh your memory: a logarithm asks 'what exponent do I need?' <span class='id-lang'>Segarkan ingatanmu: logaritma bertanya 'pangkat berapa yang aku butuhkan?'</span></p>
+         <div class="mt-4 p-4 rounded-xl bg-violet-500/10 border border-violet-500/20">
+           <div class="text-violet-400 font-semibold mb-2">The Core Definition <span class='id-lang'>Definisi Inti</span></div>
+           <p class="text-sm text-slate-300">For \\( \\log_b(a) = c \\), it means \\( b^c = a \\). <span class='id-lang'>Untuk \\( \\log_b(a) = c \\), artinya \\( b^c = a \\).</span></p>
+         </div>
+         <p class="mt-4">If we can't find a clean power—like \\( \\log_3(10) \\)—we need the Change of Base formula. <span class='id-lang'>Jika kita tidak menemukan pangkat bulat—seperti \\( \\log_3(10) \\)—kita butuh rumus ganti basis.</span></p>`},
+        // E1 mc
+        {type:"E",etype:"mc",
+         q:"If \\( \\log_2(8) = 3 \\), which exponential equation is true? <span class='id-lang'>Jika \\( \\log_2(8) = 3 \\), persamaan eksponen mana yang benar?</span>",
+         o:["\\( 3^2 = 8 \\) <span class='id-lang'>\\( 3^2 = 8 \\)</span>","\\( 2^3 = 8 \\) <span class='id-lang'>\\( 2^3 = 8 \\)</span>","\\( 8^2 = 3 \\) <span class='id-lang'>\\( 8^2 = 3 \\)</span>","\\( 2^8 = 3 \\) <span class='id-lang'>\\( 2^8 = 3 \\)</span>"],
+         a:1,
+         h:"\\( b^c = a \\). <span class='id-lang'>\\( b^c = a \\).</span>"},
+        // E2 fb
+        {type:"E",etype:"fb",
+         q:"\\( \\log_3(9) = \\) ____ <span class='id-lang'>\\( \\log_3(9) = \\) ____</span>",
+         a:"2",
+         h:"\\( 3^2 = 9 \\). <span class='id-lang'>\\( 3^2 = 9 \\).</span>"},
+        // E3 tf
+        {type:"E",etype:"tf",
+         q:"\\( \\log_b(1) = 1 \\) for any valid base \\( b \\). <span class='id-lang'>\\( \\log_b(1) = 1 \\) untuk basis \\( b \\) valid apa pun.</span>",
+         a:false,
+         h:"\\( b^0 = 1 \\), so \\( \\log_b(1) = 0 \\). <span class='id-lang'>\\( b^0 = 1 \\), jadi \\( \\log_b(1) = 0 \\).</span>"},
+        // T2
+        {type:"T",title:"Change of Base Formula Structure <span class='id-lang'>Struktur Rumus Ganti Basis</span>",
+         body:`<p>Does anyone remember the structure of the Change of Base formula? <span class='id-lang'>Apakah ada yang ingat struktur rumus ganti basis?</span></p>
+         <div class="mt-4 p-4 rounded-xl bg-teal-500/10 border border-teal-500/20">
+           <div class="text-teal-400 font-semibold mb-2">General Form <span class='id-lang'>Bentuk Umum</span></div>
+           <p class="text-sm text-slate-300">\\( \\log_b(a) = \\frac{\\log_x(a)}{\\log_x(b)} \\)</p>
+           <p class="text-xs text-slate-400 mt-1">Here, 'b' is the old base, and 'a' is the argument. We divide the log of the argument by the log of the old base. <span class='id-lang'>Di sini, 'b' adalah basis lama, 'a' adalah argumen. Kita bagi log argumen dengan log basis lama.</span></p>
+         </div>`},
+        // E4 mc
+        {type:"E",etype:"mc",
+         q:"In the formula \\( \\log_b(a) = \\frac{\\log_x(a)}{\\log_x(b)} \\), where does the old base \\( b \\) go? <span class='id-lang'>Pada rumus tersebut, ke mana pergi basis lama \\( b \\)?</span>",
+         o:["Numerator <span class='id-lang'>Pembilang</span>","Denominator <span class='id-lang'>Penyebut</span>","Exponent <span class='id-lang'>Eksponen</span>","Outside the fraction <span class='id-lang'>Luar pecahan</span>"],
+         a:1,
+         h:"The old base goes to the denominator. <span class='id-lang'>Basis lama pergi ke penyebut.</span>"},
+        // E5 fb
+        {type:"E",etype:"fb",
+         q:"To convert \\( \\log_2(5) \\) to base 10, the denominator is \\( \\log(\\_\\_\\_) \\). <span class='id-lang'>Untuk mengubah \\( \\log_2(5) \\) ke basis 10, penyebutnya adalah \\( \\log(\\_\\_\\_) \\).</span>",
+         a:"2",
+         h:"The old base (2) goes to the denominator. <span class='id-lang'>Basis lama (2) pergi ke penyebut.</span>"},
+        // E6 ord
+        {type:"E",etype:"ord",
+         q:"Order the steps to write the Change of Base formula for \\( \\log_7(10) \\): <span class='id-lang'>Urutkan langkah menulis rumus untuk \\( \\log_7(10) \\):</span>",
+         o:["Identify old base (7) and argument (10) <span class='id-lang'>Identifikasi basis lama (7) dan argumen (10)</span>","Write the fraction bar <span class='id-lang'>Tulis garis pecahan</span>","Put log(10) in the numerator <span class='id-lang'>Letakkan log(10) di pembilang</span>","Put log(7) in the denominator <span class='id-lang'>Letakkan log(7) di penyebut</span>"],
+         a:[0,1,2,3],
+         h:"Identify -> Fraction -> Numerator -> Denominator. <span class='id-lang'>Identifikasi -> Pecahan -> Pembilang -> Penyebut.</span>"},
+        // T3
+        {type:"T",title:"The 'Basement' Rule <span class='id-lang'>Aturan 'Basement'</span>",
+         body:`<p>To easily remember the formula, think of the 'Basement' Rule. <span class='id-lang'>Untuk mudah mengingat, pikirkan Aturan 'Basement'.</span></p>
+         <div class="mt-4 p-4 rounded-xl bg-amber-500/10 border border-amber-500/20">
+           <div class="text-amber-400 font-semibold mb-2">Memory Trick <span class='id-lang'>Trik Mengingat</span></div>
+           <p class="text-sm text-slate-300">The old base always goes to the basement (the denominator/bottom). <span class='id-lang'>Basis lama selalu pergi ke bawah (penyebut).</span></p>
+           <p class="text-sm text-emerald-400 mt-2">\\( \\log_b(a) = \\frac{\\log(a)}{\\log(b)} \\)</p>
+         </div>`},
+        // E7 mc
+        {type:"E",etype:"mc",
+         q:"What is the 'Basement' rule? <span class='id-lang'>Apa itu aturan 'Basement'?</span>",
+         o:["The argument goes to the denominator <span class='id-lang'>Argumen pergi ke penyebut</span>","The old base goes to the denominator <span class='id-lang'>Basis lama pergi ke penyebut</span>","The new base goes to the numerator <span class='id-lang'>Basis baru pergi ke pembilang</span>","The exponent goes to the basement <span class='id-lang'>Eksponen pergi ke bawah</span>"],
+         a:1,
+         h:"Base = Basement = Denominator. <span class='id-lang'>Base = Basement = Penyebut.</span>"},
+        // E8 tf
+        {type:"E",etype:"tf",
+         q:"In \\( \\frac{\\log(20)}{\\log(1.5)} \\), the number 1.5 represents the argument. <span class='id-lang'>Pada \\( \\frac{\\log(20)}{\\log(1.5)} \\), angka 1.5 mewakili argumen.</span>",
+         a:false,
+         h:"1.5 is in the denominator, so it's the old base. <span class='id-lang'>1.5 di penyebut, jadi itu basis lama.</span>"},
+        // E9 fb
+        {type:"E",etype:"fb",
+         q:"In \\( \\log_5(50) \\), the number that goes to the 'basement' is ____. <span class='id-lang'>Pada \\( \\log_5(50) \\), angka yang pergi ke 'basement' adalah ____.</span>",
+         a:"5",
+         h:"The base (5) goes to the basement. <span class='id-lang'>Basis (5) pergi ke basement.</span>"},
+        // E10 sa
+        {type:"E",etype:"sa",
+         q:"Select all correct applications of the Change of Base formula: <span class='id-lang'>Pilih aplikasi rumus yang benar:</span>",
+         o:["\\( \\log_2(5) = \\frac{\\log(5)}{\\log(2)} \\) <span class='id-lang'>\\( \\log_2(5) = \\frac{\\log(5)}{\\log(2)} \\)</span>","\\( \\log_7(10) = \\frac{\\ln(10)}{\\ln(7)} \\) <span class='id-lang'>\\( \\log_7(10) = \\frac{\\ln(10)}{\\ln(7)} \\)</span>","\\( \\log_2(5) = \\frac{\\log(2)}{\\log(5)} \\) <span class='id-lang'>\\( \\log_2(5) = \\frac{\\log(2)}{\\log(5)} \\)</span>","\\( \\log_7(10) = \\frac{\\log(7)}{\\log(10)} \\) <span class='id-lang'>\\( \\log_7(10) = \\frac{\\log(7)}{\\log(10)} \\)</span>"],
+         a:[0,1],
+         h:"Old base always goes to the bottom! <span class='id-lang'>Basis lama selalu di bawah!</span>"}
+      ]
+    },
+    // ==================== SECTION 4 ====================
+    {
+      id:4, title:"Problem Introduction <span class='id-lang'>Pengenalan Masalah</span>", icon:"fa-circle-question", color:"#f59e0b", branch:false,
+      lessons:[
+        // T1
+        {type:"T",title:"Base 1.5 Scenario <span class='id-lang'>Skenario Basis 1.5</span>",
+         body:`<p>Imagine you are analyzing an exponential growth rate in a system using base 1.5, and you need to solve \\( \\log_{1.5}(20) \\). <span class='id-lang'>Bayangkan kamu menganalisis laju pertumbuhan eksponensial dengan basis 1.5, dan perlu menyelesaikan \\( \\log_{1.5}(20) \\).</span></p>
+         <div class="mt-4 p-4 rounded-xl bg-amber-500/10 border border-amber-500/20">
+           <div class="text-amber-400 font-semibold mb-2">The Challenge <span class='id-lang'>Tantangan</span></div>
+           <p class="text-sm text-slate-300">Your calculator doesn't have a base 1.5 button. Let's use the formula: \\( \\log_{1.5}(20) = \\frac{\\log(20)}{\\log(1.5)} \\). <span class='id-lang'>Kalkulatormu tidak punya tombol basis 1.5. Mari gunakan rumus tersebut.</span></p>
+         </div>`},
+        // E1 mc
+        {type:"E",etype:"mc",
+         q:"Which expression correctly converts \\( \\log_{1.5}(20) \\) to base 10? <span class='id-lang'>Manakah ekspresi yang mengubah \\( \\log_{1.5}(20) \\) ke basis 10?</span>",
+         o:["\\( \\frac{\\log(1.5)}{\\log(20)} \\) <span class='id-lang'>\\( \\frac{\\log(1.5)}{\\log(20)} \\)</span>","\\( \\frac{\\log(20)}{\\log(1.5)} \\) <span class='id-lang'>\\( \\frac{\\log(20)}{\\log(1.5)} \\)</span>","\\( \\frac{\\ln(20)}{\\log(1.5)} \\) <span class='id-lang'>\\( \\frac{\\ln(20)}{\\log(1.5)} \\)</span>","\\( \\log(20) - \\log(1.5) \\) <span class='id-lang'>\\( \\log(20) - \\log(1.5) \\)</span>"],
+         a:1,
+         h:"Old base (1.5) goes to the denominator. <span class='id-lang'>Basis lama (1.5) pergi ke penyebut.</span>"},
+        // E2 fb
+        {type:"E",etype:"fb",
+         q:"Evaluate \\( \\log_{1.5}(20) \\) to 2 decimal places. <span class='id-lang'>Hitung \\( \\log_{1.5}(20) \\) sampai 2 angka di belakang koma.</span>",
+         a:"7.60",
+         h:"Use log(20)/log(1.5) on your calculator. <span class='id-lang'>Gunakan log(20)/log(1.5) di kalkulator.</span>"},
+        // E3 tf
+        {type:"E",etype:"tf",
+         q:"\\( \\frac{\\log(20)}{\\log(1.5)} \\) and \\( \\frac{\\ln(20)}{\\ln(1.5)} \\) will give different numerical answers. <span class='id-lang'>Kedua ekspresi akan memberikan hasil yang berbeda.</span>",
+         a:false,
+         h:"They give the exact same answer! <span class='id-lang'>Mereka memberikan hasil yang sama persis!</span>"},
+        // T2
+        {type:"T",title:"Modeling Step-by-Step <span class='id-lang'>Pemodelan Langkah-demi-Langkah</span>",
+         body:`<p>Let's model the conversion process step-by-step. <span class='id-lang'>Mari kita modelkan proses konversi langkah demi langkah.</span></p>
+         <div class="mt-4 space-y-2">
+           <div class="p-3 rounded bg-white/5">
+             <p class="text-sm text-emerald-400"><strong>Step 1:</strong> Identify base (1.5) and argument (20). <span class='id-lang'>Identifikasi basis dan argumen.</span></p>
+           </div>
+           <div class="p-3 rounded bg-white/5">
+             <p class="text-sm text-emerald-400"><strong>Step 2:</strong> Choose a standard base (e.g., base 10). <span class='id-lang'>Pilih basis standar (misal basis 10).</span></p>
+           </div>
+           <div class="p-3 rounded bg-white/5">
+             <p class="text-sm text-emerald-400"><strong>Step 3:</strong> Write as fraction: log(argument) / log(base). <span class='id-lang'>Tulis sebagai pecahan: log(argumen) / log(basis).</span></p>
+             <p class="text-sm text-slate-300 mt-1">\\( \\frac{\\log(20)}{\\log(1.5)} \\)</p>
+           </div>
+         </div>`},
+        // E4 mc
+        {type:"E",etype:"mc",
+         q:"What is the first step to calculate \\( \\log_4(15) \\) using a calculator? <span class='id-lang'>Apa langkah pertama menghitung \\( \\log_4(15) \\) dengan kalkulator?</span>",
+         o:["Press the 'log' button <span class='id-lang'>Tekan tombol 'log'</span>","Identify base 4 and argument 15 <span class='id-lang'>Identifikasi basis 4 dan argumen 15</span>","Divide 15 by 4 <span class='id-lang'>Bagi 15 dengan 4</span>","Multiply 4 by 15 <span class='id-lang'>Kali 4 dengan 15</span>"],
+         a:1,
+         h:"Always identify parts before applying the formula. <span class='id-lang'>Selalu identifikasi bagian sebelum pakai rumus.</span>"},
+        // E5 fb
+        {type:"E",etype:"fb",
+         q:"Convert \\( \\log_6(40) \\) to base 10. Type without spaces (e.g., log(x)/log(y)). <span class='id-lang'>Ubah ke basis 10. Ketik tanpa spasi.</span>",
+         a:"log(40)/log(6)",
+         h:"Argument over base. <span class='id-lang'>Argumen dibagi basis.</span>"},
+        // E6 ord
+        {type:"E",etype:"ord",
+         q:"Order the steps to evaluate \\( \\log_8(100) \\): <span class='id-lang'>Urutkan langkah mengevaluasi \\( \\log_8(100) \\):</span>",
+         o:["Calculate log(100)/log(8) <span class='id-lang'>Hitung log(100)/log(8)</span>","Identify base 8 and argument 100 <span class='id-lang'>Identifikasi basis 8 dan argumen 100</span>","Write as log(100)/log(8) <span class='id-lang'>Tulis sebagai log(100)/log(8)</span>","Get the final answer <span class='id-lang'>Dapatkan jawaban akhir</span>"],
+         a:[1,2,0,3],
+         h:"Identify -> Write -> Calculate -> Final answer. <span class='id-lang'>Identifikasi -> Tulis -> Hitung -> Jawaban.</span>"},
+        // T3
+        {type:"T",title:"The Reciprocal Property <span class='id-lang'>Sifat Resiprokal</span>",
+         body:`<p>Let's look at a tricky scenario. What happens if we have \\( \\frac{1}{\\log_5(10)} \\)? <span class='id-lang'>Mari kita lihat skenario rumit. Apa yang terjadi jika kita punya \\( \\frac{1}{\\log_5(10)} \\)?</span></p>
+         <div class="mt-4 p-4 rounded-xl bg-violet-500/10 border border-violet-500/20">
+           <div class="text-violet-400 font-semibold mb-2">The Trick <span class='id-lang'>Trik</span></div>
+           <p class="text-sm text-slate-300">If we rewrite \\( \\log_5(10) \\) as \\( \\frac{\\log(10)}{\\log(5)} \\), then its reciprocal is \\( \\frac{\\log(5)}{\\log(10)} \\). <span class='id-lang'>Jika ditulis ulang, resiprokalnya menjadi \\( \\frac{\\log(5)}{\\log(10)} \\).</span></p>
+           <p class="text-sm text-emerald-400 mt-2">This is exactly \\( \\log_{10}(5) \\)!</p>
+           <p class="text-xs text-slate-400 mt-1">So, \\( \\frac{1}{\\log_b(a)} = \\log_a(b) \\). <span class='id-lang'>Jadi, \\( \\frac{1}{\\log_b(a)} = \\log_a(b) \\).</span></p>
+         </div>`},
+        // E7 mc
+        {type:"E",etype:"mc",
+         q:"Simplify \\( \\frac{1}{\\log_2(10)} \\). <span class='id-lang'>Sederhanakan \\( \\frac{1}{\\log_2(10)} \\).</span>",
+         o:["\\( \\log_{10}(2) \\) <span class='id-lang'>\\( \\log_{10}(2) \\)</span>","\\( \\log_2(10) \\) <span class='id-lang'>\\( \\log_2(10) \\)</span>","\\( \\log_2\\left(\\frac{1}{10}\\right) \\) <span class='id-lang'>\\( \\log_2\\left(\\frac{1}{10}\\right) \\)</span>","\\( \\log_{0.5}(10) \\) <span class='id-lang'>\\( \\log_{0.5}(10) \\)</span>"],
+         a:0,
+         h:"Reciprocal flips the base and argument. <span class='id-lang'>Resiprokal membalik basis dan argumen.</span>"},
+        // E8 tf
+        {type:"E",etype:"tf",
+         q:"\\( \\frac{1}{\\log_7(3)} = \\log_3(7) \\). <span class='id-lang'>\\( \\frac{1}{\\log_7(3)} = \\log_3(7) \\).</span>",
+         a:true,
+         h:"Yes, the fraction flips the log. <span class='id-lang'>Pecahan membalik log tersebut.</span>"},
+        // E9 fb
+        {type:"E",etype:"fb",
+         q:"Simplify \\( \\frac{1}{\\log_4(9)} \\) into a single log. Type log_x(y) without spaces. <span class='id-lang'>Sederhanakan jadi log tunggal. Ketik log_x(y) tanpa spasi.</span>",
+         a:"log_9(4)",
+         h:"Flip the base and argument. <span class='id-lang'>Balik basis dan argumen.</span>"},
+        // E10 sa
+        {type:"E",etype:"sa",
+         q:"Select all expressions equivalent to \\( \\log_8(50) \\): <span class='id-lang'>Pilih semua ekspresi yang sama dengan \\( \\log_8(50) \\):</span>",
+         o:["\\( \\frac{\\log(50)}{\\log(8)} \\) <span class='id-lang'>\\( \\frac{\\log(50)}{\\log(8)} \\)</span>","\\( \\frac{\\ln(50)}{\\ln(8)} \\) <span class='id-lang'>\\( \\frac{\\ln(50)}{\\ln(8)} \\)</span>","\\( \\frac{1}{\\log_{50}(8)} \\) <span class='id-lang'>\\( \\frac{1}{\\log_{50}(8)} \\)</span>","\\( \\frac{\\log(8)}{\\log(50)} \\) <span class='id-lang'>\\( \\frac{\\log(8)}{\\log(50)} \\)</span>"],
+         a:[0,1,2],
+         h:"Apply change of base and reciprocal property. <span class='id-lang'>Pakai rumus ganti basis dan sifat resiprokal.</span>"}
+      ]
+    },
+    // ==================== SECTION 5 ====================
+    {
+      id:5, title:"Guided Practice <span class='id-lang'>Latihan Terbimbing</span>", icon:"fa-chalkboard-user", color:"#ec4899", branch:false,
+      lessons:[
+        // T1
+        {type:"T",title:"Guided Calculation <span class='id-lang'>Perhitungan Terbimbing</span>",
+         body:`<p>Let's try three together. I'll set the stage, and you drive the calculator. First, evaluate \\( \\log_5(50) \\). <span class='id-lang'>Mari kita coba tiga soal bersama. Pertama, hitung \\( \\log_5(50) \\).</span></p>
+         <div class="mt-4 p-4 rounded-xl bg-pink-500/10 border border-pink-500/20">
+           <div class="text-pink-400 font-semibold mb-2">Step-by-Step <span class='id-lang'>Langkah-demi-Langkah</span></div>
+           <p class="text-sm text-slate-300 mt-1">1. Type log(50). <span class='id-lang'>Ketik log(50).</span></p>
+           <p class="text-sm text-slate-300">2. Divide by log(5). <span class='id-lang'>Bagi dengan log(5).</span></p>
+           <p class="text-sm text-emerald-400 mt-1">Result: \\( \\approx 2.4307 \\)</p>
+         </div>`},
+        // E1 mc
+        {type:"E",etype:"mc",
+         q:"Compute \\( \\log_5(50) \\) to 4 decimal places. <span class='id-lang'>Hitung \\( \\log_5(50) \\) sampai 4 desimal.</span>",
+         o:["\\( 1.4307 \\) <span class='id-lang'>\\( 1.4307 \\)</span>","\\( 2.4307 \\) <span class='id-lang'>\\( 2.4307 \\)</span>","\\( 3.4307 \\) <span class='id-lang'>\\( 3.4307 \\)</span>","\\( 10 \\) <span class='id-lang'>\\( 10 \\)</span>"],
+         a:1,
+         h:"log(50) / log(5) = 2.4307. <span class='id-lang'>log(50) / log(5) = 2.4307.</span>"},
+        // E2 fb
+        {type:"E",etype:"fb",
+         q:"Compute \\( \\log_7(100) \\) to 2 decimal places. <span class='id-lang'>Hitung \\( \\log_7(100) \\) sampai 2 desimal.</span>",
+         a:"2.37",
+         h:"log(100) / log(7) = 2.366... <span class='id-lang'>log(100) / log(7) = 2.366...</span>"},
+        // E3 tf
+        {type:"E",etype:"tf",
+         q:"\\( \\log_5(50) = \\frac{\\log(5)}{\\log(50)} \\). <span class='id-lang'>\\( \\log_5(50) = \\frac{\\log(5)}{\\log(50)} \\).</span>",
+         a:false,
+         h:"Argument goes on top, base goes to the basement. <span class='id-lang'>Argumen di atas, basis di bawah.</span>"},
+        // T2
+        {type:"T",title:"Tricky Reciprocal Practice <span class='id-lang'>Latihan Resiprokal Rumit</span>",
+         body:`<p>Let's try a tricky one: \\( \\frac{1}{\\log_5(10)} \\). <span class='id-lang'>Mari coba yang rumit: \\( \\frac{1}{\\log_5(10)} \\).</span></p>
+         <div class="mt-4 p-4 rounded-xl bg-emerald-500/10 border border-emerald-500/20">
+           <div class="text-emerald-400 font-semibold mb-2">Solution <span class='id-lang'>Solusi</span></div>
+           <p class="text-sm text-slate-300">Using the reciprocal property we learned: <span class='id-lang'>Menggunakan sifat resiprokal:</span></p>
+           <p class="text-sm text-emerald-400 mt-1">\\( \\frac{1}{\\log_5(10)} = \\log_{10}(5) \\)</p>
+           <p class="text-xs text-slate-400 mt-1">Since \\( \\log_{10}(5) \\) is just \\( \\log(5) \\) on a calculator, the answer is \\( \\approx 0.6990 \\). <span class='id-lang'>Karena basis 10, cukup tekan log(5) di kalkulator.</span></p>
+         </div>`},
+        // E4 mc
+        {type:"E",etype:"mc",
+         q:"Simplify \\( \\frac{1}{\\log_3(10)} \\). <span class='id-lang'>Sederhanakan \\( \\frac{1}{\\log_3(10)} \\).</span>",
+         o:["\\( \\log(10) \\) <span class='id-lang'>\\( \\log(10) \\)</span>","\\( \\log(3) \\) <span class='id-lang'>\\( \\log(3) \\)</span>","\\( \\log_3(10) \\) <span class='id-lang'>\\( \\log_3(10) \\)</span>","\\( \\frac{1}{\\log(10)} \\) <span class='id-lang'>\\( \\frac{1}{\\log(10)} \\)</span>"],
+         a:1,
+         h:"Reciprocal flips it to \\( \\log_{10}(3) \\), which is just \\( \\log(3) \\). <span class='id-lang'>Resiprokal membaliknya jadi basis 10.</span>"},
+        // E5 fb
+        {type:"E",etype:"fb",
+         q:"Evaluate \\( \\frac{1}{\\log_5(10)} \\) to 2 decimal places. <span class='id-lang'>Hitung \\( \\frac{1}{\\log_5(10)} \\) sampai 2 desimal.</span>",
+         a:"0.70",
+         h:"It's just log(5)! <span class='id-lang'>Itu hanya log(5)!</span>"},
+        // E6 ord
+        {type:"E",etype:"ord",
+         q:"Order the steps to simplify \\( \\frac{1}{\\log_5(10)} \\): <span class='id-lang'>Urutkan langkah menyederhanakan:</span>",
+         o:["Apply reciprocal property <span class='id-lang'>Pakai sifat resiprokal</span>","Recognize it as \\( \\log_{10}(5) \\) <span class='id-lang'>Kenali sebagai basis 10</span>","Input log(5) into calculator <span class='id-lang'>Masukkan log(5) ke kalkulator</span>","Get answer 0.70 <span class='id-lang'>Dapatkan jawaban 0.70</span>"],
+         a:[0,1,2,3],
+         h:"Reciprocal -> Base 10 -> Calculator -> Answer. <span class='id-lang'>Resiprokal -> Basis 10 -> Kalkulator -> Jawaban.</span>"},
+        // T3
+        {type:"T",title:"Comparison Task <span class='id-lang'>Tugas Perbandingan</span>",
+         body:`<p>Which is larger: \\( \\log_3(8) \\) or \\( \\log_5(24) \\)? We will convert both to base 10 to decide. <span class='id-lang'>Mana yang lebih besar? Kita akan mengubah keduanya ke basis 10.</span></p>
+         <div class="mt-4 p-4 rounded-xl bg-amber-500/10 border border-amber-500/20">
+           <div class="text-amber-400 font-semibold mb-2">The Calculation <span class='id-lang'>Perhitungan</span></div>
+           <p class="text-sm text-slate-300 mt-1">\\( \\log_3(8) = \\frac{\\log(8)}{\\log(3)} \\approx 1.8928 \\)</p>
+           <p class="text-sm text-slate-300">\\( \\log_5(24) = \\frac{\\log(24)}{\\log(5)} \\approx 1.9746 \\)</p>
+           <p class="text-sm text-emerald-400 mt-2">Therefore, \\( \\log_5(24) \\) is larger! <span class='id-lang'>Jadi, \\( \\log_5(24) \\) lebih besar!</span></p>
+         </div>`},
+        // E7 mc
+        {type:"E",etype:"mc",
+         q:"Based on the calculation, which is larger: \\( \\log_3(8) \\) or \\( \\log_5(24) \\)? <span class='id-lang'>Berdasarkan perhitungan, mana yang lebih besar?</span>",
+         o:["\\( \\log_3(8) \\) <span class='id-lang'>\\( \\log_3(8) \\)</span>","\\( \\log_5(24) \\) <span class='id-lang'>\\( \\log_5(24) \\)</span>","They are equal <span class='id-lang'>Mereka sama</span>","Cannot be determined <span class='id-lang'>Tidak bisa ditentukan</span>"],
+         a:1,
+         h:"1.9746 > 1.8928. <span class='id-lang'>1.9746 > 1.8928.</span>"},
+        // E8 tf
+        {type:"E",etype:"tf",
+         q:"To compare logarithms with different bases, we can convert them to the same base. <span class='id-lang'>Untuk membandingkan logaritma basis berbeda, kita bisa ubah ke basis yang sama.</span>",
+         a:true,
+         h:"Yes! Uniform bases make comparison easy. <span class='id-lang'>Basis seragam membuat perbandingan mudah.</span>"},
+        // E9 fb
+        {type:"E",etype:"fb",
+         q:"Evaluate \\( \\log_2(10) \\) to 2 decimal places. <span class='id-lang'>Hitung \\( \\log_2(10) \\) sampai 2 desimal.</span>",
+         a:"3.32",
+         h:"log(10) / log(2) = 3.3219... <span class='id-lang'>log(10) / log(2) = 3.3219...</span>"},
+        // E10 sa
+        {type:"E",etype:"sa",
+         q:"Select all true statements based on the comparison task: <span class='id-lang'>Pilih semua pernyataan benar:</span>",
+         o:["\\( \\log_3(8) \\approx 1.89 \\) <span class='id-lang'>\\( \\log_3(8) \\approx 1.89 \\)</span>","\\( \\log_5(24) \\approx 1.97 \\) <span class='id-lang'>\\( \\log_5(24) \\approx 1.97 \\)</span>","\\( \\log_5(24) > \\log_3(8) \\) <span class='id-lang'>\\( \\log_5(24) > \\log_3(8) \\)</span>","\\( \\log_3(8) > \\log_5(24) \\) <span class='id-lang'>\\( \\log_3(8) > \\log_5(24) \\)</span>"],
+         a:[0,1,2],
+         h:"1.89 is less than 1.97. <span class='id-lang'>1.89 kurang dari 1.97.</span>"}
+      ]
+    },
+    // ==================== SECTION 6 ====================
+    {
+      id:6, title:"Independent Practice <span class='id-lang'>Latihan Mandiri</span>", icon:"fa-user-graduate", color:"#14b8a6", branch:false,
+      lessons:[
+        // T1
+        {type:"T",title:"Evaluating Fractional Bases <span class='id-lang'>Mengevaluasi Basis Pecahan</span>",
+         body:`<p>Time for the 'Solo Flight'. Task 1: Evaluate \\( \\log_{0.5}(12) \\). <span class='id-lang'>Saatnya 'Penerbangan Solo'. Tugas 1: Hitung \\( \\log_{0.5}(12) \\).</span></p>
+         <div class="mt-4 p-4 rounded-xl bg-teal-500/10 border border-teal-500/20">
+           <div class="text-teal-400 font-bold mb-2">The Process <span class='id-lang'>Proses</span></div>
+           <p class="text-sm text-slate-300">Even if the base is a fraction (0.5), the rule is the same. <span class='id-lang'>Bahkan jika basisnya pecahan, aturannya sama.</span></p>
+           <p class="text-sm text-emerald-400 mt-2">\\( \\log_{0.5}(12) = \\frac{\\log(12)}{\\log(0.5)} \\)</p>
+         </div>`},
+        // E1 mc
+        {type:"E",etype:"mc",
+         q:"Evaluate \\( \\log_{0.5}(12) \\) to 2 decimal places. <span class='id-lang'>Hitung \\( \\log_{0.5}(12) \\) sampai 2 desimal.</span>",
+         o:["\\( 3.58 \\) <span class='id-lang'>\\( 3.58 \\)</span>","\\( -3.58 \\) <span class='id-lang'>\\( -3.58 \\)</span>","\\( 0.28 \\) <span class='id-lang'>\\( 0.28 \\)</span>","\\( -0.28 \\) <span class='id-lang'>\\( -0.28 \\)</span>"],
+         a:1,
+         h:"log(12) / log(0.5) = -3.585... <span class='id-lang'>Hasilnya negatif karena basisnya pecahan.</span>"},
+        // E2 fb
+        {type:"E",etype:"fb",
+         q:"Evaluate \\( \\log_{0.2}(50) \\) to 2 decimal places. <span class='id-lang'>Hitung \\( \\log_{0.2}(50) \\) sampai 2 desimal.</span>",
+         a:"-2.21",
+         h:"log(50) / log(0.2) = -2.153... <span class='id-lang'>log(50) / log(0.2) = -2.153...</span>"},
+        // E3 tf
+        {type:"E",etype:"tf",
+         q:"Logarithms with fractional bases between 0 and 1 always yield positive results. <span class='id-lang'>Logaritma dengan basis pecahan antara 0 dan 1 selalu menghasilkan nilai positif.</span>",
+         a:false,
+         h:"They yield negative results! <span class='id-lang'>Mereka menghasilkan nilai negatif!</span>"},
+        // T2
+        {type:"T",title:"Solving Exponential Equations <span class='id-lang'>Menyelesaikan Persamaan Eksponen</span>",
+         body:`<p>Task 2: Solve for x: \\( 3^x = 17 \\) using logarithms. <span class='id-lang'>Tugas 2: Selesaikan untuk x: \\( 3^x = 17 \\).</span></p>
+         <div class="mt-4 p-4 rounded-xl bg-amber-500/10 border border-amber-500/20">
+           <div class="text-amber-400 font-semibold mb-2">Steps <span class='id-lang'>Langkah</span></div>
+           <p class="text-sm text-slate-300">1. Take log of both sides: \\( \\log(3^x) = \\log(17) \\). <span class='id-lang'>Ambil log kedua sisi.</span></p>
+           <p class="text-sm text-slate-300">2. Bring x down: \\( x \\log(3) = \\log(17) \\). <span class='id-lang'>Turunkan x.</span></p>
+           <p class="text-sm text-emerald-400 mt-1">3. Divide: \\( x = \\frac{\\log(17)}{\\log(3)} = \\log_3(17) \\). <span class='id-lang'>Bagi untuk dapat x.</span></p>
+         </div>`},
+        // E4 mc
+        {type:"E",etype:"mc",
+         q:"To solve \\( 3^x = 17 \\), which formula gives the value of x? <span class='id-lang'>Untuk menyelesaikan \\( 3^x = 17 \\), rumus mana yang memberikan nilai x?</span>",
+         o:["\\( \\frac{\\log(3)}{\\log(17)} \\) <span class='id-lang'>\\( \\frac{\\log(3)}{\\log(17)} \\)</span>","\\( \\frac{\\log(17)}{\\log(3)} \\) <span class='id-lang'>\\( \\frac{\\log(17)}{\\log(3)} \\)</span>","\\( \\log(17) - \\log(3) \\) <span class='id-lang'>\\( \\log(17) - \\log(3) \\)</span>","\\( \\log(17) + \\log(3) \\) <span class='id-lang'>\\( \\log(17) + \\log(3) \\)</span>"],
+         a:1,
+         h:"It's just the change of base formula! <span class='id-lang'>Itu sama saja rumus ganti basis!</span>"},
+        // E5 fb
+        {type:"E",etype:"fb",
+         q:"Solve for x in \\( 5^x = 12 \\). Round to 4 decimal places. <span class='id-lang'>Selesaikan x pada \\( 5^x = 12 \\). Bulatkan ke 4 desimal.</span>",
+         a:"1.5440",
+         h:"log(12) / log(5) = 1.5439... <span class='id-lang'>log(12) / log(5) = 1.5439...</span>"},
+        // E6 ord
+        {type:"E",etype:"ord",
+         q:"Order the steps to solve \\( 3^x = 17 \\): <span class='id-lang'>Urutkan langkah menyelesaikan \\( 3^x = 17 \\):</span>",
+         o:["Divide by \\( \\log(3) \\) <span class='id-lang'>Bagi dengan \\( \\log(3) \\)</span>","Take log of both sides <span class='id-lang'>Ambil log kedua sisi</span>","Bring x down as a coefficient <span class='id-lang'>Turunkan x jadi koefisien</span>","Calculate \\( \\frac{\\log(17)}{\\log(3)} \\) <span class='id-lang'>Hitung \\( \\frac{\\log(17)}{\\log(3)} \\)</span>"],
+         a:[1,2,0,3],
+         h:"Log -> Coefficient -> Divide -> Calculate. <span class='id-lang'>Log -> Koefisien -> Bagi -> Hitung.</span>"},
+        // T3
+        {type:"T",title:"Chain of Logs <span class='id-lang'>Rantai Logaritma</span>",
+         body:`<p>Task 3: Evaluate \\( (\\log_2 5) \\times (\\log_5 8) \\) using conversion. <span class='id-lang'>Tugas 3: Hitung perkalian tersebut dengan konversi.</span></p>
+         <div class="mt-4 p-4 rounded-xl bg-violet-500/10 border border-violet-500/20">
+           <div class="text-violet-400 font-semibold mb-2">Chain Rule <span class='id-lang'>Aturan Rantai</span></div>
+           <p class="text-sm text-slate-300">Convert to base 10: <span class='id-lang'>Ubah ke basis 10:</span></p>
+           <p class="text-sm text-slate-300 mt-1">\\( \\frac{\\log(5)}{\\log(2)} \\times \\frac{\\log(8)}{\\log(5)} \\)</p>
+           <p class="text-sm text-emerald-400 mt-1">The \\( \\log(5) \\) terms cancel out! <span class='id-lang'>Suku \\( \\log(5) \\) saling mencoret!</span></p>
+           <p class="text-sm text-emerald-400">You are left with \\( \\frac{\\log(8)}{\\log(2)} = \\log_2(8) = 3 \\).</p>
+         </div>`},
+        // E7 mc
+        {type:"E",etype:"mc",
+         q:"Simplify \\( (\\log_2 5) \\times (\\log_5 8) \\). <span class='id-lang'>Sederhanakan perkalian tersebut.</span>",
+         o:["\\( 2 \\) <span class='id-lang'>\\( 2 \\)</span>","\\( 3 \\) <span class='id-lang'>\\( 3 \\)</span>","\\( 5 \\) <span class='id-lang'>\\( 5 \\)</span>","\\( 8 \\) <span class='id-lang'>\\( 8 \\)</span>"],
+         a:1,
+         h:"The middle terms cancel, leaving \\( \\log_2(8) \\). <span class='id-lang'>Suku tengah saling mencoret.</span>"},
+        // E8 tf
+        {type:"E",etype:"tf",
+         q:"\\( (\\log_3 7) \\times (\\log_7 9) = \\log_3 9 \\). <span class='id-lang'>\\( (\\log_3 7) \\times (\\log_7 9) = \\log_3 9 \\).</span>",
+         a:true,
+         h:"Yes, the middle base (7) cancels out. <span class='id-lang'>Basis tengah saling mencoret.</span>"},
+        // E9 fb
+        {type:"E",etype:"fb",
+         q:"Evaluate \\( (\\log_4 5) \\times (\\log_5 16) \\). <span class='id-lang'>Hitung perkalian tersebut.</span>",
+         a:"2",
+         h:"Middle cancels, leaving \\( \\log_4(16) \\). <span class='id-lang'>Tengah dicoret, menyisakan \\( \\log_4(16) \\).</span>"},
+        // E10 ord
+        {type:"E",etype:"ord",
+         q:"Order from least to greatest: \\( \\log_2(7) \\), \\( \\log_3(20) \\), \\( \\log_4(30) \\). <span class='id-lang'>Urutkan dari terkecil ke terbesar.</span>",
+         o:["\\( \\log_4(30) \\)","\\( \\log_3(20) \\)","\\( \\log_2(7) \\)"],
+         a:[2,1,0],
+         h:"Convert to base 10: 2.45, 2.73, 2.81. So \\( \\log_4(30) \\) is smallest, then \\( \\log_3(20) \\), then \\( \\log_2(7) \\). <span class='id-lang'>Nilai log_4(30) paling kecil.</span>"}
+      ]
+    },
+    // ==================== SECTION 7A ====================
+    {
+      id:"7A", title:"Assessment A <span class='id-lang'>Asesmen A</span>", icon:"fa-clipboard-check", color:"#3b82f6", branch:true,
+      lessons:[
+        {type:"E",etype:"fb",
+         q:"Evaluate \\( \\log_6(200) \\) to three decimal places. <span class='id-lang'>Hitung \\( \\log_6(200) \\) sampai tiga desimal.</span>",
+         a:"2.956",
+         h:"log(200) / log(6) = 2.956... <span class='id-lang'>log(200) / log(6) = 2.956...</span>"},
+        {type:"E",etype:"fb",
+         q:"Evaluate \\( \\log_{1.2}(5) \\) using the natural logarithm (ln) to three decimal places. <span class='id-lang'>Hitung \\( \\log_{1.2}(5) \\) menggunakan ln sampai tiga desimal.</span>",
+         a:"8.827",
+         h:"ln(5) / ln(1.2) = 8.827... <span class='id-lang'>ln(5) / ln(1.2) = 8.827...</span>"},
+        {type:"E",etype:"mc",
+         q:"Use the change of base formula to rewrite \\( \\log_3(x) \\) in terms of base 4. <span class='id-lang'>Tulis ulang \\( \\log_3(x) \\) dalam basis 4.</span>",
+         o:["\\( \\frac{\\log_4(x)}{\\log_4(3)} \\) <span class='id-lang'>\\( \\frac{\\log_4(x)}{\\log_4(3)} \\)</span>","\\( \\frac{\\log_4(3)}{\\log_4(x)} \\) <span class='id-lang'>\\( \\frac{\\log_4(3)}{\\log_4(x)} \\)</span>","\\( \\frac{\\log_3(4)}{\\log_x(4)} \\) <span class='id-lang'>\\( \\frac{\\log_3(4)}{\\log_x(4)} \\)</span>","\\( \\log_4(x) - \\log_4(3) \\) <span class='id-lang'>\\( \\log_4(x) - \\log_4(3) \\)</span>"],
+         a:0,
+         h:"Old base goes to the denominator. <span class='id-lang'>Basis lama ke penyebut.</span>"},
+        {type:"E",etype:"fb",
+         q:"Calculate the value of \\( \\log_5(0.2) \\) using a calculator. <span class='id-lang'>Hitung nilai \\( \\log_5(0.2) \\).</span>",
+         a:"-1",
+         h:"log(0.2) / log(5) = -1. <span class='id-lang'>log(0.2) / log(5) = -1.</span>"},
+        {type:"E",etype:"mc",
+         q:"Simplify \\( \\frac{1}{\\log_2(10)} \\). <span class='id-lang'>Sederhanakan \\( \\frac{1}{\\log_2(10)} \\).</span>",
+         o:["\\( \\log_{10}(2) \\) <span class='id-lang'>\\( \\log_{10}(2) \\)</span>","\\( \\log_2(10) \\) <span class='id-lang'>\\( \\log_2(10) \\)</span>","\\( \\log_{0.5}(10) \\) <span class='id-lang'>\\( \\log_{0.5}(10) \\)</span>","\\( \\log_{10}(0.5) \\) <span class='id-lang'>\\( \\log_{10}(0.5) \\)</span>"],
+         a:0,
+         h:"Reciprocal property: \\( \\frac{1}{\\log_b(a)} = \\log_a(b) \\). <span class='id-lang'>Sifat resiprokal.</span>"},
+        {type:"E",etype:"tf",
+         q:"\\( \\log_7(10) = \\frac{\\log(10)}{\\log(7)} \\). <span class='id-lang'>\\( \\log_7(10) = \\frac{\\log(10)}{\\log(7)} \\).</span>",
+         a:true,
+         h:"This is the direct application of the formula. <span class='id-lang'>Ini aplikasi langsung rumus.</span>"},
+        {type:"E",etype:"fb",
+         q:"Evaluate \\( \\log_2\\left(\\frac{1}{8}\\right) \\). <span class='id-lang'>Hitung \\( \\log_2\\left(\\frac{1}{8}\\right) \\).</span>",
+         a:"-3",
+         h:"\\( 2^{-3} = \\frac{1}{8} \\). <span class='id-lang'>\\( 2^{-3} = \\frac{1}{8} \\).</span>"},
+        {type:"E",etype:"match",
+         q:"Match the logarithmic expression to its equivalent: <span class='id-lang'>Cocokkan ekspresi logaritma:</span>",
+         left:["\\( \\log_b(a) \\)","\\( \\frac{1}{\\log_b(a)} \\)","\\( \\log_{10}(x) \\)"],
+         right:["\\( \\frac{\\log(a)}{\\log(b)} \\)","\\( \\log_a(b) \\)","\\( \\log(x) \\)"],
+         a:[0,1,2],
+         h:"Use change of base, reciprocal, and common log rules. <span class='id-lang'>Pakai rumus ganti basis, resiprokal, dan log umum.</span>"},
+        {type:"E",etype:"mc",
+         q:"Which expression is equivalent to \\( \\log_4(64) \\)? <span class='id-lang'>Manakah yang sama dengan \\( \\log_4(64) \\)?</span>",
+         o:["\\( \\frac{\\log(4)}{\\log(64)} \\) <span class='id-lang'>\\( \\frac{\\log(4)}{\\log(64)} \\)</span>","\\( \\frac{\\ln(64)}{\\ln(4)} \\) <span class='id-lang'>\\( \\frac{\\ln(64)}{\\ln(4)} \\)</span>","\\( \\log(64) - \\log(4) \\) <span class='id-lang'>\\( \\log(64) - \\log(4) \\)</span>","\\( \\frac{\\log(4)}{\\ln(64)} \\) <span class='id-lang'>\\( \\frac{\\log(4)}{\\ln(64)} \\)</span>"],
+         a:1,
+         h:"Argument over base, using any standard log. <span class='id-lang'>Argumen dibagi basis.</span>"},
+        {type:"E",etype:"sa",
+         q:"Select all true statements: <span class='id-lang'>Pilih semua pernyataan benar:</span>",
+         o:["\\( \\log_b(a) = \\frac{\\ln(a)}{\\ln(b)} \\) <span class='id-lang'>\\( \\log_b(a) = \\frac{\\ln(a)}{\\ln(b)} \\)</span>","\\( \\log_b(a) = \\frac{\\log(a)}{\\log(b)} \\) <span class='id-lang'>\\( \\log_b(a) = \\frac{\\log(a)}{\\log(b)} \\)</span>","\\( \\log_b(a) = \\frac{\\log(b)}{\\log(a)} \\) <span class='id-lang'>\\( \\log_b(a) = \\frac{\\log(b)}{\\log(a)} \\)</span>","\\( \\log_b(a) = \\log(a) \\cdot \\log(b) \\) <span class='id-lang'>\\( \\log_b(a) = \\log(a) \\cdot \\log(b) \\)</span>"],
+         a:[0,1],
+         h:"Both base 10 and base e work for the new base. <span class='id-lang'>Basis 10 dan e bisa dipakai.</span>"}
+      ]
+    },
+    // ==================== SECTION 7B ====================
+    {
+      id:"7B", title:"Assessment B <span class='id-lang'>Asesmen B</span>", icon:"fa-clipboard-check", color:"#ef4444", branch:true,
+      lessons:[
+        {type:"E",etype:"fb",
+         q:"Find the exact value of \\( (\\log_3 7) \\times (\\log_7 9) \\) without a calculator. <span class='id-lang'>Cari nilai eksak tanpa kalkulator.</span>",
+         a:"2",
+         h:"Change to base 10: \\( \\frac{\\log 7}{\\log 3} \\times \\frac{\\log 9}{\\log 7} = \\frac{\\log 9}{\\log 3} = \\log_3 9 \\). <span class='id-lang'>Suku tengah dicoret.</span>"},
+        {type:"E",etype:"fb",
+         q:"Solve for x to four decimal places: \\( 5^{x-1} = 12 \\). <span class='id-lang'>Selesaikan x sampai 4 desimal.</span>",
+         a:"2.5440",
+         h:"\\( x = \\frac{\\log 12}{\\log 5} + 1 \\approx 2.5440 \\). <span class='id-lang'>\\( x = \\frac{\\log 12}{\\log 5} + 1 \\).</span>"},
+        {type:"E",etype:"mc",
+         q:"Compare \\( \\log_2 10 \\) and \\( \\log_3 30 \\). Which is larger? <span class='id-lang'>Bandingkan. Mana yang lebih besar?</span>",
+         o:["\\( \\log_2 10 \\)","\\( \\log_3 30 \\)","They are equal","Cannot be determined"],
+         a:0,
+         h:"\\( \\log_2 10 \\approx 3.32 \\), \\( \\log_3 30 \\approx 3.10 \\). <span class='id-lang'>\\( \\log_2 10 > \\log_3 30 \\).</span>"},
+        {type:"E",etype:"mc",
+         q:"Simplify the expression \\( [\\log_a(b)] \\times [\\log_b(c)] \\times [\\log_c(d)] \\) into a single logarithm. <span class='id-lang'>Sederhanakan jadi log tunggal.</span>",
+         o:["\\( \\log_a(d) \\) <span class='id-lang'>\\( \\log_a(d) \\)</span>","\\( \\log_d(a) \\) <span class='id-lang'>\\( \\log_d(a) \\)</span>","\\( \\log_{abc}(d) \\) <span class='id-lang'>\\( \\log_{abc}(d) \\)</span>","\\( \\log_a(abc) \\) <span class='id-lang'>\\( \\log_a(abc) \\)</span>"],
+         a:0,
+         h:"All middle terms cancel out when converted to base 10. <span class='id-lang'>Suku tengah dicoret.</span>"},
+        {type:"E",etype:"fb",
+         q:"If \\( \\log_8(3) = k \\), express \\( \\log_2(3) \\) in terms of k. (Use format like 3*k or 3k) <span class='id-lang'>Jika \\( \\log_8(3) = k \\), nyatakan \\( \\log_2(3) \\) dalam k.</span>",
+         a:"3k",
+         h:"\\( k = \\frac{\\log 3}{\\log 8} = \\frac{\\log 3}{3 \\log 2} \\). So \\( \\frac{\\log 3}{\\log 2} = 3k \\). <span class='id-lang'>\\( k = \\frac{\\log 3}{3 \\log 2} \\).</span>"},
+        {type:"E",etype:"fb",
+         q:"Evaluate \\( \\log_{\\sqrt{2}}(8) \\) using the change of base formula. <span class='id-lang'>Hitung \\( \\log_{\\sqrt{2}}(8) \\).</span>",
+         a:"6",
+         h:"\\( \\frac{\\log 8}{\\log 2^{0.5}} = \\frac{3 \\log 2}{0.5 \\log 2} = \\frac{3}{0.5} = 6 \\). <span class='id-lang'>\\( \\frac{3 \\log 2}{0.5 \\log 2} = 6 \\).</span>"},
+        {type:"E",etype:"mc",
+         q:"Which equation is equivalent to \\( 7^x = 15 \\)? <span class='id-lang'>Manakah persamaan yang sama dengan \\( 7^x = 15 \\)?</span>",
+         o:["\\( x = \\frac{\\log 15}{\\log 7} \\) <span class='id-lang'>\\( x = \\frac{\\log 15}{\\log 7} \\)</span>","\\( x = \\frac{\\log 7}{\\log 15} \\) <span class='id-lang'>\\( x = \\frac{\\log 7}{\\log 15} \\)</span>","\\( x = \\log 15 - \\log 7 \\) <span class='id-lang'>\\( x = \\log 15 - \\log 7 \\)</span>","\\( x = \\log 7 \\cdot \\log 15 \\) <span class='id-lang'>\\( x = \\log 7 \\cdot \\log 15 \\)</span>"],
+         a:0,
+         h:"Take log of both sides and bring x down. <span class='id-lang'>Ambil log kedua sisi lalu turunkan x.</span>"},
+        {type:"E",etype:"tf",
+         q:"\\( \\log_{0.5}(10) \\) yields a positive number. <span class='id-lang'>\\( \\log_{0.5}(10) \\) menghasilkan angka positif.</span>",
+         a:false,
+         h:"Bases between 0 and 1 yield negative results for arguments > 1. <span class='id-lang'>Basis pecahan menghasilkan nilai negatif.</span>"},
+        {type:"E",etype:"ord",
+         q:"Order the steps to simplify \\( (\\log_4 5) \\times (\\log_5 16) \\): <span class='id-lang'>Urutkan langkah menyederhanakan:</span>",
+         o:["Convert to base 10: \\( \\frac{\\log 5}{\\log 4} \\times \\frac{\\log 16}{\\log 5} \\)","Cancel \\( \\log 5 \\)","Result is \\( \\frac{\\log 16}{\\log 4} \\)","Evaluate as \\( \\log_4(16) = 2 \\)"],
+         a:[0,1,2,3],
+         h:"Convert -> Cancel -> Simplify -> Evaluate. <span class='id-lang'>Konversi -> Coret -> Sederhanakan -> Hitung.</span>"},
+        {type:"E",etype:"sa",
+         q:"Select all true statements: <span class='id-lang'>Pilih semua pernyataan benar:</span>",
+         o:["\\( (\\log_2 3) \\times (\\log_3 2) = 1 \\) <span class='id-lang'>\\( (\\log_2 3) \\times (\\log_3 2) = 1 \\)</span>","\\( \\frac{1}{\\log_3 2} = \\log_2 3 \\) <span class='id-lang'>\\( \\frac{1}{\\log_3 2} = \\log_2 3 \\)</span>","\\( \\log_2 3 = \\log_3 2 \\) <span class='id-lang'>\\( \\log_2 3 = \\log_3 2 \\)</span>","\\( \\log_2 3 = \\frac{\\ln 3}{\\ln 2} \\) <span class='id-lang'>\\( \\log_2 3 = \\frac{\\ln 3}{\\ln 2} \\)</span>"],
+         a:[0,1,3],
+         h:"Apply reciprocal and change of base rules. <span class='id-lang'>Pakai sifat resiprokal dan ganti basis.</span>"}
+      ]
+    },
+    // ==================== SECTION 7C ====================
+    {
+      id:"7C", title:"Assessment C <span class='id-lang'>Asesmen C</span>", icon:"fa-clipboard-check", color:"#a855f7", branch:true,
+      lessons:[
+        {type:"E",etype:"fb",
+         q:"Simplify \\( \\frac{1}{\\log_{1/2}(4)} \\). <span class='id-lang'>Sederhanakan \\( \\frac{1}{\\log_{1/2}(4)} \\).</span>",
+         a:"-0.5",
+         h:"Reciprocal gives \\( \\log_4(1/2) \\). Since \\( 4^{-0.5} = 1/2 \\), answer is -0.5. <span class='id-lang'>Resiprokal membaliknya.</span>"},
+        {type:"E",etype:"mc",
+         q:"What is the value of \\( \\log_3(5) \\times \\log_5(3) \\)? <span class='id-lang'>Berapa nilai \\( \\log_3(5) \\times \\log_5(3) \\)?</span>",
+         o:["\\( 0 \\) <span class='id-lang'>\\( 0 \\)</span>","\\( 1 \\) <span class='id-lang'>\\( 1 \\)</span>","\\( 15 \\) <span class='id-lang'>\\( 15 \\)</span>","\\( \\log_{15}(15) \\) <span class='id-lang'>\\( \\log_{15}(15) \\)</span>"],
+         a:1,
+         h:"\\( \\log_a(b) \\times \\log_b(a) = 1 \\) due to reciprocal property. <span class='id-lang'>Hasilnya selalu 1.</span>"},
+        {type:"E",etype:"fb",
+         q:"Evaluate \\( \\log_2(10) - \\log_2(5) \\). <span class='id-lang'>Hitung \\( \\log_2(10) - \\log_2(5) \\).</span>",
+         a:"1",
+         h:"Quotient property: \\( \\log_2(10/5) = \\log_2(2) = 1 \\). <span class='id-lang'>Sifat pembagian.</span>"},
+        {type:"E",etype:"tf",
+         q:"The change of base formula works for any positive base \\( x \\) as long as \\( x \\neq 1 \\). <span class='id-lang'>Rumus berlaku untuk basis positif apa pun selain 1.</span>",
+         a:true,
+         h:"Base 1 is invalid for logarithms. <span class='id-lang'>Basis 1 tidak valid.</span>"},
+        {type:"E",etype:"fb",
+         q:"Solve for x: \\( 2^x = 1000 \\). Round to 2 decimal places. <span class='id-lang'>Selesaikan x. Bulatkan ke 2 desimal.</span>",
+         a:"9.97",
+         h:"x = log(1000) / log(2) = 9.965... <span class='id-lang'>x = log(1000) / log(2).</span>"},
+        {type:"E",etype:"mc",
+         q:"Evaluate \\( \\log_5(125) + \\log_5\\left(\\frac{1}{25}\\right) \\). <span class='id-lang'>Hitung penjumlahan tersebut.</span>",
+         o:["\\( 1 \\) <span class='id-lang'>\\( 1 \\)</span>","\\( 2 \\) <span class='id-lang'>\\( 2 \\)</span>","\\( 3 \\) <span class='id-lang'>\\( 3 \\)</span>","\\( 5 \\) <span class='id-lang'>\\( 5 \\)</span>"],
+         a:0,
+         h:"\\( \\log_5(5^3) + \\log_5(5^{-2}) = 3 - 2 = 1 \\). <span class='id-lang'>3 - 2 = 1.</span>"},
+        {type:"E",etype:"fb",
+         q:"If \\( \\log_4(x) = 2.5 \\), find x. <span class='id-lang'>Jika \\( \\log_4(x) = 2.5 \\), cari x.</span>",
+         a:"32",
+         h:"\\( x = 4^{2.5} = 4^2 \\times \\sqrt{4} = 16 \\times 2 = 32 \\). <span class='id-lang'>\\( x = 4^{2.5} \\).</span>"},
+        {type:"E",etype:"match",
+         q:"Match the expression to its simplified form: <span class='id-lang'>Cocokkan ke bentuk sederhana:</span>",
+         left:["\\( \\log_{10}(0.001) \\)","\\( \\log_{0.5}(2) \\)","\\( \\frac{1}{\\log_6(10)} \\)"],
+         right:["\\( -3 \\)","\\( -1 \\)","\\( \\log(6) \\)"],
+         a:[0,1,2],
+         h:"0.001 = 10^-3. 0.5^-1 = 2. Reciprocal rule for the last. <span class='id-lang'>0.001 = 10^-3.</span>"},
+        {type:"E",etype:"mc",
+         q:"Which of these is equal to \\( \\log_3(20) \\)? <span class='id-lang'>Mana yang sama dengan \\( \\log_3(20) \\)?</span>",
+         o:["\\( \\frac{\\ln 20}{\\ln 3} \\) <span class='id-lang'>\\( \\frac{\\ln 20}{\\ln 3} \\)</span>","\\( \\frac{\\ln 3}{\\ln 20} \\) <span class='id-lang'>\\( \\frac{\\ln 3}{\\ln 20} \\)</span>","\\( \\ln 20 - \\ln 3 \\) <span class='id-lang'>\\( \\ln 20 - \\ln 3 \\)</span>","\\( \\ln 60 \\) <span class='id-lang'>\\( \\ln 60 \\)</span>"],
+         a:0,
+         h:"Natural log is a valid base change. <span class='id-lang'>Natural log bisa dipakai.</span>"},
+        {type:"E",etype:"sa",
+         q:"Select all correct statements: <span class='id-lang'>Pilih semua pernyataan benar:</span>",
+         o:["\\( \\log_b(1) = 0 \\) <span class='id-lang'>\\( \\log_b(1) = 0 \\)</span>","\\( \\log_b(b) = 1 \\) <span class='id-lang'>\\( \\log_b(b) = 1 \\)</span>","\\( \\log_b(b^x) = x \\) <span class='id-lang'>\\( \\log_b(b^x) = x \\)</span>","\\( \\log_b(0) = 1 \\) <span class='id-lang'>\\( \\log_b(0) = 1 \\)</span>"],
+         a:[0,1,2],
+         h:"Log of 0 is undefined. <span class='id-lang'>Log 0 tidak terdefinisi.</span>"}
+      ]
+    },
+    // ==================== SECTION 7D ====================
+    {
+      id:"7D", title:"Assessment D <span class='id-lang'>Asesmen D</span>", icon:"fa-clipboard-check", color:"#06b6d4", branch:true,
+      lessons:[
+        {type:"E",etype:"fb",
+         q:"A sensor gives data in base 1.05. Evaluate \\( \\log_{1.05}(2) \\) to 2 decimal places. <span class='id-lang'>Sensor memberi data basis 1.05. Hitung ke 2 desimal.</span>",
+         a:"14.21",
+         h:"log(2) / log(1.05) = 14.206... <span class='id-lang'>log(2) / log(1.05).</span>"},
+        {type:"E",etype:"fb",
+         q:"Evaluate \\( \\log_{0.8}(10) \\) to 2 decimal places. <span class='id-lang'>Hitung \\( \\log_{0.8}(10) \\) ke 2 desimal.</span>",
+         a:"-10.32",
+         h:"log(10) / log(0.8) = -10.318... <span class='id-lang'>Hasilnya negatif.</span>"},
+        {type:"E",etype:"mc",
+         q:"Which is larger: \\( \\log_4(20) \\) or \\( \\log_6(30) \\)? <span class='id-lang'>Mana yang lebih besar?</span>",
+         o:["\\( \\log_4(20) \\)","\\( \\log_6(30) \\)","They are equal","Cannot be determined"],
+         a:0,
+         h:"\\( \\log_4(20) \\approx 2.16 \\), \\( \\log_6(30) \\approx 1.89 \\). <span class='id-lang'>\\( \\log_4(20) \\) lebih besar.</span>"},
+        {type:"E",etype:"fb",
+         q:"Solve for x: \\( 4^x = 20 \\). Round to 3 decimal places. <span class='id-lang'>Selesaikan x. Bulatkan ke 3 desimal.</span>",
+         a:"2.161",
+         h:"x = log(20) / log(4) = 2.1609... <span class='id-lang'>x = log(20) / log(4).</span>"},
+        {type:"E",etype:"mc",
+         q:"Simplify \\( (\\log_2 3) \\times (\\log_3 4) \\). <span class='id-lang'>Sederhanakan perkalian tersebut.</span>",
+         o:["\\( 2 \\) <span class='id-lang'>\\( 2 \\)</span>","\\( 3 \\) <span class='id-lang'>\\( 3 \\)</span>","\\( 4 \\) <span class='id-lang'>\\( 4 \\)</span>","\\( \\log_6(12) \\) <span class='id-lang'>\\( \\log_6(12) \\)</span>"],
+         a:0,
+         h:"Middle cancels: \\( \\log_2(4) = 2 \\). <span class='id-lang'>Tengah dicoret.</span>"},
+        {type:"E",etype:"tf",
+         q:"Change of base formula is only useful for base 10 and base e. <span class='id-lang'>Rumus hanya berguna untuk basis 10 dan e.</span>",
+         a:false,
+         h:"It's useful for ANY base conversion! <span class='id-lang'>Berguna untuk konversi basis APA PUN.</span>"},
+        {type:"E",etype:"fb",
+         q:"Evaluate \\( \\log_{\\sqrt{3}}(9) \\). <span class='id-lang'>Hitung \\( \\log_{\\sqrt{3}}(9) \\).</span>",
+         a:"4",
+         h:"\\( \\frac{\\log 9}{\\log 3^{0.5}} = \\frac{2 \\log 3}{0.5 \\log 3} = \\frac{2}{0.5} = 4 \\). <span class='id-lang'>\\( \\frac{2}{0.5} = 4 \\).</span>"},
+        {type:"E",etype:"match",
+         q:"Match the equation to its solution for x: <span class='id-lang'>Cocokkan persamaan ke solusi x:</span>",
+         left:["\\( 3^x = 10 \\)","\\( 5^x = 2 \\)","\\( 10^x = 5 \\)"],
+         right:["\\( \\log_3(10) \\)","\\( \\log_5(2) \\)","\\( \\log(5) \\)"],
+         a:[0,1,2],
+         h:"Apply logarithms to bring x down. <span class='id-lang'>Pakai logaritma untuk turunkan x.</span>"},
+        {type:"E",etype:"fb",
+         q:"Evaluate \\( \\log_2(8) \\times \\log_3(9) \\). <span class='id-lang'>Hitung perkalian tersebut.</span>",
+         a:"6",
+         h:"\\( 3 \\times 2 = 6 \\). <span class='id-lang'>\\( 3 \\times 2 = 6 \\).</span>"},
+        {type:"E",etype:"ord",
+         q:"Order the steps to solve \\( 7^{x-2} = 10 \\): <span class='id-lang'>Urutkan langkah menyelesaikan \\( 7^{x-2} = 10 \\):</span>",
+         o:["Take log of both sides: \\( (x-2)\\log 7 = \\log 10 \\)","Divide by \\( \\log 7 \\)","Add 2 to both sides","Calculate \\( \\frac{\\log 10}{\\log 7} + 2 \\)"],
+         a:[0,1,2,3],
+         h:"Log -> Divide -> Add 2 -> Calculate. <span class='id-lang'>Log -> Bagi -> Tambah 2 -> Hitung.</span>"}
+      ]
+    },
+    // ==================== SECTION 7E ====================
+    {
+      id:"7E", title:"Assessment E <span class='id-lang'>Asesmen E</span>", icon:"fa-clipboard-check", color:"#f97316", branch:true,
+      lessons:[
+        {type:"E",etype:"fb",
+         q:"Evaluate \\( \\log_{1/3}(27) \\). <span class='id-lang'>Hitung \\( \\log_{1/3}(27) \\).</span>",
+         a:"-3",
+         h:"\\( (1/3)^{-3} = 27 \\). <span class='id-lang'>\\( (1/3)^{-3} = 27 \\).</span>"},
+        {type:"E",etype:"mc",
+         q:"Simplify \\( \\frac{1}{\\frac{\\log_2(3)}{\\log_2(7)}} \\). <span class='id-lang'>Sederhanakan pecahan tersebut.</span>",
+         o:["\\( \\log_3(7) \\) <span class='id-lang'>\\( \\log_3(7) \\)</span>","\\( \\log_7(3) \\) <span class='id-lang'>\\( \\log_7(3) \\)</span>","\\( \\log_2(7) \\) <span class='id-lang'>\\( \\log_2(7) \\)</span>","\\( \\log_2(3) \\) <span class='id-lang'>\\( \\log_2(3) \\)</span>"],
+         a:0,
+         h:"Inner part is \\( \\log_3(7) \\). Reciprocal of that is \\( \\log_7(3) \\). <span class='id-lang'>Bagian dalam adalah \\( \\log_3(7) \\), resiprokalnya dibalik.</span>"},
+        {type:"E",etype:"fb",
+         q:"If \\( \\log_2(3) = a \\), express \\( \\log_8(9) \\) in terms of a. <span class='id-lang'>Jika \\( \\log_2(3) = a \\), nyatakan \\( \\log_8(9) \\) dalam a. (Ketik seperti 2a/3)</span>",
+         a:"2a/3",
+         h:"\\( \\log_8(9) = \\frac{\\log 9}{\\log 8} = \\frac{2 \\log 3}{3 \\log 2} = \\frac{2}{3} a \\). <span class='id-lang'>\\( \\frac{2 \\log 3}{3 \\log 2} \\).</span>"},
+        {type:"E",etype:"fb",
+         q:"Solve for x: \\( 3^{2x} = 10 \\). Round to 3 decimal places. <span class='id-lang'>Selesaikan x. Bulatkan ke 3 desimal.</span>",
+         a:"1.048",
+         h:"\\( x = \\frac{\\log 10}{2 \\log 3} \\approx 1.0479 \\). <span class='id-lang'>\\( x = \\frac{\\log 10}{2 \\log 3} \\).</span>"},
+        {type:"E",etype:"tf",
+         q:"\\( \\log_b(a) = \\log_a(b) \\) for all valid a and b. <span class='id-lang'>\\( \\log_b(a) = \\log_a(b) \\) untuk a dan b yang valid.</span>",
+         a:false,
+         h:"They are reciprocals, not equal. <span class='id-lang'>Mereka resiprokal, bukan sama.</span>"},
+        {type:"E",etype:"mc",
+         q:"Simplify \\( \\log_5(10) \\times \\log_{10}(25) \\). <span class='id-lang'>Sederhanakan perkalian tersebut.</span>",
+         o:["\\( 1 \\) <span class='id-lang'>\\( 1 \\)</span>","\\( 2 \\) <span class='id-lang'>\\( 2 \\)</span>","\\( 5 \\) <span class='id-lang'>\\( 5 \\)</span>","\\( 10 \\) <span class='id-lang'>\\( 10 \\)</span>"],
+         a:1,
+         h:"Middle cancels: \\( \\log_5(25) = 2 \\). <span class='id-lang'>Tengah dicoret: \\( \\log_5(25) = 2 \\).</span>"},
+        {type:"E",etype:"fb",
+         q:"Simplify \\( \\frac{\\log_3 5}{\\log_9 5} \\). <span class='id-lang'>Sederhanakan pecahan tersebut.</span>",
+         a:"2",
+         h:"\\( \\frac{\\log 5 / \\log 3}{\\log 5 / \\log 9} = \\frac{\\log 9}{\\log 3} = \\log_3(9) = 2 \\). <span class='id-lang'>\\( \\frac{\\log 9}{\\log 3} = 2 \\).</span>"},
+        {type:"E",etype:"match",
+         q:"Match the complex log expression to its simplified form: <span class='id-lang'>Cocokkan ke bentuk sederhana:</span>",
+         left:["\\( (\\log_2 5)(\\log_5 4) \\)","\\( \\log_4(8) \\times \\log_8(4) \\)","\\( \\log_2(1/4) \\)"],
+         right:["\\( 2 \\)","\\( 1 \\)","\\( -2 \\)"],
+         a:[0,1,2],
+         h:"First is log_2(4)=2. Second is 1. Third is -2. <span class='id-lang'>Pertama 2. Kedua 1. Ketiga -2.</span>"},
+        {type:"E",etype:"mc",
+         q:"Which of the following is equivalent to \\( \\log_5(100) \\)? <span class='id-lang'>Mana yang sama dengan \\( \\log_5(100) \\)?</span>",
+         o:["\\( \\frac{\\ln 100}{\\ln 5} \\) <span class='id-lang'>\\( \\frac{\\ln 100}{\\ln 5} \\)</span>","\\( \\frac{\\ln 5}{\\ln 100} \\) <span class='id-lang'>\\( \\frac{\\ln 5}{\\ln 100} \\)</span>","\\( \\ln 100 - \\ln 5 \\) <span class='id-lang'>\\( \\ln 100 - \\ln 5 \\)</span>","\\( \\ln 500 \\) <span class='id-lang'>\\( \\ln 500 \\)</span>"],
+         a:0,
+         h:"Use natural log change of base. <span class='id-lang'>Pakai natural log.</span>"},
+        {type:"E",etype:"sa",
+         q:"Select all true statements: <span class='id-lang'>Pilih semua pernyataan benar:</span>",
+         o:["\\( \\log_a(b) = \\frac{1}{\\log_b(a)} \\) <span class='id-lang'>\\( \\log_a(b) = \\frac{1}{\\log_b(a)} \\)</span>","\\( \\log_a(b) \\times \\log_b(c) = \\log_a(c) \\) <span class='id-lang'>\\( \\log_a(b) \\times \\log_b(c) = \\log_a(c) \\)</span>","\\( \\log_a(a) = 0 \\) <span class='id-lang'>\\( \\log_a(a) = 0 \\)</span>","\\( \\log_a(b^c) = c \\log_a(b) \\) <span class='id-lang'>\\( \\log_a(b^c) = c \\log_a(b) \\)</span>"],
+         a:[0,1,3],
+         h:"Log of base itself is 1, not 0. <span class='id-lang'>Log basis sendiri itu 1.</span>"}
+      ]
+    },
+    // ==================== SECTION 8 ====================
+    {
+      id:8, title:"Consolidation & Reflection <span class='id-lang'>Konsolidasi & Refleksi</span>", icon:"fa-star", color:"#fbbf24", branch:false,
+      lessons:[
+        {type:"T",title:"Summary & Next Steps <span class='id-lang'>Ringkasan & Langkah Berikutnya</span>",
+         body:`<p>Brilliant work today, Nathaniel! You've mastered how to bypass the limitations of your calculator! <span class='id-lang'>Kerja yang luar biasa, Nathaniel! Kamu telah menguasai cara melewati batasan kalkulatormu!</span></p>
+         <div class="mt-4 p-5 rounded-xl bg-gradient-to-r from-emerald-500/10 to-teal-500/10 border border-emerald-500/20">
+           <div class="text-emerald-400 font-bold mb-3 text-lg"><i class="fa-solid fa-medal mr-2"></i>Key Takeaways <span class='id-lang'>Poin Kunci</span></div>
+           <ul class="space-y-2 text-sm text-slate-300 list-disc list-inside">
+             <li><strong>Change of Base Formula:</strong> \\( \\log_b(a) = \\frac{\\log_x(a)}{\\log_x(b)} \\). <span class='id-lang'><strong>Rumus Ganti Basis.</strong></span></li>
+             <li><strong>The 'Basement' Rule:</strong> The old base always goes to the denominator (basement). <span class='id-lang'><strong>Aturan 'Basement':</strong> Basis lama selalu ke penyebut.</span></li>
+             <li><strong>Reciprocal Property:</strong> \\( \\frac{1}{\\log_b(a)} = \\log_a(b) \\). <span class='id-lang'><strong>Sifat Resiprokal.</strong></span></li>
+           </ul>
+         </div>
+         <p class="mt-4">Remember to complete your customized homework set on the portal! <span class='id-lang'>Ingat untuk menyelesaikan PR kustomismu di portal!</span></p>
+         <div class="mt-6 p-5 rounded-xl bg-amber-500/10 border border-amber-500/20 text-center">
+           <div class="text-amber-400 font-bold text-xl mb-2">Your Next Mission <span class='id-lang'>Misi Berikutnya</span></div>
+           <p class="text-sm text-slate-300 mb-4">Ready for more challenges? Continue your learning journey on the Algonova platform! <span class='id-lang'>Siap untuk tantangan lainnya? Lanjutkan perjalanan belajarmu di platform Algonova!</span></p>
+           <a href="https://learn.algonova.id/login" target="_blank" class="btn-primary inline-flex">
+             <i class="fa-solid fa-arrow-up-right-from-square"></i> Open Algonova <span class="id-lang" style="color:rgba(11,17,33,0.7); display:inline;">Buka Algonova</span>
+           </a>
+         </div>`}
+      ]
+    }
+  ]
+};
+
+// ============================================================
+// STATE APLIKASI
+// ============================================================
+let state = {
+  xp: 0,
+  streak: 0,
+  completed: {},   // { "1-0": true, "1-1": true, ... }  mapIndex-lessonIndex
+  currentView: 'map',
+  currentMap: null,  // index di COURSE.maps
+  currentLesson: null, // index lesson dalam map
+  exerciseState: {},  // state untuk exercise interaktif
+};
+
+// Load dari localStorage
+function loadState() {
+  try {
+    const saved = localStorage.getItem('logicode_state');
+    if (saved) {
+      const parsed = JSON.parse(saved);
+      state.xp = parsed.xp || 0;
+      state.streak = parsed.streak || 0;
+      state.completed = parsed.completed || {};
+	  state.mapAnswers = parsed.mapAnswers || {};
+    }
+  } catch(e) {}
+}
+function saveState() {
+  try {
+    localStorage.setItem('logicode_state', JSON.stringify({
+      xp: state.xp, streak: state.streak, completed: state.completed, mapAnswers: state.mapAnswers
+    }));
+  } catch(e) {}
+}
+
+function resetProgress() {
+  if (confirm('Apakah kamu yakin ingin menghapus semua progress? Tindakan ini tidak bisa dibatalkan.')) {
+    // Hapus data dari localStorage
+    localStorage.removeItem('logicode_state');
+    
+    // Reset state di memori
+    state.xp = 0;
+    state.streak = 0;
+    state.completed = {};
+    
+    // Render ulang tampilan peta
+    renderMap();
+    
+    // Tampilkan notifikasi
+    showToast('Progress berhasil direset!', 'info');
+  }
+}
+
+// ============================================================
+// HELPER: Cek apakah peta terbuka
+// ============================================================
+function isMapUnlocked(mapIdx) {
+  return true; // Semua peta selalu terbuka
+}
+
+function isMapCompleted(mapIdx) {
+  const map = COURSE.maps[mapIdx];
+  if (!map) return false;
+  return map.lessons.every((_, li) => state.completed[`${mapIdx}-${li}`]);
+}
+
+function isLessonUnlocked(mapIdx, lessonIdx) {
+  return true; // Semua lesson selalu terbuka
+}
+
+function getMapProgress(mapIdx) {
+  const map = COURSE.maps[mapIdx];
+  if (!map) return 0;
+  const done = map.lessons.filter((_, li) => state.completed[`${mapIdx}-${li}`]).length;
+  return Math.round((done / map.lessons.length) * 100);
+}
+
+function getTotalProgress() {
+  let total = 0, done = 0;
+  COURSE.maps.forEach((m, mi) => {
+    m.lessons.forEach((_, li) => {
+      total++;
+      if (state.completed[`${mi}-${li}`]) done++;
+    });
+  });
+  return total > 0 ? Math.round((done / total) * 100) : 0;
+}
+
+// ============================================================
+// RENDER: PETA MAP (halaman utama)
+// ============================================================
+function renderMap() {
+  const container = document.getElementById('mapContainer');
+  let html = '';
+
+	COURSE.maps.forEach((map, mi) => {
+	const unlocked = isMapUnlocked(mi);
+	const completed = isMapCompleted(mi);
+	const progress = getMapProgress(mi);
+	const isBranch = map.branch;
+	const isLastBranch = isBranch && !COURSE.maps[mi+1]?.branch;
+	const isFirstBranch = isBranch && !COURSE.maps[mi-1]?.branch;
+
+	// Node kelas
+	const nodeClass = completed ? 'completed' : unlocked ? 'unlocked' + (progress === 0 ? ' current' : '') : 'locked';
+
+	// --- BRANCH START: Visual dari Peta 6 ke Peta 7A-7E ---
+	if (isFirstBranch) {
+      const peta6Completed = isMapCompleted(mi - 1);
+      // Garis vertikal turun dari Peta 6
+      html += `<div class="map-line ${peta6Completed ? 'done' : ''}"></div>`;
+      // Garis horizontal branch (diperlebar)
+      html += `<div style="height: 3px; width: 95%; max-width: 850px; margin: 0 auto; background: var(--border);"></div>`;
+      // Buka container flex untuk 7A-7E (ditambah flex-wrap agar rapi di HP)
+      html += `<div class="flex flex-wrap justify-center" style="gap: 20px; max-width: 850px; margin: 0 auto;">`;
+    }
+
+	// --- RENDER NODE ---
+	html += `
+	  <div class="flex flex-col items-center" style="${isBranch ? 'min-width: 150px;' : ''}" onclick="${unlocked ? `openPeta(${mi})` : ''}">
+		${isBranch ? `<div style="width: 3px; height: 25px; background: var(--border);"></div>` : ''}
+		<div class="map-node ${nodeClass}" style="${unlocked ? `border-color:${map.color};${completed ? `background:${map.color}` : ''}` : ''}">
+		  ${completed ? '<i class="fa-solid fa-check"></i>' : unlocked ? `<i class="fa-solid ${map.icon}"></i>` : '<i class="fa-solid fa-lock text-sm"></i>'}
+		</div>
+		<div class="mt-2 text-center">
+		  <div class="text-sm font-semibold node-title ${unlocked ? 'text-slate-200' : 'text-slate-600'}">Peta ${map.id}</div>
+		  <div class="text-xs node-title ${unlocked ? 'text-slate-400' : 'text-slate-600'}">${map.title}</div>
+		  ${unlocked && !completed ? `<div class="mt-1 w-16 mx-auto"><div class="prog-bar"><div class="prog-fill" style="width:${progress}%;background:${map.color}"></div></div></div>` : ''}
+		</div>
+		${isBranch ? `<div style="width: 3px; height: 25px; background: var(--border);"></div>` : ''}
+	  </div>
+	`;
+
+	// --- BRANCH END: Visual dari Peta 7A-7E ke Peta 8 ---
+	if (isLastBranch) {
+      // Tutup container flex 7A-7E
+      html += `</div>`;
+      // Garis horizontal merge (diperlebar)
+      html += `<div style="height: 3px; width: 95%; max-width: 850px; margin: 0 auto; background: var(--border);"></div>`;
+      // Garis vertikal turun ke Peta 8
+      html += `<div class="map-line"></div>`;
+    }
+
+	// --- GARIS VERTIKAL NORMAL (Peta 1-5) ---
+	if (!isBranch && mi < COURSE.maps.length - 1 && !COURSE.maps[mi+1]?.branch) {
+	  html += `<div class="map-line ${completed ? 'done' : ''}"></div>`;
+	}
+	});
+
+  container.innerHTML = html;
+
+  // Update header stats
+  document.getElementById('headerXP').textContent = state.xp;
+  document.getElementById('headerStreak').textContent = state.streak;
+  document.getElementById('totalProgress').textContent = getTotalProgress() + '%';
+  document.getElementById('totalProgFill').style.width = getTotalProgress() + '%';
+}
+
+// ============================================================
+// RENDER: PETA DETAIL (daftar lesson)
+// ============================================================
+function openPeta(mapIdx) {
+  state.currentMap = mapIdx;
+  showView('peta');
+  const map = COURSE.maps[mapIdx];
+  document.getElementById('petaTitle').innerHTML = `Peta ${map.id}: ${map.title}`;
+  const totalLessons = map.lessons.length;
+  const doneLessons = map.lessons.filter((_, li) => state.completed[`${mapIdx}-${li}`]).length;
+  document.getElementById('petaSubtitle').textContent = `${doneLessons}/${totalLessons} selesai`;
+
+  const container = document.getElementById('lessonContainer');
+  let html = '<div class="stagger-in flex flex-col items-center">';
+
+  map.lessons.forEach((lesson, li) => {
+    const unlocked = isLessonUnlocked(mapIdx, li);
+    const completed = state.completed[`${mapIdx}-${li}`] === true;
+    const isTheory = lesson.type === 'T';
+    const isCurrent = unlocked && !completed;
+
+    const nodeClass = completed ? 'completed' : unlocked ? 'unlocked' : 'locked';
+    const shapeClass = isTheory ? 'theory' : 'exercise';
+
+    html += `
+      <div class="flex flex-col items-center">
+        <div class="lesson-node ${shapeClass} ${nodeClass} ${isCurrent ? 'current' : ''}"
+             style="${unlocked ? `border-color:${map.color};${completed ? `background:${map.color}` : ''}` : ''}"
+             onclick="${unlocked ? `openLesson(${mapIdx},${li})` : ''}">
+          ${completed ? '<i class="fa-solid fa-check text-sm"></i>' : isTheory ? '<i class="fa-solid fa-book text-sm"></i>' : '<i class="fa-solid fa-dumbbell text-sm"></i>'}
+        </div>
+        <div class="mt-1 text-center">
+          <div class="text-xs node-title ${unlocked ? 'text-slate-300' : 'text-slate-600'}">${isTheory ? lesson.title : `Exercise ${li+1}`}</div>
+        </div>
+      </div>
+    `;
+
+    // Koneksi ke lesson berikutnya
+    if (li < map.lessons.length - 1) {
+      const connDone = completed;
+      html += `<div class="lesson-connector ${connDone ? 'done' : ''}"></div>`;
+    }
+  });
+
+  html += '</div>';
+  container.innerHTML = html;
+}
+
+// ============================================================
+// RENDER: LESSON (teori atau exercise)
+// ============================================================
+function openLesson(mapIdx, lessonIdx) {
+  state.currentMap = mapIdx;
+  state.currentLesson = lessonIdx;
+  state.exerciseState = {};
+  showView('lesson');
+
+  const map = COURSE.maps[mapIdx];
+  const lesson = map.lessons[lessonIdx];
+  const total = map.lessons.length;
+
+  document.getElementById('lessonCounter').textContent = `${lessonIdx+1}/${total}`;
+  const done = map.lessons.filter((_, li) => state.completed[`${mapIdx}-${li}`] || li < lessonIdx).length;
+  document.getElementById('lessonProgFill').style.width = `${(done/total)*100}%`;
+
+  if (lesson.type === 'T') {
+    renderTheory(lesson);
+  } else {
+    renderExercise(lesson, mapIdx, lessonIdx);
+  }
+}
+
+function renderTheory(lesson) {
+  const content = document.getElementById('lessonContent');
+  content.innerHTML = `
+    <div class="stagger-in">
+      <div class="text-xs font-semibold text-emerald-400 uppercase tracking-wider mb-2">
+        <i class="fa-solid fa-book-open mr-1"></i> Theory <span class="id-lang" style="display:inline; color:#64748b;">Teori</span>
+      </div>
+      <h2 class="text-2xl font-bold mb-6">${lesson.title}</h2>
+      <div class="text-slate-300 leading-relaxed space-y-3">
+        ${lesson.body}
+      </div>
+      <div class="mt-8 flex justify-end">
+        <button id="nextBtn" class="btn-primary" onclick="completeAndNext()">
+          Next <span class="id-lang" style="color:rgba(11,17,33,0.7); display:inline;">Lanjut</span> <i class="fa-solid fa-arrow-right"></i>
+        </button>
+      </div>
+    </div>
+  `;
+}
+
+function renderExercise(lesson, mapIdx, lessonIdx) {
+  const content = document.getElementById('lessonContent');
+  const etype = lesson.etype;
+  let exerciseHTML = '';
+
+  switch(etype) {
+    case 'mc': exerciseHTML = renderMC(lesson); break;
+    case 'tf': exerciseHTML = renderTF(lesson); break;
+    case 'fb': exerciseHTML = renderFB(lesson); break;
+    case 'ord': exerciseHTML = renderOrd(lesson); break;
+    case 'match': exerciseHTML = renderMatch(lesson); break;
+    case 'sa': exerciseHTML = renderSA(lesson); break;
+    case 'code': exerciseHTML = renderCode(lesson); break;
+    default: exerciseHTML = '<p>Tipe exercise tidak dikenal</p>';
+  }
+
+  content.innerHTML = `
+    <div class="stagger-in">
+      <div class="text-xs font-semibold text-amber-400 uppercase tracking-wider mb-2">
+        <i class="fa-solid fa-dumbbell mr-1"></i> Exercise <span class="id-lang" style="display:inline; color:#64748b;">Latihan</span>
+      </div>
+      <h2 class="text-xl font-bold mb-6">${lesson.q}</h2>
+      ${lesson.code ? `<div class="code-block mb-6">${escapeHTML(lesson.code)}</div>` : ''}
+      <div id="exerciseArea">${exerciseHTML}</div>
+      <div id="feedbackArea" class="mt-4"></div>
+      <div class="mt-6 flex items-center justify-between flex-wrap gap-3">
+        <div class="flex gap-2">
+          <button class="btn-secondary text-sm" onclick="showHint()" id="hintBtn">
+            <i class="fa-solid fa-lightbulb mr-1"></i> Hint <span class="id-lang" style="display:inline;">Petunjuk</span>
+          </button>
+          <button class="btn-secondary text-sm" onclick="resetExercise()" id="resetBtn">
+            <i class="fa-solid fa-rotate-left mr-1"></i> Reset <span class="id-lang" style="display:inline;">Atur Ulang</span>
+          </button>
+        </div>
+        <button class="btn-primary" id="checkBtn" onclick="checkAnswer()" disabled>
+          Check <span class="id-lang" style="display:inline;">Periksa</span> <i class="fa-solid fa-check"></i>
+        </button>
+      </div>
+      <div id="hintArea" class="mt-4 hidden">
+        <div class="p-4 rounded-xl bg-amber-500/10 border border-amber-500/20 text-sm text-amber-200">
+          <i class="fa-solid fa-lightbulb text-amber-400 mr-2"></i>${lesson.h || 'Tidak ada petunjuk'}
+        </div>
+      </div>
+    </div>
+  `;
+}
+
+// Fungsi baru untuk mereset exercise
+function resetExercise() {
+  if (state.exerciseState.answered) return; // Tidak bisa reset jika sudah di-check
+  const lesson = COURSE.maps[state.currentMap].lessons[state.currentLesson];
+  renderExercise(lesson, state.currentMap, state.currentLesson);
+}
+
+// ============================================================
+// EXERCISE RENDERERS
+// ============================================================
+
+// Multiple Choice
+function renderMC(lesson) {
+  const labels = ['A','B','C','D','E','F'];
+  return `<div class="space-y-3" id="mcOptions">
+    ${lesson.o.map((opt, i) => `
+      <div class="opt-card" data-idx="${i}" onclick="selectMC(${i})">
+        <span class="w-8 h-8 rounded-lg bg-white/5 flex items-center justify-center text-sm font-bold flex-shrink-0">${labels[i]}</span>
+        <span>${opt}</span>
+      </div>
+    `).join('')}
+  </div>`;
+}
+
+function selectMC(idx) {
+  if (state.exerciseState.answered) return;
+  state.exerciseState.selected = idx;
+  document.querySelectorAll('#mcOptions .opt-card').forEach((el, i) => {
+    el.classList.toggle('selected', i === idx);
+  });
+  document.getElementById('checkBtn').disabled = false;
+}
+
+// True/False
+function renderTF(lesson) {
+  return `<div class="flex gap-4" id="tfOptions">
+    <div class="opt-card flex-1 justify-center text-center text-lg" onclick="selectTF(true)" data-val="true">
+      <i class="fa-solid fa-check text-emerald-400 mr-2"></i> True <span class="id-lang">Benar</span>
+    </div>
+    <div class="opt-card flex-1 justify-center text-center text-lg" onclick="selectTF(false)" data-val="false">
+      <i class="fa-solid fa-xmark text-red-400 mr-2"></i> False <span class="id-lang">Salah</span>
+    </div>
+  </div>`;
+}
+
+function selectTF(val) {
+  if (state.exerciseState.answered) return;
+  state.exerciseState.selected = val;
+  document.querySelectorAll('#tfOptions .opt-card').forEach(el => {
+    el.classList.toggle('selected', el.dataset.val === String(val));
+  });
+  document.getElementById('checkBtn').disabled = false;
+}
+
+// Fill Blank
+function renderFB(lesson) {
+  return `<div>
+    <input type="text" class="ex-input" id="fbInput" placeholder="Ketik jawaban..." autocomplete="off" oninput="onFBInput()">
+  </div>`;
+}
+
+function onFBInput() {
+  const val = document.getElementById('fbInput').value.trim();
+  document.getElementById('checkBtn').disabled = val.length === 0;
+}
+
+// Order
+function renderOrd(lesson) {
+  // Tampilkan item dalam urutan acak
+  const shuffled = lesson.o.map((item, i) => ({text: item, origIdx: i}));
+  // Shuffle
+  for (let i = shuffled.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [shuffled[i], shuffled[j]] = [shuffled[j], shuffled[i]];
+  }
+  state.exerciseState.ordOrder = [];
+  state.exerciseState.ordItems = shuffled;
+
+  return `<div>
+	<div class="text-sm text-slate-400 mb-3">Click items in the correct order: <span class="id-lang">Klik item dalam urutan yang benar:</span></div>
+    <div class="space-y-2" id="ordList">
+      ${shuffled.map((item, i) => `
+        <div class="order-item flex items-center gap-3" data-orig="${item.origIdx}" onclick="selectOrd(this,${item.origIdx})">
+          <span class="w-7 h-7 rounded-full bg-white/5 flex items-center justify-center text-xs font-bold ord-num"></span>
+          <span>${item.text}</span>
+        </div>
+      `).join('')}
+    </div>
+    <div class="mt-3 text-xs text-slate-500" id="ordStatus">Urutan terpilih: (belum ada)</div>
+  </div>`;
+}
+
+function selectOrd(el, origIdx) {
+  if (state.exerciseState.answered) return;
+  if (el.classList.contains('ordered')) return;
+
+  const order = state.exerciseState.ordOrder;
+  order.push(origIdx);
+  el.classList.add('ordered');
+  const numEl = el.querySelector('.ord-num');
+  numEl.textContent = order.length;
+
+  document.getElementById('ordStatus').textContent = `Urutan terpilih: ${order.length}/${state.exerciseState.ordItems.length}`;
+  document.getElementById('checkBtn').disabled = order.length < state.exerciseState.ordItems.length;
+}
+
+// Match
+function renderMatch(lesson) {
+  state.exerciseState.matchLeft = null;
+  state.exerciseState.matchPairs = [];
+  state.exerciseState.matchedLeft = new Set();
+  state.exerciseState.matchedRight = new Set();
+
+  // Shuffle right column
+  const rightShuffled = [...lesson.right];
+  for (let i = rightShuffled.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [rightShuffled[i], rightShuffled[j]] = [rightShuffled[j], rightShuffled[i]];
+  }
+  state.exerciseState.rightShuffled = rightShuffled;
+
+  return `<div>
+    <div class="text-sm text-slate-400 mb-3">Klik item kiri, lalu item kanan untuk mencocokkan:</div>
+    <div class="grid grid-cols-2 gap-3" id="matchGrid">
+      <div class="space-y-2" id="matchLeft">
+        ${lesson.left.map((item, i) => `
+          <div class="match-item" data-side="left" data-idx="${i}" onclick="selectMatch('left',${i})">${item}</div>
+        `).join('')}
+      </div>
+      <div class="space-y-2" id="matchRight">
+        ${rightShuffled.map((item, i) => `
+          <div class="match-item" data-side="right" data-idx="${i}" data-val="${item}" onclick="selectMatch('right',${i})">${item}</div>
+        `).join('')}
+      </div>
+    </div>
+  </div>`;
+}
+
+function selectMatch(side, idx) {
+  if (state.exerciseState.answered) return;
+  const es = state.exerciseState;
+
+  if (side === 'left') {
+    if (es.matchedLeft.has(idx)) return;
+    // Highlight
+    document.querySelectorAll('#matchLeft .match-item').forEach(el => el.classList.remove('active'));
+    const el = document.querySelector(`#matchLeft .match-item[data-idx="${idx}"]`);
+    el.classList.add('active');
+    es.matchLeft = idx;
+  } else {
+    if (es.matchedRight.has(idx)) return;
+    if (es.matchLeft === null) {
+      showToast('Pilih item kiri terlebih dahulu', 'info');
+      return;
+    }
+    // Create pair
+    const lesson = COURSE.maps[state.currentMap].lessons[state.currentLesson];
+    const leftIdx = es.matchLeft;
+    const rightVal = es.rightShuffled[idx];
+    es.matchPairs.push({leftIdx, rightVal, rightShuffledIdx: idx});
+    es.matchedLeft.add(leftIdx);
+    es.matchedRight.add(idx);
+
+    // Visual
+    const leftEl = document.querySelector(`#matchLeft .match-item[data-idx="${leftIdx}"]`);
+    const rightEl = document.querySelector(`#matchRight .match-item[data-idx="${idx}"]`);
+    leftEl.classList.remove('active');
+    leftEl.classList.add('matched');
+    rightEl.classList.add('matched');
+
+    es.matchLeft = null;
+
+    document.getElementById('checkBtn').disabled = es.matchPairs.length < lesson.left.length;
+  }
+}
+
+// Select All
+function renderSA(lesson) {
+  state.exerciseState.selectedSet = new Set();
+  return `<div>
+    <div class="text-sm text-slate-400 mb-3">Pilih semua jawaban yang benar:</div>
+    <div class="space-y-2" id="saOptions">
+      ${lesson.o.map((opt, i) => `
+        <div class="opt-card" data-idx="${i}" onclick="toggleSA(${i})">
+          <span class="w-6 h-6 rounded border-2 border-slate-600 flex items-center justify-center flex-shrink-0 sa-check"></span>
+          <span>${opt}</span>
+        </div>
+      `).join('')}
+    </div>
+  </div>`;
+}
+
+function toggleSA(idx) {
+  if (state.exerciseState.answered) return;
+  const set = state.exerciseState.selectedSet;
+  if (set.has(idx)) set.delete(idx); else set.add(idx);
+  document.querySelectorAll('#saOptions .opt-card').forEach((el, i) => {
+    const check = el.querySelector('.sa-check');
+    if (set.has(i)) {
+      el.classList.add('selected');
+      check.innerHTML = '<i class="fa-solid fa-check text-emerald-400 text-xs"></i>';
+      check.style.borderColor = '#10b981';
+    } else {
+      el.classList.remove('selected');
+      check.innerHTML = '';
+      check.style.borderColor = '';
+    }
+  });
+  document.getElementById('checkBtn').disabled = set.size === 0;
+}
+
+// Code Output
+function renderCode(lesson) {
+  return `<div>
+    <div class="text-sm text-slate-400 mb-3">Tulis output yang akan ditampilkan:</div>
+    <input type="text" class="ex-input font-mono" id="codeInput" placeholder="Ketik output..." autocomplete="off" oninput="onCodeInput()">
+  </div>`;
+}
+
+function onCodeInput() {
+  const val = document.getElementById('codeInput').value.trim();
+  document.getElementById('checkBtn').disabled = val.length === 0;
+}
+
+// ============================================================
+// CHECK ANSWER
+// ============================================================
+function checkAnswer() {
+  if (state.exerciseState.answered) return;
+  state.exerciseState.answered = true;
+
+  // Sembunyikan tombol Hint dan Reset
+  const resetBtn = document.getElementById('resetBtn');
+  if (resetBtn) resetBtn.style.display = 'none';
+
+  const lesson = COURSE.maps[state.currentMap].lessons[state.currentLesson];
+  const etype = lesson.etype;
+  let correct = false;
+  let correctAnswer = '';
+
+  switch(etype) {
+    case 'mc': {
+      const sel = state.exerciseState.selected;
+      correct = sel === lesson.a;
+      document.querySelectorAll('#mcOptions .opt-card').forEach((el, i) => {
+        el.classList.add('disabled');
+        if (i === lesson.a) el.classList.add('correct');
+        if (i === sel && !correct) el.classList.add('wrong');
+      });
+      correctAnswer = lesson.o[lesson.a];
+      break;
+    }
+    case 'tf': {
+      const sel = state.exerciseState.selected;
+      correct = sel === lesson.a;
+      document.querySelectorAll('#tfOptions .opt-card').forEach(el => {
+        el.classList.add('disabled');
+        if (String(lesson.a) === el.dataset.val) el.classList.add('correct');
+        if (String(sel) === el.dataset.val && !correct) el.classList.add('wrong');
+      });
+            correctAnswer = lesson.a ? 'True <span class="id-lang">Benar</span>' : 'False <span class="id-lang">Salah</span>';
+      break;
+    }
+    case 'fb': {
+      const input = document.getElementById('fbInput').value.trim();
+      // Normalisasi: hapus semua spasi dan ubah jadi huruf kecil
+      const normalize = str => str.replace(/\s+/g, '').toLowerCase();
+      // Terima beberapa jawaban yang benar (dipisah /)
+      const answers = lesson.a.split('/');
+      correct = answers.some(a => normalize(input) === normalize(a));
+      document.getElementById('fbInput').classList.add(correct ? 'correct' : 'wrong');
+      document.getElementById('fbInput').disabled = true;
+      correctAnswer = lesson.a;
+      break;
+    }
+    case 'ord': {
+      const order = state.exerciseState.ordOrder;
+      correct = order.length === lesson.a.length && order.every((v, i) => v === lesson.a[i]);
+      correctAnswer = lesson.a.map(i => lesson.o[i]).join(' → ');
+      break;
+    }
+    case 'match': {
+      const pairs = state.exerciseState.matchPairs;
+      const lesson_data = lesson;
+      correct = pairs.length === lesson_data.a.length && pairs.every((p, i) => {
+        // Cek apakah leftIdx-i cocok dengan right yang benar
+        const expectedRightVal = lesson_data.right[lesson_data.a[p.leftIdx]];
+        return p.rightVal === expectedRightVal;
+      });
+      correctAnswer = lesson_data.left.map((l, i) => `${l} ↔ ${lesson_data.right[lesson_data.a[i]]}`).join(', ');
+      break;
+    }
+    case 'sa': {
+      const selected = [...state.exerciseState.selectedSet].sort();
+      const expected = [...lesson.a].sort();
+      correct = selected.length === expected.length && selected.every((v, i) => v === expected[i]);
+      document.querySelectorAll('#saOptions .opt-card').forEach((el, i) => {
+        el.classList.add('disabled');
+        if (lesson.a.includes(i)) el.classList.add('correct');
+        if (selected.includes(i) && !lesson.a.includes(i)) el.classList.add('wrong');
+      });
+      correctAnswer = lesson.a.map(i => lesson.o[i]).join(', ');
+      break;
+    }
+    case 'code': {
+      const input = document.getElementById('codeInput').value.trim();
+      // Normalisasi: hapus semua spasi dan ubah jadi huruf kecil
+      const normalize = str => str.replace(/\s+/g, '').toLowerCase();
+      correct = normalize(input) === normalize(lesson.a);
+      document.getElementById('codeInput').classList.add(correct ? 'correct' : 'wrong');
+      document.getElementById('codeInput').disabled = true;
+      correctAnswer = lesson.a;
+      break;
+    }
+  }
+
+  // Simpan jawaban untuk Print Result
+  const mi = state.currentMap;
+  const li = state.currentLesson;
+  let studentAnswerText = "";
+  let correctAnswerText = "";
+
+  switch(etype) {
+    case 'mc':
+      studentAnswerText = state.exerciseState.selected !== undefined ? lesson.o[state.exerciseState.selected] : "-";
+      correctAnswerText = lesson.o[lesson.a];
+      break;
+    case 'tf':
+      studentAnswerText = state.exerciseState.selected !== null ? (state.exerciseState.selected ? "True" : "False") : "-";
+      correctAnswerText = lesson.a ? "True" : "False";
+      break;
+    case 'fb':
+      studentAnswerText = document.getElementById('fbInput').value.trim() || "-";
+      correctAnswerText = lesson.a;
+      break;
+    case 'code':
+      studentAnswerText = document.getElementById('codeInput').value.trim() || "-";
+      correctAnswerText = lesson.a;
+      break;
+    case 'ord':
+      studentAnswerText = state.exerciseState.ordOrder.map(i => lesson.o[i]).join(' → ') || "-";
+      correctAnswerText = lesson.a.map(i => lesson.o[i]).join(' → ');
+      break;
+    case 'match':
+      studentAnswerText = "Matched pairs";
+      correctAnswerText = lesson.left.map((l, i) => `${l} ↔ ${lesson.right[lesson.a[i]]}`).join('; ');
+      break;
+    case 'sa':
+      studentAnswerText = [...state.exerciseState.selectedSet].sort().map(i => lesson.o[i]).join(', ') || "-";
+      correctAnswerText = lesson.a.map(i => lesson.o[i]).join(', ');
+      break;
+  }
+
+  if (!state.mapAnswers) state.mapAnswers = {};
+  if (!state.mapAnswers[mi]) state.mapAnswers[mi] = {};
+  state.mapAnswers[mi][li] = {
+    q: lesson.q,
+    studentAnswer: studentAnswerText,
+    correctAnswer: correctAnswerText,
+    isCorrect: correct
+  };
+  saveState();
+
+  // Tampilkan feedback
+  const feedback = document.getElementById('feedbackArea');
+  if (correct) {
+    feedback.innerHTML = `
+      <div class="feedback-bar correct-fb">
+        <i class="fa-solid fa-check-circle text-2xl"></i>
+        <div>
+          <div class="text-lg">Correct! Excellent! <span class="id-lang">Benar! Hebat!</span></div>
+          ${correctAnswer ? `<div class="text-sm opacity-80 mt-1">Answer: ${correctAnswer}</div>` : ''}
+        </div>
+      </div>
+    `;
+    // Tambah XP
+    state.xp += 10;
+    state.streak += 1;
+    showXPPopup(10);
+    spawnConfetti();
+  } else {
+    feedback.innerHTML = `
+      <div class="feedback-bar wrong-fb">
+        <i class="fa-solid fa-times-circle text-2xl"></i>
+        <div>
+            <div class="text-lg">Incorrect <span class="id-lang">Belum tepat</span></div>
+            <div class="text-sm opacity-80 mt-1">Answer: ${correctAnswer}</div>
+        </div>
+      </div>
+    `;
+    state.streak = 0;
+  }
+  
+  renderKatexInElement(feedback);
+  
+  // Update header
+  document.getElementById('headerXP').textContent = state.xp;
+  document.getElementById('headerStreak').textContent = state.streak;
+
+  // Ganti tombol check menjadi lanjut
+  const checkBtn = document.getElementById('checkBtn');
+  checkBtn.textContent = 'Lanjut ';
+  checkBtn.innerHTML = 'Next <span class="id-lang" style="color:rgba(11,17,33,0.7); display:inline;">Lanjut</span> <i class="fa-solid fa-arrow-right"></i>';
+  checkBtn.disabled = false;
+  checkBtn.onclick = () => completeAndNext();
+
+  saveState();
+}
+
+// ============================================================
+// PRINT RESULT UNTUK ASSESSMENT
+// ============================================================
+function showPrintResultForm(mapIdx) {
+  const map = COURSE.maps[mapIdx];
+  const totalLessons = map.lessons.length;
+  let correctCount = 0;
+  
+  if (state.mapAnswers && state.mapAnswers[mapIdx]) {
+    for (let i = 0; i < totalLessons; i++) {
+      if (state.mapAnswers[mapIdx][i] && state.mapAnswers[mapIdx][i].isCorrect) {
+        correctCount++;
+      }
+    }
+  }
+  
+  const score = Math.round((correctCount / totalLessons) * 100);
+
+  const content = document.getElementById('lessonContent');
+  content.innerHTML = `
+    <div class="stagger-in text-center">
+      <div class="text-5xl mb-4">🎉</div>
+      <h2 class="text-2xl font-bold mb-2">Assessment Completed! <span class="id-lang">Asesmen Selesai!</span></h2>
+      <p class="text-slate-400 mb-6">You scored <span class="text-emerald-400 font-bold text-xl">${score}%</span> (${correctCount}/${totalLessons})</p>
+      
+      <div class="max-w-md mx-auto text-left space-y-4 mb-8">
+        <div>
+          <label class="text-sm text-slate-400 block mb-1">Name / <span class="id-lang">Nama</span></label>
+          <input type="text" id="printName" class="ex-input" placeholder="Enter your name / Masukkan nama">
+        </div>
+        <div>
+          <label class="text-sm text-slate-400 block mb-1">Date / <span class="id-lang">Tanggal</span></label>
+          <input type="date" id="printDate" class="ex-input" value="${new Date().toISOString().split('T')[0]}">
+        </div>
+        <div>
+          <label class="text-sm text-slate-400 block mb-1">Assessment / <span class="id-lang">Asesmen</span></label>
+          <input type="text" class="ex-input" value="Assessment ${map.id}" disabled style="opacity:0.6">
+        </div>
+        <div>
+          <label class="text-sm text-slate-400 block mb-1">Score / <span class="id-lang">Skor</span></label>
+          <input type="text" class="ex-input" value="${score}%" disabled style="opacity:0.6">
+        </div>
+      </div>
+
+      <button class="btn-primary text-lg" onclick="generatePrintout(${mapIdx})">
+        <i class="fa-solid fa-print mr-2"></i> Print Result <span class="id-lang" style="color:rgba(11,17,33,0.7); display:inline;">Cetak Hasil</span>
+      </button>
+      
+      <div class="mt-4">
+        <button class="btn-secondary" onclick="openPeta(${mapIdx})">
+          Back to Map <span class="id-lang">Kembali ke Peta</span>
+        </button>
+      </div>
+    </div>
+  `;
+}
+
+function generatePrintout(mapIdx) {
+  const map = COURSE.maps[mapIdx];
+  const studentName = document.getElementById('printName').value || '-';
+  const printDate = document.getElementById('printDate').value || '-';
+  
+  let correctCount = 0;
+  let tableRows = '';
+  
+  for (let i = 0; i < map.lessons.length; i++) {
+    const ansData = (state.mapAnswers && state.mapAnswers[mapIdx] && state.mapAnswers[mapIdx][i]) ? state.mapAnswers[mapIdx][i] : null;
+    // Hapus tag id-lang dari pertanyaan agar printout lebih bersih (hanya bahasa Inggris)
+    const qText = map.lessons[i].q.replace(/<span class='id-lang'>.*?<\/span>/g, '');
+    const studentAns = ansData ? ansData.studentAnswer : '-';
+    const correctAns = ansData ? ansData.correctAnswer : '-';
+    const isCorrect = ansData ? ansData.isCorrect : false;
+    
+    if (isCorrect) correctCount++;
+    
+    const noteSymbol = isCorrect ? '✓' : '✗';
+    const noteColor = isCorrect ? 'green' : 'red';
+    
+    tableRows += `
+      <tr>
+        <td style="text-align:center; width: 40px;">${i + 1}</td>
+        <td>${qText}</td>
+        <td>${studentAns}</td>
+        <td>${correctAns}</td>
+        <td style="text-align:center; color: ${noteColor}; font-weight:bold; font-size:1.2rem;">${noteSymbol}</td>
+      </tr>
+    `;
+  }
+  
+  const score = Math.round((correctCount / map.lessons.length) * 100);
+
+  const printWindow = window.open('', '_blank');
+  printWindow.document.write(`
+    <!DOCTYPE html>
+    <html lang="id">
+    <head>
+      <meta charset="UTF-8">
+      <title>Assessment Result - ${map.id}</title>
+      <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.css">
+      <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.js"><\/script>
+      <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/contrib/auto-render.min.js"
+        onload="renderMathInElement(document.body, {delimiters: [{left: '\\\\(', right: '\\\\)', display: false},{left: '\\\\[', right: '\\\\]', display: true}], throwOnError: false}); setTimeout(function(){window.print();}, 1000);"><\/script>
+      <style>
+        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; padding: 30px; color: #333; line-height: 1.5; }
+        h1 { text-align: center; margin-bottom: 5px; }
+        .subtitle { text-align: center; color: #666; font-size: 0.9rem; margin-bottom: 20px; }
+        .header-info { margin-bottom: 20px; border: 1px solid #ddd; padding: 15px; border-radius: 8px; display: flex; justify-content: space-between; flex-wrap: wrap; }
+        .header-info p { margin: 5px 0; font-size: 14px; }
+        .header-info strong { margin-right: 10px; }
+        table { width: 100%; border-collapse: collapse; margin-top: 20px; font-size: 13px; }
+        th, td { border: 1px solid #333; padding: 10px; text-align: left; vertical-align: top; }
+        th { background: #f0f0f0; font-weight: bold; text-align: center; }
+        @media print {
+          body { padding: 0; }
+          .header-info { border: none; padding: 0; }
+        }
+      </style>
+    </head>
+    <body>
+      <h1>Assessment Result</h1>
+      <div class="subtitle">Intro to Systems of Linear Equations</div>
+      
+      <div class="header-info">
+        <div style="flex:1; min-width: 200px;">
+          <p><strong>Name:</strong> ${studentName}</p>
+          <p><strong>Date:</strong> ${printDate}</p>
+        </div>
+        <div style="flex:1; min-width: 200px;">
+          <p><strong>Assessment:</strong> ${map.id}</p>
+          <p><strong>Score:</strong> ${score}% (${correctCount}/${map.lessons.length})</p>
+        </div>
+      </div>
+
+      <table>
+        <thead>
+          <tr>
+            <th>No.</th>
+            <th>Question</th>
+            <th>Student Answer</th>
+            <th>Correct Answer</th>
+            <th>Note</th>
+          </tr>
+        </thead>
+        <tbody>
+          ${tableRows}
+        </tbody>
+      </table>
+    </body>
+    </html>
+  `);
+  printWindow.document.close();
+}
+
+// ============================================================
+// COMPLETE & NEXT
+// ============================================================
+function completeAndNext() {
+  const mi = state.currentMap;
+  const li = state.currentLesson;
+  state.completed[`${mi}-${li}`] = true;
+  saveState();
+
+  const map = COURSE.maps[mi];
+  const isLastLesson = li + 1 >= map.lessons.length;
+  const isAssessment = map.branch; // Peta 7A-7E adalah branch: true
+
+  // Jika ini exercise terakhir di Assessment, tampilkan form Print
+  if (isAssessment && isLastLesson) {
+    showPrintResultForm(mi);
+  } else if (li + 1 < map.lessons.length && isLessonUnlocked(mi, li + 1)) {
+    openLesson(mi, li + 1);
+  } else {
+    openPeta(mi);
+  }
+}
+
+// ============================================================
+// NAVIGASI
+// ============================================================
+function showView(viewName) {
+  document.querySelectorAll('.view').forEach(v => v.classList.remove('active'));
+  document.getElementById(viewName + 'View').classList.add('active');
+  state.currentView = viewName;
+  window.scrollTo(0, 0);
+}
+
+function showMap() {
+  showView('map');
+  renderMap();
+}
+
+function closeLesson() {
+  openPeta(state.currentMap);
+}
+
+// ============================================================
+// UI HELPERS
+// ============================================================
+function showToast(msg, type='info') {
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.className = `toast ${type} show`;
+  setTimeout(() => t.classList.remove('show'), 2500);
+}
+
+function showXPPopup(amount) {
+  document.getElementById('xpAmount').textContent = amount;
+  const popup = document.getElementById('xpPopup');
+  popup.classList.add('show');
+  setTimeout(() => popup.classList.remove('show'), 1500);
+}
+
+function spawnConfetti() {
+  const colors = ['#10b981','#f59e0b','#ec4899','#8b5cf6','#06b6d4','#ef4444'];
+  for (let i = 0; i < 30; i++) {
+    const c = document.createElement('div');
+    c.className = 'confetti';
+    c.style.left = Math.random() * 100 + 'vw';
+    c.style.background = colors[Math.floor(Math.random() * colors.length)];
+    c.style.width = (Math.random() * 8 + 4) + 'px';
+    c.style.height = (Math.random() * 8 + 4) + 'px';
+    c.style.borderRadius = Math.random() > 0.5 ? '50%' : '2px';
+    c.style.animationDuration = (Math.random() * 1.5 + 1) + 's';
+    c.style.animationDelay = (Math.random() * 0.5) + 's';
+    document.body.appendChild(c);
+    setTimeout(() => c.remove(), 3000);
+  }
+}
+
+function showHint() {
+  document.getElementById('hintArea').classList.remove('hidden');
+  document.getElementById('hintBtn').disabled = true;
+}
+
+function escapeHTML(str) {
+  return str.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+}
+
+// --- FUNGSI UNTUK MODAL RULES ---
+function openRules() {
+  document.getElementById('rulesModal').classList.add('active');
+}
+
+function closeRules() {
+  document.getElementById('rulesModal').classList.remove('active');
+}
+
+// ============================================================
+// KATEX RENDERING
+// ============================================================
+function renderKatexInElement(el) {
+  if (typeof renderMathInElement === 'function') {
+    renderMathInElement(el, {
+      delimiters: [
+        {left: '\\(', right: '\\)', display: false},  //
+        {left: '\\[', right: '\\]', display: true}    //
+      ],
+      throwOnError: false
+    });
+  }
+}
+
+// Override showView untuk render KaTeX setiap pindah halaman
+const originalShowView = showView;
+showView = function(viewName) {
+  originalShowView(viewName);
+  setTimeout(() => renderKatexInElement(document.body), 100);
+};
+
+// Override openLesson untuk render KaTeX di konten lesson
+const originalOpenLesson = openLesson;
+openLesson = function(mapIdx, lessonIdx) {
+  originalOpenLesson(mapIdx, lessonIdx);
+  setTimeout(() => renderKatexInElement(document.body), 100);
+};
+
+// ============================================================
+// INISIALISASI APLIKASI
+// ============================================================
+loadState();
+renderMap();
+
+// Keyboard shortcuts
+document.addEventListener('keydown', (e) => {
+  // Tekan Escape untuk menutup lesson
+  if (e.key === 'Escape' && state.currentView === 'lesson') {
+    closeLesson();
+  }
+  
+  // Tekan Enter untuk memeriksa jawaban / lanjut ke soal berikutnya
+  if (e.key === 'Enter' && state.currentView === 'lesson') {
+    const checkBtn = document.getElementById('checkBtn');
+    // Pastikan tombol ada dan tidak dalam keadaan disabled
+    if (checkBtn && !checkBtn.disabled) {
+      e.preventDefault(); 
+      checkBtn.click();   // Untuk halaman Exercise
+    } else if (nextBtn) {
+      e.preventDefault();
+      nextBtn.click();    // Untuk halaman Teori
+    }
+  }
+});
+</script>
+</body>
+</html>

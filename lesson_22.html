@@ -1,0 +1,2139 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Math Tutoring — by Deni</title>
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.css">
+<script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.js"></script>
+<script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/contrib/auto-render.min.js"></script>
+<script src="https://cdn.tailwindcss.com"></script>
+<style>
+:root {
+  --bg: #0b1121; --bg2: #111827; --card: rgba(17,24,39,0.85);
+  --fg: #e2e8f0; --muted: #64748b; --accent: #10b981;
+  --accent2: #f59e0b; --danger: #ef4444; --border: rgba(100,116,139,0.2);
+  --glass: rgba(16,185,129,0.08);
+}
+* { box-sizing: border-box; margin: 0; padding: 0; }
+body { font-family: 'Space Grotesk', sans-serif; background: var(--bg); color: var(--fg); min-height: 100vh; overflow-x: hidden; }
+.font-mono { font-family: 'JetBrains Mono', monospace; }
+
+/* Latar belakang animasi */
+.bg-grid {
+  position: fixed; inset: 0; z-index: 0; pointer-events: none;
+  background-image:
+    radial-gradient(circle at 20% 50%, rgba(16,185,129,0.06) 0%, transparent 50%),
+    radial-gradient(circle at 80% 20%, rgba(245,158,11,0.04) 0%, transparent 50%),
+    radial-gradient(circle at 50% 80%, rgba(16,185,129,0.03) 0%, transparent 50%);
+}
+.bg-grid::after {
+  content: ''; position: absolute; inset: 0;
+  background-image: linear-gradient(rgba(16,185,129,0.03) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(16,185,129,0.03) 1px, transparent 1px);
+  background-size: 60px 60px;
+}
+
+/* Transisi halaman */
+.view { display: none; position: relative; z-index: 1; }
+.view.active { display: block; animation: fadeSlideIn 0.4s ease; }
+@keyframes fadeSlideIn { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
+
+/* Peta node */
+.map-node {
+  width: 72px; height: 72px; border-radius: 50%; display: flex; align-items: center; justify-content: center;
+  font-weight: 700; font-size: 1.2rem; cursor: pointer; transition: all 0.3s ease;
+  position: relative; border: 3px solid var(--border);
+  background: var(--bg2);
+}
+.map-node.unlocked { border-color: var(--accent); box-shadow: 0 0 20px rgba(16,185,129,0.2); }
+.map-node.unlocked:hover { transform: scale(1.12); box-shadow: 0 0 30px rgba(16,185,129,0.4); }
+.map-node.completed { background: var(--accent); border-color: var(--accent); color: var(--bg); }
+.map-node.completed:hover { transform: scale(1.08); }
+.map-node.locked { opacity: 0.35; cursor: not-allowed; }
+.map-node.current { animation: pulseGlow 2s ease-in-out infinite; }
+@keyframes pulseGlow {
+  0%,100% { box-shadow: 0 0 15px rgba(16,185,129,0.3); }
+  50% { box-shadow: 0 0 35px rgba(16,185,129,0.6); }
+}
+
+/* Koneksi garis peta */
+.map-line { width: 3px; height: 40px; margin: 0 auto; background: var(--border); transition: background 0.5s; }
+.map-line.done { background: var(--accent); }
+.map-branch-line { height: 3px; width: 60px; background: var(--border); transition: background 0.5s; }
+.map-branch-line.done { background: var(--accent); }
+
+/* Lesson node di peta detail */
+.lesson-node {
+  width: 56px; height: 56px; border-radius: 16px; display: flex; align-items: center; justify-content: center;
+  font-size: 0.85rem; cursor: pointer; transition: all 0.3s; border: 2px solid var(--border); background: var(--bg2);
+}
+.lesson-node.theory { border-radius: 50%; }
+.lesson-node.exercise { border-radius: 16px; }
+.lesson-node.unlocked { border-color: var(--accent); }
+.lesson-node.unlocked:hover { transform: scale(1.15); box-shadow: 0 0 20px rgba(16,185,129,0.3); }
+.lesson-node.completed { background: var(--accent); border-color: var(--accent); color: var(--bg); }
+.lesson-node.locked { opacity: 0.3; cursor: not-allowed; }
+.lesson-connector { width: 2px; height: 24px; margin: 0 auto; background: var(--border); }
+.lesson-connector.done { background: var(--accent); }
+
+/* Tombol */
+.btn-primary {
+  background: var(--accent); color: var(--bg); font-weight: 600; padding: 14px 32px; border-radius: 14px;
+  border: none; cursor: pointer; font-size: 1rem; font-family: inherit; transition: all 0.2s;
+  display: inline-flex; align-items: center; gap: 8px;
+}
+.btn-primary:hover { filter: brightness(1.15); transform: translateY(-2px); box-shadow: 0 6px 20px rgba(16,185,129,0.3); }
+.btn-primary:disabled { opacity: 0.4; cursor: not-allowed; transform: none; filter: none; }
+.btn-secondary {
+  background: transparent; color: var(--accent); font-weight: 600; padding: 12px 24px; border-radius: 14px;
+  border: 2px solid var(--accent); cursor: pointer; font-size: 0.9rem; font-family: inherit; transition: all 0.2s;
+}
+.btn-secondary:hover { background: rgba(16,185,129,0.1); }
+
+/* Opsi exercise */
+.opt-card {
+  padding: 16px 20px; border: 2px solid var(--border); border-radius: 14px; cursor: pointer;
+  transition: all 0.2s; background: var(--card); min-height: 52px; display: flex; align-items: center; gap: 12px;
+}
+.opt-card:hover { border-color: rgba(16,185,129,0.4); background: var(--glass); }
+.opt-card.selected { border-color: var(--accent); background: rgba(16,185,129,0.12); }
+.opt-card.correct { border-color: #10b981; background: rgba(16,185,129,0.15); }
+.opt-card.wrong { border-color: #ef4444; background: rgba(239,68,68,0.1); }
+.opt-card.disabled { pointer-events: none; opacity: 0.7; }
+
+/* Input exercise */
+.ex-input {
+  background: var(--bg2); border: 2px solid var(--border); border-radius: 12px; padding: 14px 18px;
+  color: var(--fg); font-size: 1rem; font-family: inherit; width: 100%; outline: none; transition: border-color 0.2s;
+}
+.ex-input:focus { border-color: var(--accent); }
+.ex-input.correct { border-color: #10b981; }
+.ex-input.wrong { border-color: #ef4444; }
+
+/* Code block */
+.code-block {
+  background: #0d1117; border: 1px solid rgba(100,116,139,0.2); border-radius: 12px;
+  padding: 20px; font-family: 'JetBrains Mono', monospace; font-size: 0.9rem;
+  line-height: 1.7; overflow-x: auto; white-space: pre;
+}
+
+/* Progress bar */
+.prog-bar { height: 6px; border-radius: 3px; background: rgba(100,116,139,0.2); overflow: hidden; }
+.prog-fill { height: 100%; border-radius: 3px; background: var(--accent); transition: width 0.5s ease; }
+
+/* Toast */
+.toast {
+  position: fixed; bottom: 30px; left: 50%; transform: translateX(-50%) translateY(100px);
+  padding: 14px 28px; border-radius: 14px; font-weight: 600; z-index: 999;
+  transition: transform 0.4s ease; pointer-events: none;
+}
+.toast.show { transform: translateX(-50%) translateY(0); }
+.toast.success { background: #10b981; color: #0b1121; }
+.toast.error { background: #ef4444; color: white; }
+.toast.info { background: #f59e0b; color: #0b1121; }
+
+/* XP popup */
+.xp-popup {
+  position: fixed; top: 50%; left: 50%; transform: translate(-50%,-50%) scale(0);
+  background: var(--bg2); border: 2px solid var(--accent2); border-radius: 24px;
+  padding: 40px 60px; z-index: 100; text-align: center;
+  transition: transform 0.4s cubic-bezier(0.175,0.885,0.32,1.275);
+}
+.xp-popup.show { transform: translate(-50%,-50%) scale(1); }
+
+/* Celebration particles */
+.confetti { position: fixed; top: -10px; z-index: 99; pointer-events: none; animation: confettiFall 2s ease-out forwards; }
+@keyframes confettiFall {
+  0% { transform: translateY(0) rotate(0deg); opacity: 1; }
+  100% { transform: translateY(100vh) rotate(720deg); opacity: 0; }
+}
+
+/* Match exercise */
+.match-item {
+  padding: 12px 18px; border: 2px solid var(--border); border-radius: 12px; cursor: pointer;
+  transition: all 0.2s; background: var(--card); text-align: center; user-select: none;
+}
+.match-item:hover { border-color: rgba(16,185,129,0.4); }
+.match-item.active { border-color: var(--accent); background: rgba(16,185,129,0.12); box-shadow: 0 0 15px rgba(16,185,129,0.2); }
+.match-item.matched { border-color: #10b981; background: rgba(16,185,129,0.15); opacity: 0.6; pointer-events: none; }
+.match-item.wrong-match { border-color: #ef4444; background: rgba(239,68,68,0.1); }
+
+/* Order exercise */
+.order-item {
+  padding: 14px 20px; border: 2px solid var(--border); border-radius: 12px; cursor: pointer;
+  transition: all 0.2s; background: var(--card); user-select: none;
+}
+.order-item:hover { border-color: rgba(16,185,129,0.4); }
+.order-item.ordered { border-color: var(--accent2); background: rgba(245,158,11,0.1); opacity: 0.5; }
+
+/* Scrollbar */
+::-webkit-scrollbar { width: 6px; }
+::-webkit-scrollbar-track { background: transparent; }
+::-webkit-scrollbar-thumb { background: rgba(100,116,139,0.3); border-radius: 3px; }
+
+/* Responsif */
+@media (max-width: 640px) {
+  .map-node { width: 56px; height: 56px; font-size: 1rem; }
+  .lesson-node { width: 48px; height: 48px; font-size: 0.75rem; }
+}
+
+/* Animasi masuk */
+.stagger-in > * { opacity: 0; transform: translateY(15px); animation: staggerFade 0.4s ease forwards; }
+.stagger-in > *:nth-child(1) { animation-delay: 0.05s; }
+.stagger-in > *:nth-child(2) { animation-delay: 0.1s; }
+.stagger-in > *:nth-child(3) { animation-delay: 0.15s; }
+.stagger-in > *:nth-child(4) { animation-delay: 0.2s; }
+.stagger-in > *:nth-child(5) { animation-delay: 0.25s; }
+.stagger-in > *:nth-child(6) { animation-delay: 0.3s; }
+.stagger-in > *:nth-child(7) { animation-delay: 0.35s; }
+.stagger-in > *:nth-child(8) { animation-delay: 0.4s; }
+.stagger-in > *:nth-child(9) { animation-delay: 0.45s; }
+.stagger-in > *:nth-child(10) { animation-delay: 0.5s; }
+@keyframes staggerFade { to { opacity: 1; transform: translateY(0); } }
+
+/* Feedback benar/salah */
+.feedback-bar {
+  padding: 18px 24px; border-radius: 14px; font-weight: 600; display: flex; align-items: center; gap: 12px;
+  animation: fadeSlideIn 0.3s ease;
+}
+.feedback-bar.correct-fb { background: rgba(16,185,129,0.15); border: 1px solid rgba(16,185,129,0.3); color: #10b981; }
+.feedback-bar.wrong-fb { background: rgba(239,68,68,0.1); border: 1px solid rgba(239,68,68,0.3); color: #ef4444; }
+
+/* Terjemahan bahasa Indonesia di bawah teks utama */
+.id-lang { display: block; font-size: 0.75rem; color: #94a3b8; margin-top: 2px; line-height: 1.4; }
+
+/* Khusus label di node peta/lesson: tidak wrap, indo di bawah inggris */
+.node-title { text-align: center; white-space: nowrap; }
+.node-title .id-lang { display: block; white-space: nowrap; margin-top: 2px; }
+
+/* Modal Rules */
+.modal-overlay {
+  position: fixed; inset: 0; background: rgba(0,0,0,0.7); z-index: 200;
+  display: none; align-items: center; justify-content: center;
+}
+.modal-overlay.active { display: flex; animation: fadeIn 0.3s ease; }
+.modal-box {
+  background: var(--bg2); border: 1px solid var(--border); border-radius: 20px;
+  padding: 30px; max-width: 450px; width: 90%; position: relative;
+  animation: scaleIn 0.3s ease;
+}
+@keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+@keyframes scaleIn { from { transform: scale(0.9); opacity: 0; } to { transform: scale(1); opacity: 1; } }
+</style>
+</head>
+<body>
+<div class="bg-grid"></div>
+<!-- Rules Modal -->
+<div id="rulesModal" class="modal-overlay">
+  <div class="modal-box">
+    <button onclick="closeRules()" class="absolute top-4 right-4 text-slate-500 hover:text-slate-300 transition">
+      <i class="fa-solid fa-xmark text-lg"></i>
+    </button>
+    <h3 class="text-xl font-bold mb-5 text-amber-400">
+      <i class="fa-solid fa-gavel mr-2"></i>Class Rules <span class="id-lang" style="display:inline; color:#f59e0b;">Aturan Kelas</span>
+    </h3>
+    <ul class="space-y-4 text-slate-300">
+      <li class="flex items-start gap-3">
+        <span class="w-8 h-8 rounded-lg bg-emerald-500/10 flex items-center justify-center flex-shrink-0 mt-0.5"><i class="fa-solid fa-comments text-emerald-400"></i></span>
+        <div>
+          <strong>Take turns speaking</strong>
+          <span class="id-lang">Berbicara secara bergantian</span>
+        </div>
+      </li>
+      <li class="flex items-start gap-3">
+        <span class="w-8 h-8 rounded-lg bg-amber-500/10 flex items-center justify-center flex-shrink-0 mt-0.5"><i class="fa-solid fa-video text-amber-400"></i></span>
+        <div>
+          <strong>Turn on camera & microphone when required</strong>
+          <span class="id-lang">Menyalakan kamera & microphone jika diperlukan</span>
+        </div>
+      </li>
+      <li class="flex items-start gap-3">
+        <span class="w-8 h-8 rounded-lg bg-violet-500/10 flex items-center justify-center flex-shrink-0 mt-0.5"><i class="fa-solid fa-hand text-violet-400"></i></span>
+        <div>
+          <strong>Ask for permission to leave the class</strong>
+          <span class="id-lang">Meminta izin jika ingin meninggalkan kelas</span>
+        </div>
+      </li>
+    </ul>
+    <div class="mt-6 text-right">
+      <button onclick="closeRules()" class="btn-primary">Got it! <span class="id-lang" style="color:rgba(11,17,33,0.7); display:inline;">Mengerti!</span></button>
+    </div>
+  </div>
+</div>
+
+<!-- Toast -->
+<div id="toast" class="toast"></div>
+
+<!-- XP Popup -->
+<div id="xpPopup" class="xp-popup">
+  <div class="text-5xl font-bold text-amber-400 mb-2">+<span id="xpAmount">10</span> XP</div>
+  <div class="text-lg text-slate-400">Correct answer! <span class="id-lang">Jawaban benar!</span></div>
+</div>
+
+<!-- ========== MAP VIEW ========== -->
+<div id="mapView" class="view active">
+  <header class="sticky top-0 z-10 backdrop-blur-xl bg-[#0b1121]/80 border-b border-white/5">
+    <div class="max-w-4xl mx-auto px-4 py-4 flex items-center justify-between">
+      <div class="flex items-center gap-3">
+        <div class="w-10 h-10 rounded-xl bg-emerald-500/20 flex items-center justify-center">
+          <i class="fa-solid fa-square-root-variable text-emerald-400"></i>
+        </div>
+        <div>
+          <div class="font-bold text-lg leading-tight">Math Tutoring</div>
+          <div class="text-xs text-slate-500">by Deni</div>
+        </div>
+      </div>
+      <div class="flex items-center gap-5">
+        <button onclick="openRules()" class="text-xs text-slate-500 hover:text-amber-400 transition flex items-center gap-1 border border-transparent hover:border-amber-400/30 rounded-lg px-2 py-1" title="Class Rules">
+          <i class="fa-solid fa-gavel"></i> Rules
+        </button>
+        <button onclick="resetProgress()" class="text-xs text-slate-500 hover:text-red-400 transition flex items-center gap-1 border border-transparent hover:border-red-400/30 rounded-lg px-2 py-1" title="Reset Semua Progress">
+          <i class="fa-solid fa-rotate-left"></i> Reset
+        </button>
+        <div class="flex items-center gap-2 text-amber-400 font-semibold">
+          <i class="fa-solid fa-bolt"></i><span id="headerXP">0</span> XP
+        </div>
+        <div class="flex items-center gap-2 text-orange-400 font-semibold">
+          <i class="fa-solid fa-fire"></i><span id="headerStreak">0</span>
+        </div>
+      </div>
+    </div>
+  </header>
+
+  <main class="max-w-4xl mx-auto px-4 pt-8 pb-20">
+    <div class="text-center mb-10">
+		<h1 class="text-2xl md:text-3xl font-extrabold mb-3 bg-gradient-to-r from-emerald-400 to-teal-300 bg-clip-text text-transparent leading-tight">
+		  Solving Exponential Equations using Logarithms
+		  <span class="id-lang" style="display:block; color:#94a3b8; margin-top: 4px; font-size: 1.25rem;">Menyelesaikan Persamaan Eksponensial menggunakan Logaritma</span>
+		</h1>
+            <div class="text-slate-400 mx-auto text-center" style="max-width: 90%;">
+        <div style="white-space: nowrap;">Complete each map to unlock the next. Collect XP and build your learning streak!</div>
+        <div class="id-lang" style="white-space: nowrap;">Selesaikan setiap peta untuk membuka peta berikutnya. Kumpulkan XP dan bangun streak belajarmu!</div>
+      </div>
+    </div>
+
+    <!-- Progress keseluruhan -->
+    <div class="max-w-md mx-auto mb-10">
+      <div class="flex justify-between text-sm mb-2">
+        <span class="text-slate-400">Overall Progress <span class="id-lang" style="display:inline; color:#64748b;">Progress Keseluruhan</span></span>
+        <span class="text-emerald-400 font-semibold" id="totalProgress">0%</span>
+      </div>
+      <div class="prog-bar">
+        <div class="prog-fill" id="totalProgFill" style="width:0%"></div>
+      </div>
+    </div>
+
+    <!-- Peta nodes akan dirender oleh JS -->
+    <div id="mapContainer" class="flex flex-col items-center gap-0"></div>
+  </main>
+</div>
+
+<!-- ========== PETA VIEW (detail lesson) ========== -->
+<div id="petaView" class="view">
+  <header class="sticky top-0 z-10 backdrop-blur-xl bg-[#0b1121]/80 border-b border-white/5">
+    <div class="max-w-2xl mx-auto px-4 py-4 flex items-center gap-4">
+      <button onclick="showMap()" class="w-10 h-10 rounded-xl bg-white/5 flex items-center justify-center hover:bg-white/10 transition">
+        <i class="fa-solid fa-arrow-left text-slate-400"></i>
+      </button>
+      <div>
+        <div class="font-bold text-lg" id="petaTitle"></div>
+        <div class="text-xs text-slate-500" id="petaSubtitle"></div>
+      </div>
+    </div>
+  </header>
+  <main class="max-w-2xl mx-auto px-4 pt-8 pb-20">
+    <div id="lessonContainer" class="flex flex-col items-center"></div>
+  </main>
+</div>
+
+<!-- ========== LESSON VIEW ========== -->
+<div id="lessonView" class="view">
+  <header class="sticky top-0 z-10 backdrop-blur-xl bg-[#0b1121]/80 border-b border-white/5">
+    <div class="max-w-2xl mx-auto px-4 py-4 flex items-center gap-4">
+      <button onclick="closeLesson()" class="w-10 h-10 rounded-xl bg-white/5 flex items-center justify-center hover:bg-white/10 transition">
+        <i class="fa-solid fa-xmark text-slate-400"></i>
+      </button>
+      <div class="flex-1">
+        <div class="prog-bar">
+          <div class="prog-fill" id="lessonProgFill" style="width:0%"></div>
+        </div>
+      </div>
+      <div class="text-sm text-slate-400 font-mono" id="lessonCounter">1/10</div>
+    </div>
+  </header>
+  <main class="max-w-2xl mx-auto px-4 pt-6 pb-20" id="lessonContent"></main>
+</div>
+
+<script>
+// ============================================================
+// DATA KURSUS — Seluruh konten pembelajaran
+// ============================================================
+const COURSE = {
+  title: "Solving Exponential Equations using Logarithms <span class='id-lang'>Menyelesaikan Persamaan Eksponensial dengan Logaritma</span>",
+  maps: [
+    // ==================== SECTION 1 ====================
+    {
+      id:1, title:"Spiral Review Warm-up <span class='id-lang'>Pemanasan Review</span>", icon:"fa-rotate", color:"#10b981", branch:false,
+      lessons:[
+        // 1 Teori
+        {type:"T",title:"Change of Base & Properties <span class='id-lang'>Ganti Basis & Sifat</span>",
+         body:`<p>Before solving complex equations, let's review! To evaluate logs with different bases, we use the Change of Base formula. <span class='id-lang'>Sebelum menyelesaikan persamaan kompleks, mari review! Untuk mengevaluasi log dengan basis berbeda, kita pakai rumus Ganti Basis.</span></p>
+         <div class="mt-4 p-4 rounded-xl bg-emerald-500/10 border border-emerald-500/20">
+           <div class="text-emerald-400 font-semibold mb-2"><i class="fa-solid fa-cube mr-2"></i>Change of Base Formula <span class='id-lang'>Rumus Ganti Basis</span></div>
+           <p class="text-sm text-slate-300">\\( \\log_b(M) = \\frac{\\ln(M)}{\\ln(b)} \\) or \\( \\frac{\\log(M)}{\\log(b)} \\). <span class='id-lang'>Bisa pakai ln atau log.</span></p>
+         </div>`},
+        // 3 Exercise
+        {type:"E",etype:"mc",
+         q:"Rewrite \\( \\log_5(20) \\) using natural logarithms (ln). <span class='id-lang'>Tulis ulang pakai ln.</span>",
+         o:["\\( \\frac{\\ln(20)}{\\ln(5)} \\) <span class='id-lang'></span>","\\( \\frac{\\ln(5)}{\\ln(20)} \\) <span class='id-lang'></span>","\\( \\ln(20) - \\ln(5) \\) <span class='id-lang'></span>","\\( \\ln(20) \\times \\ln(5) \\) <span class='id-lang'></span>"],
+         a:0,
+         h:"Numerator is the log of the number, denominator is the log of the base. <span class='id-lang'>Pembilang adalah log dari angka, penyebut adalah log dari basis.</span>"},
+        {type:"E",etype:"fb",
+         q:"Evaluate the exact value of \\( \\log_8(32) \\). (Hint: write as fraction of logs) <span class='id-lang'>Evaluasi nilai exact dari \\( \\log_8(32) \\).</span>",
+         a:"ln(32)/ln(8)||log(32)/log(8)||5/3",
+         h:"\\( \\log_8(32) = \\frac{\\ln(32)}{\\ln(8)} \\). Both are powers of 2! <span class='id-lang'>Keduanya pangkat dari 2.</span>"},
+        {type:"E",etype:"ord",
+         q:"Order the steps to expand \\( \\ln\\left(\\frac{x^3}{y}\\right) \\). <span class='id-lang'>Urutkan langkah ekspansi.</span>",
+         o:["\\( \\ln(x^3) - \\ln(y) \\)","\\( 3\\ln(x) - \\ln(y) \\)"],
+         a:[0,1],
+         h:"First use quotient property, then power property. <span class='id-lang'>Pakai sifat pembagian dulu, lalu pangkat.</span>"},
+        // 1 Teori
+        {type:"T",title:"Condensing Logarithms <span class='id-lang'>Menyederhanakan Logaritma</span>",
+         body:`<p>Condensing is the reverse of expanding. We combine addition into multiplication and subtraction into division. <span class='id-lang'>Menyederhanakan adalah kebalikan dari ekspansi. Kita gabungkan penjumlahan jadi perkalian dan pengurangan jadi pembagian.</span></p>
+         <div class="mt-4 p-4 rounded-xl bg-cyan-500/10 border border-cyan-500/20">
+           <div class="text-cyan-400 font-semibold mb-2">Example <span class='id-lang'>Contoh</span></div>
+           <p class="text-sm text-slate-300">\\( 2\\log(x) + \\log(y) = \\log(x^2) + \\log(y) = \\log(x^2 y) \\). <span class='id-lang'>Pakai sifat pangkat dulu, lalu perkalian.</span></p>
+         </div>`},
+        // 3 Exercise
+        {type:"E",etype:"fb",
+         q:"Condense into a single term: \\( 2\\log(x) + \\log(y) \\). <span class='id-lang'>Sederhanakan jadi satu suku.</span>",
+         a:"log(x^2y)||log(x^2*y)",
+         h:"Move the 2 to become an exponent on x, then combine using product rule. <span class='id-lang'>Pindahkan 2 jadi pangkat x, lalu gabungkan.</span>"},
+        {type:"E",etype:"mc",
+         q:"What is the value of \\( \\log_4(10) \\) approximately? <span class='id-lang'>Berapa nilai \\( \\log_4(10) \\)?</span>",
+         o:["1.66 <span class='id-lang'></span>","2.50 <span class='id-lang'></span>","0.40 <span class='id-lang'></span>","4.10 <span class='id-lang'></span>"],
+         a:0,
+         h:"Use change of base: \\( \\frac{\\ln(10)}{\\ln(4)} \\). <span class='id-lang'>Gunakan ganti basis.</span>"},
+        {type:"E",etype:"tf",
+         q:"\\( \\log_x(16) = \\frac{2}{3} \\) implies \\( x = 64 \\). <span class='id-lang'>Apakah benar x = 64?</span>",
+         a:true,
+         h:"Rewrite as \\( x^{2/3} = 16 \\). Cube both sides: \\( x^2 = 4096 \\). Square root both sides. <span class='id-lang'>Pangkatkan 3, lalu akar 2.</span>"},
+        // 1 Teori
+        {type:"T",title:"Logarithmic to Exponential Forms <span class='id-lang'>Bentuk Logaritma ke Eksponensial</span>",
+         body:`<p>The core relationship: \\( \\log_b(M) = k \\) is equivalent to \\( b^k = M \\). <span class='id-lang'>Hubungan inti: keduanya bisa ditukar bentuknya.</span></p>
+         <div class="mt-4 p-4 rounded-xl bg-amber-500/10 border border-amber-500/20">
+           <div class="text-amber-400 font-semibold mb-2">Simplification <span class='id-lang'>Penyederhanaan</span></div>
+           <p class="text-sm text-slate-300">\\( (\\log_3 5)(\\log_5 27) = \\frac{\\log 5}{\\log 3} \\times \\frac{\\log 27}{\\log 5} = \\frac{\\log 27}{\\log 3} = 3 \\). <span class='id-lang'>Salib bisa saling coret!</span></p>
+         </div>`},
+        // 4 Exercise
+        {type:"E",etype:"sa",
+         q:"Which of these are valid logarithmic properties? <span class='id-lang'>Manakah sifat logaritma yang benar?</span>",
+         o:["\\( \\log(M) + \\log(N) = \\log(MN) \\)","\\( \\log(M) - \\log(N) = \\log(M/N) \\)","\\( \\log(M^k) = k \\log(M) \\)","\\( \\log(M+N) = \\log(M) \\log(N) \\)"],
+         a:[0,1,2],
+         h:"Select all that match the Product, Quotient, and Power rules. <span class='id-lang'>Pilih sesuai aturan perkalian, pembagian, dan pangkat.</span>"},
+        {type:"E",etype:"fb",
+         q:"Evaluate \\( \\log_2(30) \\) approximately. <span class='id-lang'>Berapa nilai \\( \\log_2(30) \\)?</span>",
+         a:"4.91",
+         h:"\\( \\frac{\\log(30)}{\\log(2)} \\). <span class='id-lang'>Gunakan kalkulator jika perlu.</span>"},
+        {type:"E",etype:"mc",
+         q:"Simplify \\( (\\log_3 5)(\\log_5 27) \\). <span class='id-lang'>Sederhanakan.</span>",
+         o:["3 <span class='id-lang'></span>","9 <span class='id-lang'></span>","1 <span class='id-lang'></span>","15 <span class='id-lang'></span>"],
+         a:0,
+         h:"Change of base formula allows cross-cancellation. <span class='id-lang'>Ganti basis memungkinkan coret silang.</span>"},
+        {type:"E",etype:"match",
+         q:"Match the exponential equation to its logarithmic form. <span class='id-lang'>Cocokkan bentuk eksponensial ke logaritma.</span>",
+         left:["\\( 2^3 = 8 \\)","\\( 5^2 = 25 \\)","\\( 10^1 = 10 \\)"],
+         right:["\\( \\log_2(8) = 3 \\)","\\( \\log_5(25) = 2 \\)","\\( \\log_{10}(10) = 1 \\)"],
+         a:[0,1,2],
+         h:"The base stays the base, the exponent becomes the log value. <span class='id-lang'>Basis tetap, pangkat jadi nilai log.</span>"}
+      ]
+    },
+    // ==================== SECTION 2 ====================
+    {
+      id:2, title:"Real-World Connection <span class='id-lang'>Koneksi Dunia Nyata</span>", icon:"fa-lightbulb", color:"#06b6d4", branch:false,
+      lessons:[
+        // 1 Teori
+        {type:"T",title:"The Tech Startup Scenario <span class='id-lang'>Skenario Startup Teknologi</span>",
+         body:`<p>Imagine you are developing a new tech startup. Your user base is growing at 15% per month. If you start with 1,000 users, when exactly will you hit 1,000,000? <span class='id-lang'>Bayangkan kamu mengembangkan startup. Basis pengguna tumbuh 15% per bulan. Jika mulai dari 1.000 pengguna, kapan tepatnya mencapai 1.000.000?</span></p>
+         <div class="mt-4 p-4 rounded-xl bg-cyan-500/10 border border-cyan-500/20">
+           <div class="text-cyan-400 font-semibold mb-2">The Formula <span class='id-lang'>Rumus</span></div>
+           <p class="text-sm text-slate-300">\\( 1000(1.15)^t = 1000000 \\). But the variable 't' is stuck in the ceiling! Today, we use logarithms as the 'ladder' to bring that variable down and solve for time precisely. <span class='id-lang'>Variabel 't' tersangkut di atas! Hari ini kita pakai logaritma sebagai 'tangga' untuk menurunkannya.</span></p>
+         </div>`},
+        // 3 Exercise
+        {type:"E",etype:"mc",
+         q:"In the formula \\( 1000(1.15)^t \\), what does 't' represent? <span class='id-lang'>Apa yang diwakili 't'?</span>",
+         o:["Time in months <span class='id-lang'>Waktu dalam bulan</span>","Initial users <span class='id-lang'>Pengguna awal</span>","Growth rate <span class='id-lang'>Tingkat pertumbuhan</span>","Total users <span class='id-lang'>Total pengguna</span>"],
+         a:0,
+         h:"'t' is the variable in the exponent representing time. <span class='id-lang'>'t' adalah variabel pangkat yang mewakili waktu.</span>"},
+        {type:"E",etype:"fb",
+         q:"Simplify the startup equation by dividing both sides by 1000: \\( (1.15)^t = ? \\). <span class='id-lang'>Sederhanakan persamaan dengan membagi 1000.</span>",
+         a:"1000",
+         h:"\\( 1000000 \\div 1000 = 1000 \\). <span class='id-lang'>Bagi kedua sisi dengan 1000.</span>"},
+        {type:"E",etype:"tf",
+         q:"To solve \\( (1.15)^t = 1000 \\), we can easily make the bases match without logarithms. <span class='id-lang'>Bisakah kita samakan basis tanpa logaritma?</span>",
+         a:false,
+         h:"1.15 and 1000 cannot be easily expressed as powers of the same base. We need logs! <span class='id-lang'>Tidak bisa disamakan, butuh log!</span>"},
+        // 1 Teori
+        {type:"T",title:"The Concept of Continuous Growth <span class='id-lang'>Konsep Pertumbuhan Berkelanjutan</span>",
+         body:`<p>Sometimes growth is modeled with the natural base 'e'. This is common in continuous compounding interest or population dynamics. <span class='id-lang'>Terkadang pertumbuhan dimodelkan dengan basis natural 'e'. Umum pada bunga majemuk kontinu.</span></p>
+         <div class="mt-4 p-4 rounded-xl bg-emerald-500/10 border border-emerald-500/20">
+           <div class="text-emerald-400 font-semibold mb-2">The Number 'e' <span class='id-lang'>Bilangan 'e'</span></div>
+           <p class="text-sm text-slate-300">\\( e \\approx 2.718 \\). If a population grows continuously at rate \\( r \\), the formula is \\( P = P_0 e^{rt} \\). <span class='id-lang'>Jika tumbuh kontinu dengan rate r, rumusnya seperti di kiri.</span></p>
+         </div>`},
+        // 3 Exercise
+        {type:"E",etype:"mc",
+         q:"Which of the following represents continuous growth? <span class='id-lang'>Mana yang mewakili pertumbuhan kontinu?</span>",
+         o:["\\( 1000(1.15)^t \\) <span class='id-lang'>Pertumbuhan diskrit</span>","\\( P_0 e^{rt} \\) <span class='id-lang'>Pertumbuhan kontinu</span>","\\( 50t + 100 \\) <span class='id-lang'>Linear</span>","\\( 100 \\log(t) \\) <span class='id-lang'>Logaritmik</span>"],
+         a:1,
+         h:"Look for the base 'e'. <span class='id-lang'>Cari yang ada basis 'e'.</span>"},
+        {type:"E",etype:"fb",
+         q:"If \\( e^x = 7.389 \\), what is \\( x \\)? (Approximate to the nearest whole number). <span class='id-lang'>Berapa x? Pembulatan terdekat.</span>",
+         a:"2",
+         h:"Since \\( e^2 \\approx 2.718^2 \\approx 7.389 \\). <span class='id-lang'>\\( e^2 \\approx 7.389 \\).</span>"},
+        {type:"E",etype:"ord",
+         q:"Order the steps to isolate \\( t \\) in \\( 1000(1.15)^t = 1000000 \\). <span class='id-lang'>Urutkan langkah isolasi t.</span>",
+         o:["Divide by 1000 to get \\( 1.15^t = 1000 \\)","Take log of both sides: \\( \\log(1.15^t) = \\log(1000) \\)","Use power property: \\( t \\log(1.15) = 3 \\)","Divide by \\( \\log(1.15) \\)"],
+         a:[0,1,2,3],
+         h:"Isolate the exponential part first, then take logs, bring exponent down, and divide. <span class='id-lang'>Isolasi eksponen, lalu log, turunkan pangkat, bagi.</span>"},
+        // 1 Teori
+        {type:"T",title:"Why Logarithms? <span class='id-lang'>Mengapa Logaritma?</span>",
+         body:`<p>Logarithms were invented to solve equations where the variable is an exponent. They are the inverse operation of exponentiation. <span class='id-lang'>Logaritma ditemukan untuk menyelesaikan persamaan berpangkat. Mereka adalah kebalikan dari eksponensial.</span></p>
+         <div class="mt-4 p-4 rounded-xl bg-amber-500/10 border border-amber-500/20">
+           <div class="text-amber-400 font-semibold mb-2">The Ladder <span class='id-lang'>Tangga</span></div>
+           <p class="text-sm text-slate-300">Just as a ladder brings you down from a height, the Power Property of Logarithms brings a variable down from the exponent. <span class='id-lang'>Sama seperti tangga, Sifat Pangkat Logaritma menurunkan variabel dari posisi pangkat.</span></p>
+         </div>`},
+        // 4 Exercise
+        {type:"E",etype:"sa",
+         q:"Which operations are inverses of each other? <span class='id-lang'>Operasi mana yang saling berkebalikan?</span>",
+         o:["Addition and Subtraction","Multiplication and Division","Exponentiation and Logarithms","Addition and Multiplication"],
+         a:[0,1,2],
+         h:"Inverses undo each other. <span class='id-lang'>Kebalikan membatalkan satu sama lain.</span>"},
+        {type:"E",etype:"tf",
+         q:"\\( \\log_{10}(10^5) = 5 \\). <span class='id-lang'>Apakah benar?</span>",
+         a:true,
+         h:"Log base 10 and 10 to a power cancel out. <span class='id-lang'>Basis 10 dan pangkat 10 saling meniadakan.</span>"},
+        {type:"E",etype:"fb",
+         q:"Solve \\( 10^x = 1000000 \\). What is \\( x \\)? <span class='id-lang'>Berapa x?</span>",
+         a:"6",
+         h:"Count the zeros. \\( 10^6 = 1,000,000 \\). <span class='id-lang'>Hitung angka nolnya.</span>"},
+        {type:"E",etype:"mc",
+         q:"What is the first step to solve \\( 3^x = 20 \\)? <span class='id-lang'>Langkah pertama untuk menyelesaikannya?</span>",
+         o:["Take the log of both sides <span class='id-lang'>Ambil log kedua sisi</span>","Divide by 3 <span class='id-lang'>Bagi 3</span>","Multiply by x <span class='id-lang'>Kali x</span>","Subtract 20 <span class='id-lang'>Kurang 20</span>"],
+         a:0,
+         h:"Since we can't make the bases match, we apply the 'ladder' immediately. <span class='id-lang'>Karena basis tak sama, langsung pakai 'tangga'.</span>"}
+      ]
+    },
+    // ==================== SECTION 3 ====================
+    {
+      id:3, title:"Review of Prior Knowledge <span class='id-lang'>Review Pengetahuan</span>", icon:"fa-brain", color:"#8b5cf6", branch:false,
+      lessons:[
+        // 1 Teori
+        {type:"T",title:"The Power Property <span class='id-lang'>Sifat Pangkat</span>",
+         body:`<p>Remember the most important rule for today: the Power Property. <span class='id-lang'>Ingat aturan terpenting hari ini: Sifat Pangkat.</span></p>
+         <div class="mt-4 p-4 rounded-xl bg-violet-500/10 border border-violet-500/20">
+           <div class="text-violet-400 font-semibold mb-2">The Secret Weapon <span class='id-lang'>Senjata Rahasia</span></div>
+           <p class="text-sm text-slate-300">\\( \\log(M^k) = k \\cdot \\log(M) \\). This is our secret weapon. If we take the log of both sides, that exponent can jump down to the front! <span class='id-lang'>Pangkat di dalam log bisa melompat ke depan sebagai perkalian!</span></p>
+         </div>`},
+        // 3 Exercise
+        {type:"E",etype:"fb",
+         q:"Rewrite \\( \\log(5^x) \\) using the power property. <span class='id-lang'>Tulis ulang pakai sifat pangkat.</span>",
+         a:"xlog(5)||x log(5)||x*log(5)",
+         h:"Bring the 'x' down to the front. <span class='id-lang'>Turunkan 'x' ke depan.</span>"},
+        {type:"E",etype:"mc",
+         q:"Which expression is equivalent to \\( \\ln(x^2) \\)? <span class='id-lang'>Mana yang senilai?</span>",
+         o:["\\( 2\\ln(x) \\) <span class='id-lang'></span>","\\( \\ln(2x) \\) <span class='id-lang'></span>","\\( x^2 \\ln(e) \\) <span class='id-lang'></span>","\\( \\frac{\\ln(x)}{2} \\) <span class='id-lang'></span>"],
+         a:0,
+         h:"The exponent 2 comes down to multiply the ln. <span class='id-lang'>Pangkat 2 turun untuk mengali ln.</span>"},
+        {type:"E",etype:"tf",
+         q:"\\( \\log(M^k) = k \\log(M) \\). <span class='id-lang'>Apakah bentuk ini benar?</span>",
+         a:false,
+         h:"No! The exponent 'k' moves to the FRONT as a multiplier, not as an exponent of the log. <span class='id-lang'>Tidak! 'k' pindah ke depan sebagai pengali, bukan sebagai pangkat.</span>"},
+        // 1 Teori
+        {type:"T",title:"Taking the Log of Both Sides <span class='id-lang'>Ambil Log Kedua Sisi</span>",
+         body:`<p>If two things are equal, their logs are equal. So if \\( 3^x = 20 \\), then \\( \\log(3^x) = \\log(20) \\). <span class='id-lang'>Jika dua hal sama, log-nya juga sama.</span></p>
+         <div class="mt-4 p-4 rounded-xl bg-cyan-500/10 border border-cyan-500/20">
+           <div class="text-cyan-400 font-semibold mb-2">Applying the Property <span class='id-lang'>Menerapkan Sifat</span></div>
+           <p class="text-sm text-slate-300">\\( \\log(3^x) = \\log(20) \\) becomes \\( x \\log(3) = \\log(20) \\). Then, simply divide by \\( \\log(3) \\)! <span class='id-lang'>Lalu bagi dengan log(3)!</span></p>
+         </div>`},
+        // 3 Exercise
+        {type:"E",etype:"fb",
+         q:"After taking log of both sides of \\( 3^x = 20 \\), you get \\( x \\log(3) = ? \\). <span class='id-lang'>Isi sisi kanan.</span>",
+         a:"log(20)",
+         h:"Take the log of the right side as well. <span class='id-lang'>Ambil log dari sisi kanan juga.</span>"},
+        {type:"E",etype:"mc",
+         q:"To isolate \\( x \\) in \\( x \\log(3) = \\log(20) \\), what do you do? <span class='id-lang'>Bagaimana mengisolasi x?</span>",
+         o:["Divide by \\( \\log(3) \\) <span class='id-lang'>Bagi log(3)</span>","Multiply by \\( \\log(3) \\) <span class='id-lang'>Kali log(3)</span>","Subtract \\( \\log(3) \\) <span class='id-lang'>Kurang log(3)</span>","Divide by \\( \\log(20) \\) <span class='id-lang'>Bagi log(20)</span>"],
+         a:0,
+         h:"To undo multiplication, you divide. <span class='id-lang'>Untuk membatalkan perkalian, lakukan pembagian.</span>"},
+        {type:"E",etype:"ord",
+         q:"Order the steps to solve \\( 4^x = 50 \\). <span class='id-lang'>Urutkan langkah penyelesaian.</span>",
+         o:["Take log of both sides: \\( \\log(4^x) = \\log(50) \\)","Apply power property: \\( x \\log(4) = \\log(50) \\)","Isolate x: \\( x = \\frac{\\log(50)}{\\log(4)} \\)"],
+         a:[0,1,2],
+         h:"Log, Power Property, Algebra. <span class='id-lang'>Log, Sifat Pangkat, Aljabar.</span>"},
+        // 1 Teori
+        {type:"T",title:"Common vs Natural Logarithms <span class='id-lang'>Logaritma Umum vs Natural</span>",
+         body:`<p>You can use ANY base for your logarithm! Most commonly, we use Common Log (base 10, written as \\( \\log \\)) or Natural Log (base \\( e \\), written as \\( \\ln \\)). <span class='id-lang'>Kamu bisa pakai basis apa saja! Umumnya pakai log (basis 10) atau ln (basis e).</span></p>
+         <div class="mt-4 p-4 rounded-xl bg-amber-500/10 border border-amber-500/20">
+           <div class="text-amber-400 font-semibold mb-2">Does it matter? <span class='id-lang'>Apakah berbeda?</span></div>
+           <p class="text-sm text-slate-300">No! \\( \\frac{\\log(20)}{\\log(3)} = \\frac{\\ln(20)}{\\ln(3)} \\). They give the same numerical answer. <span class='id-lang'>Tidak! Hasil akhir angkanya sama.</span></p>
+         </div>`},
+        // 4 Exercise
+        {type:"E",etype:"match",
+         q:"Match the notation to its base. <span class='id-lang'>Cocokkan notasi ke basisnya.</span>",
+         left:["\\( \\log(x) \\)","\\( \\ln(x) \\)","\\( \\log_2(x) \\)"],
+         right:["Base 10","Base \\( e \\)","Base 2"],
+         a:[0,1,2],
+         h:"Remember that no base written means 10, and 'ln' means base e. <span class='id-lang'>Tanpa basis = 10, ln = basis e.</span>"},
+        {type:"E",etype:"tf",
+         q:"\\( \\log_5(20) \\) and \\( \\frac{\\ln(20)}{\\ln(5)} \\) are mathematically equivalent. <span class='id-lang'>Apakah ekuivalen?</span>",
+         a:true,
+         h:"This is the change of base formula! <span class='id-lang'>Ini rumus ganti basis!</span>"},
+        {type:"E",etype:"fb",
+         q:"Solve \\( 3^x = 55 \\). Give the EXACT form (using log or ln). <span class='id-lang'>Selesaikan dalam bentuk eksak.</span>",
+         a:"log(55)/log(3)||ln(55)/ln(3)",
+         h:"Use the change of base formula or take log of both sides. <span class='id-lang'>Pakai rumus ganti basis.</span>"},
+        {type:"E",etype:"sa",
+         q:"Which of these are acceptable ways to write the exact solution for \\( 3^x = 55 \\)? <span class='id-lang'>Mana yang benar?</span>",
+         o:["\\( \\frac{\\log(55)}{\\log(3)} \\)","\\( \\frac{\\ln(55)}{\\ln(3)} \\)","\\( \\log_3(55) \\)","\\( \\log(55) - \\log(3) \\)"],
+         a:[0,1,2],
+         h:"All of these represent the exact same value! <span class='id-lang'>Semua ini mewakili nilai yang sama!</span>"}
+      ]
+    },
+    // ==================== SECTION 4 ====================
+    {
+      id:4, title:"Problem Introduction <span class='id-lang'>Pengenalan Masalah</span>", icon:"fa-circle-question", color:"#f59e0b", branch:false,
+      lessons:[
+        // 1 Teori
+        {type:"T",title:"Variables on Both Sides <span class='id-lang'>Variabel di Kedua Sisi</span>",
+         body:`<p>Let's look at a 'Hard' level problem: \\( 5^{x+2} = 3^{2x} \\). Notice the bases are 5 and 3—no way to make them match easily! <span class='id-lang'>Basisnya 5 dan 3, tidak bisa disamakan!</span></p>
+         <div class="mt-4 p-4 rounded-xl bg-amber-500/10 border border-amber-500/20">
+           <div class="text-amber-400 font-semibold mb-2">The 4 Steps <span class='id-lang'>4 Langkah</span></div>
+           <p class="text-sm text-slate-300">Step 1: Take the natural log (ln) of both sides.<br>Step 2: Use the power property to bring exponents down.<br>Step 3: Distribute.<br>Step 4: Collect all 'x' terms on one side. <span class='id-lang'>Langkah 1: ln kedua sisi. 2: Turunkan pangkat. 3: Distribusi. 4: Kumpulkan x.</span></p>
+         </div>`},
+        // 3 Exercise
+        {type:"E",etype:"mc",
+         q:"What is the first step to solve \\( 5^{x+2} = 3^{2x} \\)? <span class='id-lang'>Apa langkah pertama?</span>",
+         o:["Take the ln of both sides <span class='id-lang'>Ambil ln kedua sisi</span>","Divide by 3 <span class='id-lang'>Bagi 3</span>","Subtract \\( x \\) <span class='id-lang'>Kurang x</span>","Multiply by 5 <span class='id-lang'>Kali 5</span>"],
+         a:0,
+         h:"Since bases can't be matched, apply the 'ladder' to both sides. <span class='id-lang'>Karena basis tak sama, pakai 'tangga' di kedua sisi.</span>"},
+        {type:"E",etype:"fb",
+         q:"After applying the power property to \\( \\ln(5^{x+2}) = \\ln(3^{2x}) \\), what is the resulting equation? <span class='id-lang'>Bagaimana bentuk persamaannya setelah sifat pangkat?</span>",
+         a:"(x+2)ln(5)=2xln(3)||(x+2)ln 5=2x ln 3",
+         h:"The exponents come down to the front as multipliers. <span class='id-lang'>Pangkat turun ke depan sebagai pengali.</span>"},
+        {type:"E",etype:"ord",
+         q:"Order the first three algebraic steps after getting \\( (x+2)\\ln 5 = 2x \\ln 3 \\). <span class='id-lang'>Urutkan 3 langkah aljabar pertama.</span>",
+         o:["Distribute the ln values: \\( x\\ln 5 + 2\\ln 5 = 2x\\ln 3 \\)","Move \\( x \\) terms to one side: \\( 2\\ln 5 = 2x\\ln 3 - x\\ln 5 \\)","Factor out \\( x \\): \\( 2\\ln 5 = x(2\\ln 3 - \\ln 5) \\)"],
+         a:[0,1,2],
+         h:"Distribute first, then move x terms, then factor x out. <span class='id-lang'>Distribusi, pindahkan x, lalu keluarkan x.</span>"},
+        // 1 Teori
+        {type:"T",title:"Collecting 'x' Terms <span class='id-lang'>Mengumpulkan Suku 'x'</span>",
+         body:`<p>This is where your algebra skills shine! Once the variables are down, you treat expressions like '\\( \\ln 5 \\)' just like regular numbers. <span class='id-lang'>Di sinilah aljabar berperan! Anggap '\\( \\ln 5 \\)' seperti angka biasa.</span></p>
+         <div class="mt-4 p-4 rounded-xl bg-emerald-500/10 border border-emerald-500/20">
+           <div class="text-emerald-400 font-semibold mb-2">Factoring out x <span class='id-lang'>Mengeluarkan x</span></div>
+           <p class="text-sm text-slate-300">If you have \\( 2x\\ln 3 - x\\ln 5 \\), you factor out \\( x \\) to get \\( x(2\\ln 3 - \\ln 5) \\). <span class='id-lang'>Keluarkan x untuk mendapatkan bentuk perkalian.</span></p>
+         </div>`},
+        // 3 Exercise
+        {type:"E",etype:"mc",
+         q:"In the equation \\( 2\\ln 5 = 2x\\ln 3 - x\\ln 5 \\), what is the correct factored form of the right side? <span class='id-lang'>Bentuk faktor yang benar?</span>",
+         o:["\\( x(2\\ln 3 - \\ln 5) \\) <span class='id-lang'></span>","\\( x(2\\ln 3 + \\ln 5) \\) <span class='id-lang'></span>","\\( 2x(\\ln 3 - \\ln 5) \\) <span class='id-lang'></span>","\\( x(\\ln 3 - 2\\ln 5) \\) <span class='id-lang'></span>"],
+         a:0,
+         h:"Factor out the common 'x' from both terms. <span class='id-lang'>Keluarkan 'x' dari kedua suku.</span>"},
+        {type:"E",etype:"tf",
+         q:"\\( 2x\\ln 3 - x\\ln 5 = x(2\\ln 3 - \\ln 5) \\) is a valid algebraic step. <span class='id-lang'>Apakah langkah ini valid?</span>",
+         a:true,
+         h:"Yes! We are just factoring out the common variable x. <span class='id-lang'>Ya! Kita mengeluarkan variabel x yang sama.</span>"},
+        {type:"E",etype:"fb",
+         q:"Given \\( 2\\ln 5 = x(2\\ln 3 - \\ln 5) \\), isolate \\( x \\). What is the final exact form? <span class='id-lang'>Isolasi x. Bentuk akhirnya?</span>",
+         a:"2ln(5)/(2ln(3)-ln(5))||2ln5/(2ln3-ln5)",
+         h:"Divide both sides by \\( (2\\ln 3 - \\ln 5) \\). <span class='id-lang'>Bagi kedua sisi dengan itu.</span>"},
+        // 1 Teori
+        {type:"T",title:"Exact vs Approximate Solutions <span class='id-lang'>Solusi Eksak vs Pendekatan</span>",
+         body:`<p>In mathematics, leaving your answer in terms of 'ln' or 'log' is called the EXACT solution. Using a calculator to find the decimal is the APPROXIMATE solution. <span class='id-lang'>Menyisakan jawaban dalam bentuk log/ln disebut solusi EKSAK. Memakai kalkulator untuk desimal disebut solusi PENDEKATAN.</span></p>
+         <div class="mt-4 p-4 rounded-xl bg-amber-500/10 border border-amber-500/20">
+           <div class="text-amber-400 font-semibold mb-2">Why Exact? <span class='id-lang'>Kenapa Eksak?</span></div>
+           <p class="text-sm text-slate-300">Exact solutions avoid rounding errors and are always preferred unless a word problem asks for a decimal. <span class='id-lang'>Solusi eksak menghindari kesalahan pembulatan.</span></p>
+         </div>`},
+        // 4 Exercise
+        {type:"E",etype:"sa",
+         q:"Which of the following are considered EXACT solutions? <span class='id-lang'>Mana yang termasuk solusi EKSAK?</span>",
+         o:["\\( \\frac{2\\ln 5}{2\\ln 3 - \\ln 5} \\)","\\( \\log_3(20) \\)","\\( 25.412 \\)","\\( \\frac{\\ln 20}{\\ln 3} \\)"],
+         a:[0,1,3],
+         h:"If it has 'ln' or 'log' and no rounding, it's exact. <span class='id-lang'>Jika ada log/ln tanpa pembulatan, itu eksak.</span>"},
+        {type:"E",etype:"fb",
+         q:"Solve for x: \\( 4^{x-2} = 3^{x+4} \\). Give the exact form. <span class='id-lang'>Selesaikan dalam bentuk eksak.</span>",
+         a:"(2ln(4)+4ln(3))/(ln(4)-ln(3))||(4ln3+2ln4)/(ln4-ln3)",
+         h:"Take ln, distribute, factor out x: \\( x\\ln 4 - 2\\ln 4 = x\\ln 3 + 4\\ln 3 \\). <span class='id-lang'>Distribusi dan keluarkan x.</span>"},
+        {type:"E",etype:"mc",
+         q:"What is the approximate value of \\( \\frac{2\\ln 4 + 4\\ln 3}{\\ln 4 - \\ln 3} \\)? <span class='id-lang'>Berapa nilai pendekatannya?</span>",
+         o:["25.4 <span class='id-lang'></span>","3.5 <span class='id-lang'></span>","-12.1 <span class='id-lang'></span>","0.8 <span class='id-lang'></span>"],
+         a:0,
+         h:"Use your calculator carefully with parentheses! <span class='id-lang'>Hati-hati gunakan tanda kurung.</span>"},
+        {type:"E",etype:"match",
+         q:"Match the equation to its first step after taking ln and applying the power rule. <span class='id-lang'>Cocokkan persamaan ke langkah pertama.</span>",
+         left:["\\( 2^{3x-1} = 5^{x+2} \\)","\\( 7^{x-1} = 2^x \\)","\\( 10^{2x-3} = 7^{x+1} \\)"],
+         right:["\\( (3x-1)\\ln 2 = (x+2)\\ln 5 \\)","\\( (x-1)\\ln 7 = x\\ln 2 \\)","\\( (2x-3)\\ln 10 = (x+1)\\ln 7 \\)"],
+         a:[0,1,2],
+         h:"Multiply the exponent by the log of the base. <span class='id-lang'>Kali pangkat dengan log basis.</span>"}
+      ]
+    },
+    // ==================== SECTION 5 ====================
+    {
+      id:5, title:"Guided Practice <span class='id-lang'>Latihan Terbimbing</span>", icon:"fa-chalkboard-user", color:"#ec4899", branch:false,
+      lessons:[
+        // 1 Teori
+        {type:"T",title:"Your Turn to Drive <span class='id-lang'>Giliranmu Memimpin</span>",
+         body:`<p>Now let's solve \\( 7^{x-1} = 2^x \\) step-by-step. Remember to treat 'ln 7' just like a 2 or a 3—it's just a number! <span class='id-lang'>Sekarang selesaikan langkah demi langkah. Anggap 'ln 7' seperti angka biasa!</span></p>
+         <div class="mt-4 p-4 rounded-xl bg-pink-500/10 border border-pink-500/20">
+           <div class="text-pink-400 font-semibold mb-2">The Goal <span class='id-lang'>Tujuan</span></div>
+           <p class="text-sm text-slate-300">Find the exact solution first. Don't worry about the final decimal yet. If you get stuck on factoring, remember we want 'x' all by itself. <span class='id-lang'>Cari bentuk eksak dulu. Kalau bingung factoring, ingat tujuannya isolasi x.</span></p>
+         </div>`},
+        // 3 Exercise
+        {type:"E",etype:"ord",
+         q:"Order the steps to solve \\( 7^{x-1} = 2^x \\). <span class='id-lang'>Urutkan langkah penyelesaian.</span>",
+         o:["Take ln: \\( (x-1)\\ln 7 = x\\ln 2 \\)","Distribute: \\( x\\ln 7 - \\ln 7 = x\\ln 2 \\)","Collect x: \\( x\\ln 7 - x\\ln 2 = \\ln 7 \\)","Factor & Divide: \\( x = \\frac{\\ln 7}{\\ln 7 - \\ln 2} \\)"],
+         a:[0,1,2,3],
+         h:"Follow the 4 steps: Log, Power, Distribute/Collect, Factor. <span class='id-lang'>Ikuti 4 langkah.</span>"},
+        {type:"E",etype:"fb",
+         q:"After distributing \\( (x-1)\\ln 7 = x\\ln 2 \\), what do you get? <span class='id-lang'>Hasil distribusinya?</span>",
+         a:"xln(7)-ln(7)=xln(2)||xln7-ln7=xln2",
+         h:"Distribute \\( \\ln 7 \\) to both \\( x \\) and \\( -1 \\). <span class='id-lang'>Distribusi ln 7 ke x dan -1.</span>"},
+        {type:"E",etype:"tf",
+         q:"To move \\( x\\ln 2 \\) to the left side in \\( x\\ln 7 - \\ln 7 = x\\ln 2 \\), you subtract \\( x\\ln 2 \\) from both sides. <span class='id-lang'>Untuk pindah, kurangi xln 2 kedua sisi?</span>",
+         a:true,
+         h:"Yes, doing the inverse operation moves terms across the equals sign. <span class='id-lang'>Ya, operasi kebalikan memindahkan suku.</span>"},
+        // 1 Teori
+        {type:"T",title:"Factoring out x <span class='id-lang'>Mengeluarkan x</span>",
+         body:`<p>From \\( x\\ln 7 - x\\ln 2 = \\ln 7 \\), we factor out \\( x \\) from the left side. <span class='id-lang'>Keluarkan x dari sisi kiri.</span></p>
+         <div class="mt-4 p-4 rounded-xl bg-emerald-500/10 border border-emerald-500/20">
+           <div class="text-emerald-400 font-semibold mb-2">The Factoring Step <span class='id-lang'>Langkah Factoring</span></div>
+           <p class="text-sm text-slate-300">Both terms have an \\( x \\). So we pull it out: \\( x(\\ln 7 - \\ln 2) = \\ln 7 \\). Then divide to isolate \\( x \\). <span class='id-lang'>Keluarkan x, lalu bagi untuk mengisolasi x.</span></p>
+         </div>`},
+        // 3 Exercise
+        {type:"E",etype:"mc",
+         q:"What is the factored form of \\( x\\ln 7 - x\\ln 2 \\)? <span class='id-lang'>Bentuk faktornya?</span>",
+         o:["\\( x(\\ln 7 - \\ln 2) \\) <span class='id-lang'></span>","\\( x(\\ln 7 + \\ln 2) \\) <span class='id-lang'></span>","\\( (x-1)(\\ln 7 - \\ln 2) \\) <span class='id-lang'></span>","\\( x \\ln(7-2) \\) <span class='id-lang'></span>"],
+         a:0,
+         h:"Pull out the common factor 'x'. The signs stay the same. <span class='id-lang'>Keluarkan x, tanda tetap.</span>"},
+        {type:"E",etype:"fb",
+         q:"Solve \\( x(\\ln 7 - \\ln 2) = \\ln 7 \\) for x. What is the exact solution? <span class='id-lang'>Solusi eksaknya?</span>",
+         a:"ln(7)/(ln(7)-ln(2))||ln7/(ln7-ln2)",
+         h:"Divide both sides by \\( (\\ln 7 - \\ln 2) \\). <span class='id-lang'>Bagi kedua sisi.</span>"},
+        {type:"E",etype:"tf",
+         q:"\\( x = \\frac{\\ln 7}{\\ln 7 - \\ln 2} \\) is mathematically the same as \\( x = \\frac{\\ln 7}{\\ln 2 - \\ln 7} \\). <span class='id-lang'>Apakah keduanya sama?</span>",
+         a:false,
+         h:"The denominator signs are reversed, which makes the whole fraction opposite in sign. <span class='id-lang'>Tanda penyebut berbeda, jadi hasilnya berbeda.</span>"},
+        // 1 Teori
+        {type:"T",title:"Real-time Scaffolding <span class='id-lang'>Bimbingan Langsung</span>",
+         body:`<p>Let's look at another one: \\( 2^{3x-1} = 5^{x+2} \\). Don't forget the distributive property! <span class='id-lang'>Mari lihat yang lain. Jangan lupa sifat distribusi!</span></p>
+         <div class="mt-4 p-4 rounded-xl bg-amber-500/10 border border-amber-500/20">
+           <div class="text-amber-400 font-semibold mb-2">Watch the signs! <span class='id-lang'>Perhatikan tanda!</span></div>
+           <p class="text-sm text-slate-300">When distributing \\( (3x-1)\\ln 2 \\), the \\( -1 \\) makes the second term negative: \\( 3x\\ln 2 - \\ln 2 \\). <span class='id-lang'>-1 membuat suku kedua negatif.</span></p>
+         </div>`},
+        // 4 Exercise
+        {type:"E",etype:"mc",
+         q:"Expand \\( (3x-1)\\ln 2 \\). <span class='id-lang'>Hasil expansinya?</span>",
+         o:["\\( 3x\\ln 2 - \\ln 2 \\) <span class='id-lang'></span>","\\( 3x\\ln 2 + \\ln 2 \\) <span class='id-lang'></span>","\\( 3x - \\ln 2 \\) <span class='id-lang'></span>","\\( 3x\\ln(-1) \\times \\ln 2 \\) <span class='id-lang'></span>"],
+         a:0,
+         h:"Distribute the \\( \\ln 2 \\) to both terms inside the parenthesis. <span class='id-lang'>Distribusi ln 2 ke kedua suku.</span>"},
+        {type:"E",etype:"fb",
+         q:"Solve \\( 2^{3x-1} = 5^{x+2} \\). Give the exact form. <span class='id-lang'>Solusi eksak.</span>",
+         a:"(2ln(5)+ln(2))/(3ln(2)-ln(5))||(2ln5+ln2)/(3ln2-ln5)",
+         h:"After distributing, move x terms to one side: \\( 3x\\ln 2 - x\\ln 5 = 2\\ln 5 + \\ln 2 \\). <span class='id-lang'>Pindahkan suku x.</span>"},
+        {type:"E",etype:"ord",
+         q:"Order the steps to isolate x in \\( 3x\\ln 2 - x\\ln 5 = 2\\ln 5 + \\ln 2 \\). <span class='id-lang'>Urutkan langkah isolasi x.</span>",
+         o:["Factor out x: \\( x(3\\ln 2 - \\ln 5) \\)","Identify right side: \\( 2\\ln 5 + \\ln 2 \\)","Final form: \\( x = \\frac{2\\ln 5 + \\ln 2}{3\\ln 2 - \\ln 5} \\)"],
+         a:[0,1,2],
+         h:"Factor x out on the left, the right side stays the same, then divide. <span class='id-lang'>Faktor x di kiri, bagi dengan kanan.</span>"},
+        {type:"E",etype:"match",
+         q:"Match the algebraic expression to its equivalent form. <span class='id-lang'>Cocokkan ekspresi aljabar ke bentuk ekuivalennya.</span>",
+         left:["\\( 3x\\ln 2 - x\\ln 5 \\)","\\( 2\\ln 5 + \\ln 2 \\)","\\( (3x-1)\\ln 2 \\)"],
+         right:["\\( x(3\\ln 2 - \\ln 5) \\)","\\( \\ln(25) + \\ln(2) \\)","\\( 3x\\ln 2 - \\ln 2 \\)"],
+         a:[0,1,2],
+         h:"Factor out x, use power property \\( k\\ln(M)=\\ln(M^k) \\), and distribute. <span class='id-lang'>Faktorkan x, pakai sifat pangkat, dan distribusi.</span>"}
+      ]
+    },
+    // ==================== SECTION 6 ====================
+    {
+      id:6, title:"Independent Practice <span class='id-lang'>Latihan Mandiri</span>", icon:"fa-user-graduate", color:"#14b8a6", branch:false,
+      lessons:[
+        // 1 Teori
+        {type:"T",title:"Solving Equations with 'e' <span class='id-lang'>Persamaan dengan 'e'</span>",
+         body:`<p>When the base is \\( e \\), we use \\( \\ln \\) (natural log) because \\( \\ln(e) = 1 \\). This makes solving very fast! <span class='id-lang'>Jika basisnya e, gunakan ln karena ln(e) = 1. Sangat cepat!</span></p>
+         <div class="mt-4 p-4 rounded-xl bg-teal-500/10 border border-teal-500/20">
+           <div class="text-teal-400 font-semibold mb-2">Example <span class='id-lang'>Contoh</span></div>
+           <p class="text-sm text-slate-300">Solve \\( 4e^{2x} = 12 \\). Divide by 4: \\( e^{2x} = 3 \\). Take ln: \\( \\ln(e^{2x}) = \\ln(3) \\). Power rule: \\( 2x\\ln(e) = \\ln(3) \\). Since \\( \\ln(e)=1 \\), we get \\( 2x = \\ln(3) \\). <span class='id-lang'>Bagi 4, ambil ln, turunkan pangkat. ln(e) hilang.</span></p>
+         </div>`},
+        // 3 Exercise
+        {type:"E",etype:"fb",
+         q:"Solve \\( 4e^{2x} = 12 \\) for x. Give exact form. <span class='id-lang'>Solusi eksak.</span>",
+         a:"ln(3)/2||ln3/2",
+         h:"Divide by 4, take ln, divide by 2. <span class='id-lang'>Bagi 4, ln, bagi 2.</span>"},
+        {type:"E",etype:"mc",
+         q:"What is the value of \\( \\ln(e) \\)? <span class='id-lang'>Berapa nilai ln(e)?</span>",
+         o:["1 <span class='id-lang'></span>","0 <span class='id-lang'></span>","e <span class='id-lang'></span>","Undefined <span class='id-lang'></span>"],
+         a:0,
+         h:"The natural log of its own base is always 1. <span class='id-lang'>Log dari basisnya sendiri selalu 1.</span>"},
+        {type:"E",etype:"tf",
+         q:"In \\( e^{2x} = 3 \\), taking the natural log (ln) of both sides is the fastest way to solve it. <span class='id-lang'>Apakah ln cara tercepat?</span>",
+         a:true,
+         h:"Yes, because it instantly cancels the base 'e'. <span class='id-lang'>Ya, karena langsung menghilangkan basis e.</span>"},
+        // 1 Teori
+        {type:"T",title:"Different Bases Practice <span class='id-lang'>Latihan Basis Berbeda</span>",
+         body:`<p>Let's tackle \\( 10^{2x-3} = 7^{x+1} \\). Here we can use common log (base 10) or natural log. The steps are the same! <span class='id-lang'>Kita bisa pakai log atau ln. Langkahnya sama!</span></p>
+         <div class="mt-4 p-4 rounded-xl bg-amber-500/10 border border-amber-500/20">
+           <div class="text-amber-400 font-semibold mb-2">The Setup <span class='id-lang'>Persiapan</span></div>
+           <p class="text-sm text-slate-300">Take log: \\( (2x-3)\\log 10 = (x+1)\\log 7 \\). Since \\( \\log 10 = 1 \\), the left side simplifies to just \\( 2x - 3 \\)! <span class='id-lang'>Karena log 10 = 1, sisi kiri sangat sederhana.</span></p>
+         </div>`},
+        // 3 Exercise
+        {type:"E",etype:"ord",
+         q:"Order the steps to solve \\( 10^{2x-3} = 7^{x+1} \\). <span class='id-lang'>Urutkan langkah.</span>",
+         o:["Take log: \\( (2x-3)\\log 10 = (x+1)\\log 7 \\)","Simplify left: \\( 2x - 3 = (x+1)\\log 7 \\)","Distribute right: \\( 2x - 3 = x\\log 7 + \\log 7 \\)","Collect & Solve: \\( x = \\frac{3 + \\log 7}{2 - \\log 7} \\)"],
+         a:[0,1,2,3],
+         h:"Use the fact that log base 10 of 10 is 1. <span class='id-lang'>Gunakan log 10 = 1.</span>"},
+        {type:"E",etype:"fb",
+         q:"After distributing \\( (x+1)\\log 7 \\), what is the expression? <span class='id-lang'>Hasil distribusi?</span>",
+         a:"xlog(7)+log(7)||xlog7+log7",
+         h:"Multiply \\( \\log 7 \\) by both \\( x \\) and \\( 1 \\). <span class='id-lang'>Kali log 7 dengan x dan 1.</span>"},
+        {type:"E",etype:"fb",
+         q:"Solve \\( 10^{2x-3} = 7^{x+1} \\). Give exact form. <span class='id-lang'>Solusi eksak.</span>",
+         a:"(3+log(7))/(2-log(7))||(3+log7)/(2-log7)",
+         h:"Move x terms to one side and factor. <span class='id-lang'>Pindahkan x dan factoring.</span>"},
+        // 1 Teori
+        {type:"T",title:"Contextual Problem Solving <span class='id-lang'>Pemecahan Masalah Kontekstual</span>",
+         body:`<p>A strategy game calculation: If a unit's power doubles every 3 levels, at what level (x) will a power of 5 become 200? The equation is \\( 5 \\cdot 2^{x/3} = 200 \\). <span class='id-lang'>Kekuatan unit berlipat tiap 3 level. Level berapa 5 jadi 200?</span></p>
+         <div class="mt-4 p-4 rounded-xl bg-red-500/10 border border-red-500/20">
+           <div class="text-red-400 font-semibold mb-2">The Plan <span class='id-lang'>Rencana</span></div>
+           <p class="text-sm text-slate-300">First, isolate the exponential part by dividing by 5. Then take log of both sides. <span class='id-lang'>Isolasi eksponen dengan bagi 5. Lalu ambil log.</span></p>
+         </div>`},
+        // 4 Exercise
+        {type:"E",etype:"fb",
+         q:"Divide \\( 5 \\cdot 2^{x/3} = 200 \\) by 5. What is the new equation? <span class='id-lang'>Persamaan baru?</span>",
+         a:"2^(x/3)=40||2^x/3=40",
+         h:"Divide 200 by 5. <span class='id-lang'>200 dibagi 5.</span>"},
+        {type:"E",etype:"tf",
+         q:"To solve \\( 2^{x/3} = 40 \\), you must take log base 2 of both sides. <span class='id-lang'>Harus pakai log basis 2?</span>",
+         a:false,
+         h:"No, you can use ANY log base! Common log (base 10) or natural log (ln) works fine. <span class='id-lang'>Tidak, basis log apapun bisa.</span>"},
+        {type:"E",etype:"fb",
+         q:"Solve \\( 2^{x/3} = 40 \\) for x. Give exact form. <span class='id-lang'>Solusi eksak.</span>",
+         a:"3log(40)/log(2)||3ln(40)/ln(2)",
+         h:"Take log, bring down \\( x/3 \\), multiply by 3. <span class='id-lang'>Ambil log, turunkan x/3, kali 3.</span>"},
+        {type:"E",etype:"sa",
+         q:"Which of these are valid steps to solve \\( 5 \\cdot 2^{x/3} = 200 \\)? <span class='id-lang'>Mana langkah yang valid?</span>",
+         o:["Divide by 5","Take the logarithm of both sides","Multiply the exponent by 3","Divide by \\( \\log(2) \\)"],
+         a:[0,1,3],
+         h:"We don't multiply by 3 until the very end, and we definitely don't multiply the original exponent. <span class='id-lang'>Kali 3 hanya di akhir setelah x/3 turun.</span>"}
+      ]
+    },
+    // ==================== SECTION 7A ====================
+    {
+      id:"7A", title:"Assessment A <span class='id-lang'>Asesmen A</span>", icon:"fa-clipboard-check", color:"#3b82f6", branch:true,
+      lessons:[
+        {type:"E",etype:"mc",
+         q:"What is the exact solution for \\( 3^x = 55 \\)? <span class='id-lang'>Solusi eksak untuk \\( 3^x = 55 \\)?</span>",
+         o:["\\( x = \\frac{\\log 55}{\\log 3} \\)","\\( x = \\frac{\\log 3}{\\log 55} \\)","\\( x = \\log 55 - \\log 3 \\)","\\( x = 55 \\log 3 \\)"],
+         a:0,
+         h:"Use the change of base formula or take log of both sides and divide. <span class='id-lang'>Pakai rumus ganti basis.</span>"},
+        {type:"E",etype:"fb",
+         q:"Solve \\( 8^{x+1} = 120 \\) for \\( x \\). Give exact form. <span class='id-lang'>Solusi eksak.</span>",
+         a:"log(120)/log(8)-1||(log120/log8)-1",
+         h:"Take log: \\( (x+1)\\log 8 = \\log 120 \\). Divide by \\( \\log 8 \\), then subtract 1. <span class='id-lang'>Bagi log 8, lalu kurang 1.</span>"},
+        {type:"E",etype:"tf",
+         q:"To solve \\( e^{2x} = 15 \\), taking the natural log (ln) of both sides is the best approach. <span class='id-lang'>Apakah ln cara terbaik?</span>",
+         a:true,
+         h:"Yes, because the natural log will cancel the base \\( e \\). <span class='id-lang'>Karena ln akan menghilangkan basis e.</span>"},
+        {type:"E",etype:"ord",
+         q:"Order the steps to solve \\( 2 \\cdot 5^x = 80 \\). <span class='id-lang'>Urutkan langkah penyelesaian.</span>",
+         o:["Divide by 2: \\( 5^x = 40 \\)","Take log: \\( x \\log 5 = \\log 40 \\)","Divide: \\( x = \\frac{\\log 40}{\\log 5} \\)"],
+         a:[0,1,2],
+         h:"Isolate the exponential part first, then apply the ladder. <span class='id-lang'>Isolasi eksponen dulu, lalu pakai tangga.</span>"},
+        {type:"E",etype:"match",
+         q:"Match the equation to its exact solution. <span class='id-lang'>Cocokkan persamaan ke solusi eksak.</span>",
+         left:["\\( 3^x = 55 \\)","\\( e^{2x} = 15 \\)","\\( 2 \\cdot 5^x = 80 \\)"],
+         right:["\\( x = \\frac{\\log 55}{\\log 3} \\)","\\( x = \\frac{\\ln 15}{2} \\)","\\( x = \\frac{\\log 40}{\\log 5} \\)"],
+         a:[0,1,2],
+         h:"Apply logarithm properties and isolate x. <span class='id-lang'>Pakai sifat log dan isolasi x.</span>"},
+        {type:"E",etype:"sa",
+         q:"Which of these are mathematically equivalent to \\( x = \\log_3(55) \\)? <span class='id-lang'>Mana yang ekuivalen?</span>",
+         o:["\\( \\frac{\\log 55}{\\log 3} \\)","\\( \\frac{\\ln 55}{\\ln 3} \\)","\\( \\log 55 - \\log 3 \\)","\\( 3^{55} \\)"],
+         a:[0,1],
+         h:"The change of base formula allows switching between log and ln. <span class='id-lang'>Rumus ganti basis memungkinkan log dan ln.</span>"},
+        {type:"E",etype:"fb",
+         q:"Solve \\( e^{2x} = 15 \\). Give exact form. <span class='id-lang'>Solusi eksak.</span>",
+         a:"ln(15)/2||ln15/2",
+         h:"Take ln of both sides, then divide by 2. <span class='id-lang'>Ambil ln, lalu bagi 2.</span>"},
+        {type:"E",etype:"tf",
+         q:"In \\( 8^{x+1} = 120 \\), \\( x+1 \\) can be rewritten as \\( \\log_8(120) \\). <span class='id-lang'>Apakah ekuivalen?</span>",
+         a:true,
+         h:"Rewriting \\( b^y = x \\) as \\( y = \\log_b(x) \\) is the definition of logarithms. <span class='id-lang'>Ini adalah definisi dasar logaritma.</span>"},
+        {type:"E",etype:"mc",
+         q:"What is the approximate value of \\( x \\) in \\( 3^x = 55 \\)? <span class='id-lang'>Nilai pendekatan x?</span>",
+         o:["3.65 <span class='id-lang'></span>","1.74 <span class='id-lang'></span>","18.33 <span class='id-lang'></span>","-0.26 <span class='id-lang'></span>"],
+         a:0,
+         h:"Calculate \\( \\frac{\\log 55}{\\log 3} \\). <span class='id-lang'>Hitung dengan kalkulator.</span>"},
+        {type:"E",etype:"fb",
+         q:"Solve \\( 2 \\cdot 5^x = 80 \\). Give exact form. <span class='id-lang'>Solusi eksak.</span>",
+         a:"log(40)/log(5)||log40/log5",
+         h:"Divide by 2 first, then use change of base. <span class='id-lang'>Bagi 2, lalu ganti basis.</span>"}
+      ]
+    },
+    // ==================== SECTION 7B ====================
+    {
+      id:"7B", title:"Assessment B <span class='id-lang'>Asesmen B</span>", icon:"fa-clipboard-check", color:"#ef4444", branch:true,
+      lessons:[
+        {type:"E",etype:"fb",
+         q:"Solve \\( 4^{x-2} = 3^{x+4} \\). Give exact form. <span class='id-lang'>Solusi eksak.</span>",
+         a:"(2ln4+4ln3)/(ln4-ln3)||(2ln(4)+4ln(3))/(ln(4)-ln(3))",
+         h:"Distribute, collect x terms on one side, factor, and divide. <span class='id-lang'>Distribusi, kumpulkan x, factoring, bagi.</span>"},
+        {type:"E",etype:"fb",
+         q:"Solve \\( 2^{3x-1} = 5^{x+2} \\). Give exact form. <span class='id-lang'>Solusi eksak.</span>",
+         a:"(2ln5+ln2)/(3ln2-ln5)||(2ln(5)+ln(2))/(3ln(2)-ln(5))",
+         h:"Distribute, move x terms to the left, factor out x. <span class='id-lang'>Distribusi, pindah x ke kiri, keluarkan x.</span>"},
+        {type:"E",etype:"ord",
+         q:"Order the steps to isolate \\( x \\) in \\( 4^{x-2} = 3^{x+4} \\) after taking ln and distributing. <span class='id-lang'>Urutkan langkah isolasi x setelah distribusi.</span>",
+         o:["Equation: \\( x\\ln 4 - 2\\ln 4 = x\\ln 3 + 4\\ln 3 \\)","Collect x: \\( x\\ln 4 - x\\ln 3 = 4\\ln 3 + 2\\ln 4 \\)","Factor: \\( x(\\ln 4 - \\ln 3) = 4\\ln 3 + 2\\ln 4 \\)","Divide: \\( x = \\frac{4\\ln 3 + 2\\ln 4}{\\ln 4 - \\ln 3} \\)"],
+         a:[0,1,2,3],
+         h:"Move x terms to one side, constants to the other, factor, divide. <span class='id-lang'>Pindah x satu sisi, konstanta sisi lain.</span>"},
+        {type:"E",etype:"tf",
+         q:"\\( (1/2)^x = 7^{x-3} \\) can be rewritten as \\( 2^{-x} = 7^{x-3} \\). <span class='id-lang'>Apakah bisa ditulis begitu?</span>",
+         a:true,
+         h:"Yes! A fraction in the base like \\( 1/2 \\) is the same as \\( 2^{-1} \\). <span class='id-lang'>1/2 sama dengan 2 pangkat -1.</span>"},
+        {type:"E",etype:"fb",
+         q:"Solve \\( (1/2)^x = 7^{x-3} \\). Give exact form. <span class='id-lang'>Solusi eksak.</span>",
+         a:"3ln7/(ln7+ln2)||3ln(7)/(ln(7)+ln(2))",
+         h:"Rewrite as \\( 2^{-x} = 7^{x-3} \\). Take ln, distribute, collect x. <span class='id-lang'>Ubah ke 2^-x, ambil ln, distribusi.</span>"},
+        {type:"E",etype:"mc",
+         q:"What happens when you try to solve \\( 6^x = 2^{x+1} \\cdot 3^{x-1} \\)? <span class='id-lang'>Apa yang terjadi?</span>",
+         o:["No solution <span class='id-lang'>Tidak ada solusi</span>","Infinite solutions <span class='id-lang'>Solusi tak terhingga</span>","\\( x = 0 \\)","\\( x = 1 \\)"],
+         a:0,
+         h:"Simplify the right side: \\( 2^x \\cdot 2 \\cdot 3^x \\cdot 3^{-1} \\). This is \\( 6^x \\cdot (2/3) \\). So \\( 6^x = 6^x \\cdot (2/3) \\), which is impossible. <span class='id-lang'>Sisi kanan menjadi \\( 6^x \\cdot (2/3) \\). Tidak mungkin sama dengan \\( 6^x \\).</span>"},
+        {type:"E",etype:"sa",
+         q:"Which of the following are algebraically valid when solving \\( 6^x = 2^{x+1} \\cdot 3^{x-1} \\)? <span class='id-lang'>Mana langkah aljabar yang valid?</span>",
+         o:["Rewrite \\( 6^x \\) as \\( 2^x \\cdot 3^x \\)","Distribute the exponents on the right side","Divide both sides by \\( 6^x \\)","Multiply both sides by \\( 6^x \\)"],
+         a:[0,1,2],
+         h:"All these steps are valid and lead to the conclusion \\( 1 = 2/3 \\). <span class='id-lang'>Semua langkah valid dan menghasilkan 1 = 2/3.</span>"},
+        {type:"E",etype:"match",
+         q:"Match the equation to its exact solution. <span class='id-lang'>Cocokkan ke solusi eksak.</span>",
+         left:["\\( 4^{x-2} = 3^{x+4} \\)","\\( 2^{3x-1} = 5^{x+2} \\)","\\( (1/2)^x = 7^{x-3} \\)"],
+         right:["\\( x = \\frac{2\\ln 4 + 4\\ln 3}{\\ln 4 - \\ln 3} \\)","\\( x = \\frac{2\\ln 5 + \\ln 2}{3\\ln 2 - \\ln 5} \\)","\\( x = \\frac{3\\ln 7}{\\ln 7 + \\ln 2} \\)"],
+         a:[0,1,2],
+         h:"Check the distribution and factoring of each. <span class='id-lang'>Periksa distribusi dan factoring.</span>"},
+        {type:"E",etype:"fb",
+         q:"Solve \\( 5 \\cdot e^{0.5x} = 20 \\cdot 2^x \\). Give exact form. <span class='id-lang'>Solusi eksak.</span>",
+         a:"ln(4)/(0.5-ln2)||ln4/(0.5-ln2)",
+         h:"Divide by 5: \\( e^{0.5x} = 4 \\cdot 2^x \\). Take ln: \\( 0.5x = \\ln 4 + x\\ln 2 \\). <span class='id-lang'>Bagi 5, ambil ln, pindahkan x.</span>"},
+        {type:"E",etype:"tf",
+         q:"The equation \\( 6^x = 2^{x+1} \\cdot 3^{x-1} \\) has exactly one solution: \\( x = 0 \\). <span class='id-lang'>Apakah benar?</span>",
+         a:false,
+         h:"No, it has NO solution because it simplifies to \\( 1 = 2/3 \\). <span class='id-lang'>Tidak, tidak ada solusi.</span>"}
+      ]
+    },
+    // ==================== SECTION 7C ====================
+    {
+      id:"7C", title:"Assessment C <span class='id-lang'>Asesmen C</span>", icon:"fa-clipboard-check", color:"#a855f7", branch:true,
+      lessons:[
+        {type:"E",etype:"mc",
+         q:"A population grows by \\( P = 500(1.04)^t \\). How do you set up the equation to find when it reaches 1250? <span class='id-lang'>Bagaimana persamaannya?</span>",
+         o:["\\( 500(1.04)^t = 1250 \\) <span class='id-lang'></span>","\\( 500 = 1250(1.04)^t \\) <span class='id-lang'></span>","\\( 500t = 1250(1.04) \\) <span class='id-lang'></span>","\\( 1250 = 500 + 1.04t \\) <span class='id-lang'></span>"],
+         a:0,
+         h:"Substitute 1250 for P. <span class='id-lang'>Substitusi 1250 ke P.</span>"},
+        {type:"E",etype:"fb",
+         q:"For \\( 500(1.04)^t = 1250 \\), what is \\( t \\) in exact form? <span class='id-lang'>Nilai t dalam bentuk eksak?</span>",
+         a:"log(2.5)/log(1.04)||log2.5/log1.04",
+         h:"Divide by 500: \\( 1.04^t = 2.5 \\). Then take log. <span class='id-lang'>Bagi 500, ambil log.</span>"},
+        {type:"E",etype:"ord",
+         q:"Order the steps to find \\( t \\) in \\( 500(1.04)^t = 1250 \\). <span class='id-lang'>Urutkan langkah mencari t.</span>",
+         o:["Divide by 500: \\( 1.04^t = 2.5 \\)","Take log: \\( t \\log 1.04 = \\log 2.5 \\)","Divide: \\( t = \\frac{\\log 2.5}{\\log 1.04} \\)"],
+         a:[0,1,2],
+         h:"Standard procedure: isolate, log, divide. <span class='id-lang'>Isolasi, log, bagi.</span>"},
+        {type:"E",etype:"tf",
+         q:"In \\( P = 500(1.04)^t \\), the number 1.04 represents a 4% decrease. <span class='id-lang'>Apakah 1.04 berarti penurunan 4%?</span>",
+         a:false,
+         h:"1.04 means a 4% INCREASE. A decrease would be 0.96. <span class='id-lang'>1.04 berarti kenaikan 4%.</span>"},
+        {type:"E",etype:"sa",
+         q:"Which of these are valid ways to write the exact solution for \\( 1.04^t = 2.5 \\)? <span class='id-lang'>Mana penulisan solusi eksak yang valid?</span>",
+         o:["\\( \\frac{\\log 2.5}{\\log 1.04} \\)","\\( \\frac{\\ln 2.5}{\\ln 1.04} \\)","\\( \\log_{1.04}(2.5) \\)","\\( \\log(2.5) - \\log(1.04) \\)"],
+         a:[0,1,2],
+         h:"All of these are mathematically equivalent! <span class='id-lang'>Semuanya ekuivalen secara matematis!</span>"},
+        {type:"E",etype:"fb",
+         q:"Solve \\( 1000(1.15)^t = 1000000 \\) for \\( t \\). Give exact form. <span class='id-lang'>Solusi eksak t.</span>",
+         a:"log(1000)/log(1.15)||ln(1000)/ln(1.15)",
+         h:"Divide by 1000 to get \\( 1.15^t = 1000 \\). <span class='id-lang'>Bagi 1000 untuk dapat 1.15^t = 1000.</span>"},
+        {type:"E",etype:"mc",
+         q:"What does the expression \\( \\frac{\\log(2.5)}{\\log(1.04)} \\) represent in the population problem? <span class='id-lang'>Apa yang diwakili ekspresi itu?</span>",
+         o:["The time it takes for the population to reach 1250 <span class='id-lang'>Waktu mencapai 1250</span>","The initial population <span class='id-lang'>Populasi awal</span>","The growth rate <span class='id-lang'>Tingkat pertumbuhan</span>","The final population <span class='id-lang'>Populasi akhir</span>"],
+         a:0,
+         h:"It is the solution for 't'. <span class='id-lang'>Itu adalah solusi untuk t.</span>"},
+        {type:"E",etype:"match",
+         q:"Match the real-world equation to its first algebraic step. <span class='id-lang'>Cocokkan persamaan ke langkah pertama.</span>",
+         left:["\\( 1000(1.15)^t = 1000000 \\)","\\( 500(1.04)^t = 1250 \\)","\\( 4e^{2x} = 12 \\)"],
+         right:["Divide by 1000","Divide by 500","Divide by 4"],
+         a:[0,1,2],
+         h:"Always isolate the exponential part first! <span class='id-lang'>Selalu isolasi bagian eksponensial dulu!</span>"},
+        {type:"E",etype:"fb",
+         q:"If a population \\( P = 200e^{0.1t} \\) reaches 500, what is \\( e^{0.1t} \\) equal to? <span class='id-lang'>Berapa nilai \\( e^{0.1t} \\)?</span>",
+         a:"2.5||5/2",
+         h:"Divide 500 by 200. <span class='id-lang'>500 dibagi 200.</span>"},
+        {type:"E",etype:"tf",
+         q:"To solve \\( 500(1.04)^t = 1250 \\), you must divide by 1.04 first. <span class='id-lang'>Harus bagi 1.04 dulu?</span>",
+         a:false,
+         h:"No! You divide by 500 first to isolate \\( (1.04)^t \\). <span class='id-lang'>Tidak! Bagi 500 dulu untuk mengisolasi pangkat.</span>"}
+      ]
+    },
+    // ==================== SECTION 7D ====================
+    {
+      id:"7D", title:"Assessment D <span class='id-lang'>Asesmen D</span>", icon:"fa-clipboard-check", color:"#06b6d4", branch:true,
+      lessons:[
+        {type:"E",etype:"code",
+         q:"Condense the expression: \\( \\ln(x) + \\ln(y) - \\ln(z) \\). Use no spaces. <span class='id-lang'>Sederhanakan ekspresi tanpa spasi.</span>",
+         a:"ln(xy/z)||ln(x*y/z)",
+         h:"Addition becomes multiplication, subtraction becomes division. <span class='id-lang'>Tambah jadi kali, kurang jadi bagi.</span>"},
+        {type:"E",etype:"fb",
+         q:"Expand \\( \\log(x^2 y^3) \\). Use no spaces. <span class='id-lang'>Ekspansi tanpa spasi.</span>",
+         a:"2logx+3logy||2log(x)+3log(y)",
+         h:"Apply power rule, then product rule. <span class='id-lang'>Pakai sifat pangkat, lalu perkalian.</span>"},
+        {type:"E",etype:"tf",
+         q:"\\( \\log_b(b) = 0 \\) for any valid base \\( b \\). <span class='id-lang'>Apakah benar?</span>",
+         a:false,
+         h:"\\( \\log_b(b) = 1 \\), not 0! Because \\( b^1 = b \\). <span class='id-lang'>Hasilnya 1, bukan 0.</span>"},
+        {type:"E",etype:"mc",
+         q:"What is the value of \\( \\log_8(32) \\)? <span class='id-lang'>Berapa nilainya?</span>",
+         o:["\\( \\frac{5}{3} \\) <span class='id-lang'></span>","\\( \\frac{3}{5} \\) <span class='id-lang'></span>","\\( \\frac{8}{32} \\) <span class='id-lang'></span>","2 <span class='id-lang'></span>"],
+         a:0,
+         h:"\\( 8 = 2^3 \\) and \\( 32 = 2^5 \\). So \\( \\frac{\\log 2^5}{\\log 2^3} = \\frac{5}{3} \\). <span class='id-lang'>Ubah ke basis 2.</span>"},
+        {type:"E",etype:"ord",
+         q:"Order the steps to solve \\( 3^x = 55 \\). <span class='id-lang'>Urutkan langkah penyelesaian.</span>",
+         o:["Take log of both sides: \\( \\log(3^x) = \\log(55) \\)","Apply power property: \\( x \\log(3) = \\log(55) \\)","Divide by \\( \\log(3) \\): \\( x = \\frac{\\log 55}{\\log 3} \\)"],
+         a:[0,1,2],
+         h:"Standard Log -> Power -> Algebra sequence. <span class='id-lang'>Urutan Log, Pangkat, Aljabar.</span>"},
+        {type:"E",etype:"sa",
+         q:"Which of the following are valid logarithmic properties? <span class='id-lang'>Mana sifat logaritma yang valid?</span>",
+         o:["\\( \\log_b(MN) = \\log_b(M) + \\log_b(N) \\)","\\( \\log_b(M/N) = \\log_b(M) - \\log_b(N) \\)","\\( \\log_b(M^k) = k \\log_b(M) \\)","\\( \\log_b(M+N) = \\log_b(M) \\log_b(N) \\)"],
+         a:[0,1,2],
+         h:"Select all Product, Quotient, and Power rules. <span class='id-lang'>Pilih sifat perkalian, pembagian, dan pangkat.</span>"},
+        {type:"E",etype:"match",
+         q:"Match the logarithmic equation to its exponential form. <span class='id-lang'>Cocokkan log ke eksponensial.</span>",
+         left:["\\( \\log_2(8) = 3 \\)","\\( \\log_3(9) = 2 \\)","\\( \\log_5(125) = 3 \\)"],
+         right:["\\( 2^3 = 8 \\)","\\( 3^2 = 9 \\)","\\( 5^3 = 125 \\)"],
+         a:[0,1,2],
+         h:"The base of the log becomes the base of the exponent. <span class='id-lang'>Basis log jadi basis eksponen.</span>"},
+        {type:"E",etype:"fb",
+         q:"Solve for \\( x \\): \\( \\log_x(16) = \\frac{2}{3} \\). <span class='id-lang'>Berapa nilai x?</span>",
+         a:"64",
+         h:"Rewrite as \\( x^{2/3} = 16 \\). Cube both sides, then square root. <span class='id-lang'>Pangkatkan 3, lalu akar 2.</span>"},
+        {type:"E",etype:"tf",
+         q:"The change of base formula only works if you use common log (base 10). <span class='id-lang'>Apakah hanya bisa pakai basis 10?</span>",
+         a:false,
+         h:"It works with ANY base, including natural log (ln). <span class='id-lang'>Bisa pakai basis apapun, termasuk ln.</span>"},
+        {type:"E",etype:"mc",
+         q:"Approximate the value of \\( \\log_5(20) \\). <span class='id-lang'>Nilai pendekatannya?</span>",
+         o:["1.86 <span class='id-lang'></span>","4.00 <span class='id-lang'></span>","0.25 <span class='id-lang'></span>","2.46 <span class='id-lang'></span>"],
+         a:0,
+         h:"Calculate \\( \\frac{\\log 20}{\\log 5} \\). <span class='id-lang'>Hitung dengan kalkulator.</span>"}
+      ]
+    },
+    // ==================== SECTION 7E ====================
+    {
+      id:"7E", title:"Assessment E <span class='id-lang'>Asesmen E</span>", icon:"fa-clipboard-check", color:"#f97316", branch:true,
+      lessons:[
+        {type:"E",etype:"fb",
+         q:"Solve \\( 10^{2x-3} = 7^{x+1} \\). Give exact form. <span class='id-lang'>Solusi eksak.</span>",
+         a:"(3+log7)/(2-log7)||(3+log(7))/(2-log(7))",
+         h:"Take log: \\( (2x-3)\\log 10 = (x+1)\\log 7 \\). Since \\( \\log 10 = 1 \\), it simplifies easily. <span class='id-lang'>Karena log 10 = 1, sisi kiri sangat sederhana.</span>"},
+        {type:"E",etype:"ord",
+         q:"Order the steps to isolate \\( x \\) in \\( 5 \\cdot e^{0.5x} = 20 \\cdot 2^x \\). <span class='id-lang'>Urutkan langkah isolasi x.</span>",
+         o:["Divide by 5: \\( e^{0.5x} = 4 \\cdot 2^x \\)","Take ln: \\( 0.5x = \\ln 4 + x \\ln 2 \\)","Collect x: \\( 0.5x - x \\ln 2 = \\ln 4 \\)","Factor & Divide: \\( x = \\frac{\\ln 4}{0.5 - \\ln 2} \\)"],
+         a:[0,1,2,3],
+         h:"Move x terms to one side, factor out x. <span class='id-lang'>Pindahkan x, keluarkan x.</span>"},
+        {type:"E",etype:"mc",
+         q:"What is the first algebraic step to solve \\( 5 \\cdot e^{0.5x} = 20 \\cdot 2^x \\)? <span class='id-lang'>Langkah aljabar pertama?</span>",
+         o:["Divide by 5 <span class='id-lang'>Bagi 5</span>","Take ln <span class='id-lang'>Ambil ln</span>","Divide by \\( e^{0.5x} \\) <span class='id-lang'>Bagi e^{0.5x}</span>","Subtract 20 <span class='id-lang'>Kurang 20</span>"],
+         a:0,
+         h:"Always isolate the exponential term first if possible. <span class='id-lang'>Isolasi suku eksponensial dulu.</span>"},
+        {type:"E",etype:"tf",
+         q:"\\( \\frac{e^{0.5x}}{2^x} = 4 \\) is mathematically equivalent to \\( e^{0.5x} = 4 \\cdot 2^x \\). <span class='id-lang'>Apakah ekuivalen?</span>",
+         a:true,
+         h:"Multiplying by \\( 2^x \\) on both sides moves it to the right. <span class='id-lang'>Kali 2^x kedua sisi memindahkannya ke kanan.</span>"},
+        {type:"E",etype:"sa",
+         q:"Which of these are valid steps when solving \\( 5 \\cdot e^{0.5x} = 20 \\cdot 2^x \\)? <span class='id-lang'>Mana langkah yang valid?</span>",
+         o:["Divide by 5","Take the natural log (ln) of both sides","Factor out x","Divide by 0.5"],
+         a:[0,1,2],
+         h:"All except 'Divide by 0.5' are steps in the process. We divide by the coefficient of x at the very end. <span class='id-lang'>Bagi koefisien x di akhir.</span>"},
+        {type:"E",etype:"fb",
+         q:"Solve \\( 2 \\cdot 5^x = 80 \\). Give exact form. <span class='id-lang'>Solusi eksak.</span>",
+         a:"log(40)/log(5)||log40/log5",
+         h:"Divide by 2 to get \\( 5^x = 40 \\). <span class='id-lang'>Bagi 2 untuk dapat 5^x = 40.</span>"},
+        {type:"E",etype:"match",
+         q:"Match the complex equation to its exact solution for x. <span class='id-lang'>Cocokkan persamaan ke solusi x.</span>",
+         left:["\\( 10^{2x-3} = 7^{x+1} \\)","\\( 5 \\cdot e^{0.5x} = 20 \\cdot 2^x \\)","\\( 4^{x-2} = 3^{x+4} \\)"],
+         right:["\\( x = \\frac{3 + \\log 7}{2 - \\log 7} \\)","\\( x = \\frac{\\ln 4}{0.5 - \\ln 2} \\)","\\( x = \\frac{2\\ln 4 + 4\\ln 3}{\\ln 4 - \\ln 3} \\)"],
+         a:[0,1,2],
+         h:"Check the coefficients and logarithm bases used. <span class='id-lang'>Periksa koefisien dan basis log.</span>"},
+        {type:"E",etype:"fb",
+         q:"Solve \\( 4e^{2x} = 12 \\). Give exact form. <span class='id-lang'>Solusi eksak.</span>",
+         a:"ln(3)/2||ln3/2",
+         h:"Divide by 4: \\( e^{2x} = 3 \\). Take ln: \\( 2x = \\ln 3 \\). <span class='id-lang'>Bagi 4, ambil ln, bagi 2.</span>"},
+        {type:"E",etype:"tf",
+         q:"In \\( 8^{x+1} = 120 \\), isolating \\( x \\) gives \\( x = \\log_8(120) + 1 \\). <span class='id-lang'>Apakah benar?</span>",
+         a:false,
+         h:"No! It should be \\( x = \\log_8(120) - 1 \\). <span class='id-lang'>Harusnya dikurang 1, bukan ditambah.</span>"},
+        {type:"E",etype:"mc",
+         q:"What is the solution to \\( 6^x = 2^{x+1} \\cdot 3^{x-1} \\)? <span class='id-lang'>Solusinya?</span>",
+         o:["No solution <span class='id-lang'>Tidak ada solusi</span>","\\( x = 0 \\)","\\( x = 1 \\)","\\( x = \\frac{1}{2} \\)"],
+         a:0,
+         h:"The right side simplifies to \\( 6^x \\cdot (2/3) \\), which means \\( 1 = 2/3 \\), an impossibility. <span class='id-lang'>Sisi kanan menjadi 6^x dikali 2/3, tidak mungkin sama dengan 6^x.</span>"}
+      ]
+    },
+    // ==================== SECTION 8 ====================
+    {
+      id:8, title:"Consolidation & Reflection <span class='id-lang'>Konsolidasi & Refleksi</span>", icon:"fa-star", color:"#fbbf24", branch:false,
+      lessons:[
+        {type:"T",title:"Summary & Next Steps <span class='id-lang'>Ringkasan & Langkah Berikutnya</span>",
+         body:`<p>Brilliant work today! You mastered the 'Ladder' technique—using logs to bring down exponents. You handled different bases and even isolated variables using factoring! <span class='id-lang'>Kerja luar biasa! Kamu menguasai teknik 'Tangga'—menggunakan log untuk menurunkan eksponen.</span></p>
+         <div class="mt-4 p-5 rounded-xl bg-gradient-to-r from-emerald-500/10 to-teal-500/10 border border-emerald-500/20">
+           <div class="text-emerald-400 font-bold mb-3 text-lg"><i class="fa-solid fa-medal mr-2"></i>The 4-Step Checklist <span class='id-lang'>Daftar Periksa 4 Langkah</span></div>
+           <ul class="space-y-2 text-sm text-slate-300 list-decimal list-inside">
+             <li><strong>Log:</strong> Take log or ln of both sides. <span class='id-lang'>Ambil log atau ln kedua sisi.</span></li>
+             <li><strong>Power Rule:</strong> Bring exponents down to the front. <span class='id-lang'>Turunkan pangkat ke depan.</span></li>
+             <li><strong>Algebra:</strong> Distribute and collect 'x' terms on one side. <span class='id-lang'>Distribusi dan kumpulkan suku 'x'.</span></li>
+             <li><strong>Isolate:</strong> Factor out 'x' and divide. <span class='id-lang'>Faktorkan 'x' dan bagi.</span></li>
+           </ul>
+         </div>
+         <p class="mt-4">Before we log off, remember to join the Algonova platform to access your guided notes and continue your learning journey! <span class='id-lang'>Ingat untuk bergabung dengan platform Algonova untuk mengakses catatan terbimbing!</span></p>
+         <div class="mt-6 p-5 rounded-xl bg-amber-500/10 border border-amber-500/20 text-center">
+           <div class="text-amber-400 font-bold text-xl mb-2">Your Next Mission <span class='id-lang'>Misi Berikutnya</span></div>
+           <p class="text-sm text-slate-300 mb-4">Ready for more challenges? Login to Algonova now! <span class='id-lang'>Siap untuk tantangan lainnya? Login ke Algonova sekarang!</span></p>
+           <a href="https://learn.algonova.id/login" target="_blank" class="btn-primary inline-flex">
+             <i class="fa-solid fa-arrow-up-right-from-square"></i> Open Algonova <span class="id-lang" style="color:rgba(11,17,33,0.7); display:inline;">Buka Algonova</span>
+           </a>
+         </div>`}
+      ]
+    }
+  ]
+};
+
+// ============================================================
+// STATE APLIKASI
+// ============================================================
+let state = {
+  xp: 0,
+  streak: 0,
+  completed: {},   // { "1-0": true, "1-1": true, ... }  mapIndex-lessonIndex
+  currentView: 'map',
+  currentMap: null,  // index di COURSE.maps
+  currentLesson: null, // index lesson dalam map
+  exerciseState: {},  // state untuk exercise interaktif
+};
+
+// Load dari localStorage
+function loadState() {
+  try {
+    const saved = localStorage.getItem('logicode_state');
+    if (saved) {
+      const parsed = JSON.parse(saved);
+      state.xp = parsed.xp || 0;
+      state.streak = parsed.streak || 0;
+      state.completed = parsed.completed || {};
+	  state.mapAnswers = parsed.mapAnswers || {};
+    }
+  } catch(e) {}
+}
+function saveState() {
+  try {
+    localStorage.setItem('logicode_state', JSON.stringify({
+      xp: state.xp, streak: state.streak, completed: state.completed, mapAnswers: state.mapAnswers
+    }));
+  } catch(e) {}
+}
+
+function resetProgress() {
+  if (confirm('Apakah kamu yakin ingin menghapus semua progress? Tindakan ini tidak bisa dibatalkan.')) {
+    // Hapus data dari localStorage
+    localStorage.removeItem('logicode_state');
+    
+    // Reset state di memori
+    state.xp = 0;
+    state.streak = 0;
+    state.completed = {};
+    
+    // Render ulang tampilan peta
+    renderMap();
+    
+    // Tampilkan notifikasi
+    showToast('Progress berhasil direset!', 'info');
+  }
+}
+
+// ============================================================
+// HELPER: Cek apakah peta terbuka
+// ============================================================
+function isMapUnlocked(mapIdx) {
+  return true; // Semua peta selalu terbuka
+}
+
+function isMapCompleted(mapIdx) {
+  const map = COURSE.maps[mapIdx];
+  if (!map) return false;
+  return map.lessons.every((_, li) => state.completed[`${mapIdx}-${li}`]);
+}
+
+function isLessonUnlocked(mapIdx, lessonIdx) {
+  return true; // Semua lesson selalu terbuka
+}
+
+function getMapProgress(mapIdx) {
+  const map = COURSE.maps[mapIdx];
+  if (!map) return 0;
+  const done = map.lessons.filter((_, li) => state.completed[`${mapIdx}-${li}`]).length;
+  return Math.round((done / map.lessons.length) * 100);
+}
+
+function getTotalProgress() {
+  let total = 0, done = 0;
+  COURSE.maps.forEach((m, mi) => {
+    m.lessons.forEach((_, li) => {
+      total++;
+      if (state.completed[`${mi}-${li}`]) done++;
+    });
+  });
+  return total > 0 ? Math.round((done / total) * 100) : 0;
+}
+
+// ============================================================
+// RENDER: PETA MAP (halaman utama)
+// ============================================================
+function renderMap() {
+  const container = document.getElementById('mapContainer');
+  let html = '';
+
+	COURSE.maps.forEach((map, mi) => {
+	const unlocked = isMapUnlocked(mi);
+	const completed = isMapCompleted(mi);
+	const progress = getMapProgress(mi);
+	const isBranch = map.branch;
+	const isLastBranch = isBranch && !COURSE.maps[mi+1]?.branch;
+	const isFirstBranch = isBranch && !COURSE.maps[mi-1]?.branch;
+
+	// Node kelas
+	const nodeClass = completed ? 'completed' : unlocked ? 'unlocked' + (progress === 0 ? ' current' : '') : 'locked';
+
+	// --- BRANCH START: Visual dari Peta 6 ke Peta 7A-7E ---
+	if (isFirstBranch) {
+      const peta6Completed = isMapCompleted(mi - 1);
+      // Garis vertikal turun dari Peta 6
+      html += `<div class="map-line ${peta6Completed ? 'done' : ''}"></div>`;
+      // Garis horizontal branch (diperlebar)
+      html += `<div style="height: 3px; width: 95%; max-width: 850px; margin: 0 auto; background: var(--border);"></div>`;
+      // Buka container flex untuk 7A-7E (ditambah flex-wrap agar rapi di HP)
+      html += `<div class="flex flex-wrap justify-center" style="gap: 20px; max-width: 850px; margin: 0 auto;">`;
+    }
+
+	// --- RENDER NODE ---
+	html += `
+	  <div class="flex flex-col items-center" style="${isBranch ? 'min-width: 150px;' : ''}" onclick="${unlocked ? `openPeta(${mi})` : ''}">
+		${isBranch ? `<div style="width: 3px; height: 25px; background: var(--border);"></div>` : ''}
+		<div class="map-node ${nodeClass}" style="${unlocked ? `border-color:${map.color};${completed ? `background:${map.color}` : ''}` : ''}">
+		  ${completed ? '<i class="fa-solid fa-check"></i>' : unlocked ? `<i class="fa-solid ${map.icon}"></i>` : '<i class="fa-solid fa-lock text-sm"></i>'}
+		</div>
+		<div class="mt-2 text-center">
+		  <div class="text-sm font-semibold node-title ${unlocked ? 'text-slate-200' : 'text-slate-600'}">Peta ${map.id}</div>
+		  <div class="text-xs node-title ${unlocked ? 'text-slate-400' : 'text-slate-600'}">${map.title}</div>
+		  ${unlocked && !completed ? `<div class="mt-1 w-16 mx-auto"><div class="prog-bar"><div class="prog-fill" style="width:${progress}%;background:${map.color}"></div></div></div>` : ''}
+		</div>
+		${isBranch ? `<div style="width: 3px; height: 25px; background: var(--border);"></div>` : ''}
+	  </div>
+	`;
+
+	// --- BRANCH END: Visual dari Peta 7A-7E ke Peta 8 ---
+	if (isLastBranch) {
+      // Tutup container flex 7A-7E
+      html += `</div>`;
+      // Garis horizontal merge (diperlebar)
+      html += `<div style="height: 3px; width: 95%; max-width: 850px; margin: 0 auto; background: var(--border);"></div>`;
+      // Garis vertikal turun ke Peta 8
+      html += `<div class="map-line"></div>`;
+    }
+
+	// --- GARIS VERTIKAL NORMAL (Peta 1-5) ---
+	if (!isBranch && mi < COURSE.maps.length - 1 && !COURSE.maps[mi+1]?.branch) {
+	  html += `<div class="map-line ${completed ? 'done' : ''}"></div>`;
+	}
+	});
+
+  container.innerHTML = html;
+
+  // Update header stats
+  document.getElementById('headerXP').textContent = state.xp;
+  document.getElementById('headerStreak').textContent = state.streak;
+  document.getElementById('totalProgress').textContent = getTotalProgress() + '%';
+  document.getElementById('totalProgFill').style.width = getTotalProgress() + '%';
+}
+
+// ============================================================
+// RENDER: PETA DETAIL (daftar lesson)
+// ============================================================
+function openPeta(mapIdx) {
+  state.currentMap = mapIdx;
+  showView('peta');
+  const map = COURSE.maps[mapIdx];
+  document.getElementById('petaTitle').innerHTML = `Peta ${map.id}: ${map.title}`;
+  const totalLessons = map.lessons.length;
+  const doneLessons = map.lessons.filter((_, li) => state.completed[`${mapIdx}-${li}`]).length;
+  document.getElementById('petaSubtitle').textContent = `${doneLessons}/${totalLessons} selesai`;
+
+  const container = document.getElementById('lessonContainer');
+  let html = '<div class="stagger-in flex flex-col items-center">';
+
+  map.lessons.forEach((lesson, li) => {
+    const unlocked = isLessonUnlocked(mapIdx, li);
+    const completed = state.completed[`${mapIdx}-${li}`] === true;
+    const isTheory = lesson.type === 'T';
+    const isCurrent = unlocked && !completed;
+
+    const nodeClass = completed ? 'completed' : unlocked ? 'unlocked' : 'locked';
+    const shapeClass = isTheory ? 'theory' : 'exercise';
+
+    html += `
+      <div class="flex flex-col items-center">
+        <div class="lesson-node ${shapeClass} ${nodeClass} ${isCurrent ? 'current' : ''}"
+             style="${unlocked ? `border-color:${map.color};${completed ? `background:${map.color}` : ''}` : ''}"
+             onclick="${unlocked ? `openLesson(${mapIdx},${li})` : ''}">
+          ${completed ? '<i class="fa-solid fa-check text-sm"></i>' : isTheory ? '<i class="fa-solid fa-book text-sm"></i>' : '<i class="fa-solid fa-dumbbell text-sm"></i>'}
+        </div>
+        <div class="mt-1 text-center">
+          <div class="text-xs node-title ${unlocked ? 'text-slate-300' : 'text-slate-600'}">${isTheory ? lesson.title : `Exercise ${li+1}`}</div>
+        </div>
+      </div>
+    `;
+
+    // Koneksi ke lesson berikutnya
+    if (li < map.lessons.length - 1) {
+      const connDone = completed;
+      html += `<div class="lesson-connector ${connDone ? 'done' : ''}"></div>`;
+    }
+  });
+
+  html += '</div>';
+  container.innerHTML = html;
+}
+
+// ============================================================
+// RENDER: LESSON (teori atau exercise)
+// ============================================================
+function openLesson(mapIdx, lessonIdx) {
+  state.currentMap = mapIdx;
+  state.currentLesson = lessonIdx;
+  state.exerciseState = {};
+  showView('lesson');
+
+  const map = COURSE.maps[mapIdx];
+  const lesson = map.lessons[lessonIdx];
+  const total = map.lessons.length;
+
+  document.getElementById('lessonCounter').textContent = `${lessonIdx+1}/${total}`;
+  const done = map.lessons.filter((_, li) => state.completed[`${mapIdx}-${li}`] || li < lessonIdx).length;
+  document.getElementById('lessonProgFill').style.width = `${(done/total)*100}%`;
+
+  if (lesson.type === 'T') {
+    renderTheory(lesson);
+  } else {
+    renderExercise(lesson, mapIdx, lessonIdx);
+  }
+}
+
+function renderTheory(lesson) {
+  const content = document.getElementById('lessonContent');
+  content.innerHTML = `
+    <div class="stagger-in">
+      <div class="text-xs font-semibold text-emerald-400 uppercase tracking-wider mb-2">
+        <i class="fa-solid fa-book-open mr-1"></i> Theory <span class="id-lang" style="display:inline; color:#64748b;">Teori</span>
+      </div>
+      <h2 class="text-2xl font-bold mb-6">${lesson.title}</h2>
+      <div class="text-slate-300 leading-relaxed space-y-3">
+        ${lesson.body}
+      </div>
+      <div class="mt-8 flex justify-end">
+        <button id="nextBtn" class="btn-primary" onclick="completeAndNext()">
+          Next <span class="id-lang" style="color:rgba(11,17,33,0.7); display:inline;">Lanjut</span> <i class="fa-solid fa-arrow-right"></i>
+        </button>
+      </div>
+    </div>
+  `;
+}
+
+function renderExercise(lesson, mapIdx, lessonIdx) {
+  const content = document.getElementById('lessonContent');
+  const etype = lesson.etype;
+  let exerciseHTML = '';
+
+  switch(etype) {
+    case 'mc': exerciseHTML = renderMC(lesson); break;
+    case 'tf': exerciseHTML = renderTF(lesson); break;
+    case 'fb': exerciseHTML = renderFB(lesson); break;
+    case 'ord': exerciseHTML = renderOrd(lesson); break;
+    case 'match': exerciseHTML = renderMatch(lesson); break;
+    case 'sa': exerciseHTML = renderSA(lesson); break;
+    case 'code': exerciseHTML = renderCode(lesson); break;
+    default: exerciseHTML = '<p>Tipe exercise tidak dikenal</p>';
+  }
+
+  content.innerHTML = `
+    <div class="stagger-in">
+      <div class="text-xs font-semibold text-amber-400 uppercase tracking-wider mb-2">
+        <i class="fa-solid fa-dumbbell mr-1"></i> Exercise <span class="id-lang" style="display:inline; color:#64748b;">Latihan</span>
+      </div>
+      <h2 class="text-xl font-bold mb-6">${lesson.q}</h2>
+      ${lesson.code ? `<div class="code-block mb-6">${escapeHTML(lesson.code)}</div>` : ''}
+      <div id="exerciseArea">${exerciseHTML}</div>
+      <div id="feedbackArea" class="mt-4"></div>
+      <div class="mt-6 flex items-center justify-between flex-wrap gap-3">
+        <div class="flex gap-2">
+          <button class="btn-secondary text-sm" onclick="showHint()" id="hintBtn">
+            <i class="fa-solid fa-lightbulb mr-1"></i> Hint <span class="id-lang" style="display:inline;">Petunjuk</span>
+          </button>
+          <button class="btn-secondary text-sm" onclick="resetExercise()" id="resetBtn">
+            <i class="fa-solid fa-rotate-left mr-1"></i> Reset <span class="id-lang" style="display:inline;">Atur Ulang</span>
+          </button>
+        </div>
+        <button class="btn-primary" id="checkBtn" onclick="checkAnswer()" disabled>
+          Check <span class="id-lang" style="display:inline;">Periksa</span> <i class="fa-solid fa-check"></i>
+        </button>
+      </div>
+      <div id="hintArea" class="mt-4 hidden">
+        <div class="p-4 rounded-xl bg-amber-500/10 border border-amber-500/20 text-sm text-amber-200">
+          <i class="fa-solid fa-lightbulb text-amber-400 mr-2"></i>${lesson.h || 'Tidak ada petunjuk'}
+        </div>
+      </div>
+    </div>
+  `;
+}
+
+// Fungsi baru untuk mereset exercise
+function resetExercise() {
+  if (state.exerciseState.answered) return; // Tidak bisa reset jika sudah di-check
+  const lesson = COURSE.maps[state.currentMap].lessons[state.currentLesson];
+  renderExercise(lesson, state.currentMap, state.currentLesson);
+  // Panggil KaTeX setelah HTML dirender ulang
+  setTimeout(() => renderKatexInElement(document.getElementById('lessonContent')), 50);
+}
+
+// ============================================================
+// EXERCISE RENDERERS
+// ============================================================
+
+// Multiple Choice
+function renderMC(lesson) {
+  const labels = ['A','B','C','D','E','F'];
+  return `<div class="space-y-3" id="mcOptions">
+    ${lesson.o.map((opt, i) => `
+      <div class="opt-card" data-idx="${i}" onclick="selectMC(${i})">
+        <span class="w-8 h-8 rounded-lg bg-white/5 flex items-center justify-center text-sm font-bold flex-shrink-0">${labels[i]}</span>
+        <span>${opt}</span>
+      </div>
+    `).join('')}
+  </div>`;
+}
+
+function selectMC(idx) {
+  if (state.exerciseState.answered) return;
+  state.exerciseState.selected = idx;
+  document.querySelectorAll('#mcOptions .opt-card').forEach((el, i) => {
+    el.classList.toggle('selected', i === idx);
+  });
+  document.getElementById('checkBtn').disabled = false;
+}
+
+// True/False
+function renderTF(lesson) {
+  return `<div class="flex gap-4" id="tfOptions">
+    <div class="opt-card flex-1 justify-center text-center text-lg" onclick="selectTF(true)" data-val="true">
+      <i class="fa-solid fa-check text-emerald-400 mr-2"></i> True <span class="id-lang">Benar</span>
+    </div>
+    <div class="opt-card flex-1 justify-center text-center text-lg" onclick="selectTF(false)" data-val="false">
+      <i class="fa-solid fa-xmark text-red-400 mr-2"></i> False <span class="id-lang">Salah</span>
+    </div>
+  </div>`;
+}
+
+function selectTF(val) {
+  if (state.exerciseState.answered) return;
+  state.exerciseState.selected = val;
+  document.querySelectorAll('#tfOptions .opt-card').forEach(el => {
+    el.classList.toggle('selected', el.dataset.val === String(val));
+  });
+  document.getElementById('checkBtn').disabled = false;
+}
+
+// Fill Blank
+function renderFB(lesson) {
+  return `<div>
+    <input type="text" class="ex-input" id="fbInput" placeholder="Ketik jawaban..." autocomplete="off" oninput="onFBInput()">
+  </div>`;
+}
+
+function onFBInput() {
+  const val = document.getElementById('fbInput').value.trim();
+  document.getElementById('checkBtn').disabled = val.length === 0;
+}
+
+// Order
+function renderOrd(lesson) {
+  // Tampilkan item dalam urutan acak
+  const shuffled = lesson.o.map((item, i) => ({text: item, origIdx: i}));
+  // Shuffle
+  for (let i = shuffled.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [shuffled[i], shuffled[j]] = [shuffled[j], shuffled[i]];
+  }
+  state.exerciseState.ordOrder = [];
+  state.exerciseState.ordItems = shuffled;
+
+  return `<div>
+	<div class="text-sm text-slate-400 mb-3">Click items in the correct order: <span class="id-lang">Klik item dalam urutan yang benar:</span></div>
+    <div class="space-y-2" id="ordList">
+      ${shuffled.map((item, i) => `
+        <div class="order-item flex items-center gap-3" data-orig="${item.origIdx}" onclick="selectOrd(this,${item.origIdx})">
+          <span class="w-7 h-7 rounded-full bg-white/5 flex items-center justify-center text-xs font-bold ord-num"></span>
+          <span>${item.text}</span>
+        </div>
+      `).join('')}
+    </div>
+    <div class="mt-3 text-xs text-slate-500" id="ordStatus">Urutan terpilih: (belum ada)</div>
+  </div>`;
+}
+
+function selectOrd(el, origIdx) {
+  if (state.exerciseState.answered) return;
+  if (el.classList.contains('ordered')) return;
+
+  const order = state.exerciseState.ordOrder;
+  order.push(origIdx);
+  el.classList.add('ordered');
+  const numEl = el.querySelector('.ord-num');
+  numEl.textContent = order.length;
+
+  document.getElementById('ordStatus').textContent = `Urutan terpilih: ${order.length}/${state.exerciseState.ordItems.length}`;
+  document.getElementById('checkBtn').disabled = order.length < state.exerciseState.ordItems.length;
+}
+
+// Match
+function renderMatch(lesson) {
+  state.exerciseState.matchLeft = null;
+  state.exerciseState.matchPairs = [];
+  state.exerciseState.matchedLeft = new Set();
+  state.exerciseState.matchedRight = new Set();
+
+  // Shuffle right column
+  const rightShuffled = [...lesson.right];
+  for (let i = rightShuffled.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [rightShuffled[i], rightShuffled[j]] = [rightShuffled[j], rightShuffled[i]];
+  }
+  state.exerciseState.rightShuffled = rightShuffled;
+
+  return `<div>
+    <div class="text-sm text-slate-400 mb-3">Klik item kiri, lalu item kanan untuk mencocokkan:</div>
+    <div class="grid grid-cols-2 gap-3" id="matchGrid">
+      <div class="space-y-2" id="matchLeft">
+        ${lesson.left.map((item, i) => `
+          <div class="match-item" data-side="left" data-idx="${i}" onclick="selectMatch('left',${i})">${item}</div>
+        `).join('')}
+      </div>
+      <div class="space-y-2" id="matchRight">
+        ${rightShuffled.map((item, i) => `
+          <div class="match-item" data-side="right" data-idx="${i}" data-val="${item}" onclick="selectMatch('right',${i})">${item}</div>
+        `).join('')}
+      </div>
+    </div>
+  </div>`;
+}
+
+function selectMatch(side, idx) {
+  if (state.exerciseState.answered) return;
+  const es = state.exerciseState;
+
+  if (side === 'left') {
+    if (es.matchedLeft.has(idx)) return;
+    // Highlight
+    document.querySelectorAll('#matchLeft .match-item').forEach(el => el.classList.remove('active'));
+    const el = document.querySelector(`#matchLeft .match-item[data-idx="${idx}"]`);
+    el.classList.add('active');
+    es.matchLeft = idx;
+  } else {
+    if (es.matchedRight.has(idx)) return;
+    if (es.matchLeft === null) {
+      showToast('Pilih item kiri terlebih dahulu', 'info');
+      return;
+    }
+    // Create pair
+    const lesson = COURSE.maps[state.currentMap].lessons[state.currentLesson];
+    const leftIdx = es.matchLeft;
+    const rightVal = es.rightShuffled[idx];
+    es.matchPairs.push({leftIdx, rightVal, rightShuffledIdx: idx});
+    es.matchedLeft.add(leftIdx);
+    es.matchedRight.add(idx);
+
+    // Visual
+    const leftEl = document.querySelector(`#matchLeft .match-item[data-idx="${leftIdx}"]`);
+    const rightEl = document.querySelector(`#matchRight .match-item[data-idx="${idx}"]`);
+    leftEl.classList.remove('active');
+    leftEl.classList.add('matched');
+    rightEl.classList.add('matched');
+
+    es.matchLeft = null;
+
+    document.getElementById('checkBtn').disabled = es.matchPairs.length < lesson.left.length;
+  }
+}
+
+// Select All
+function renderSA(lesson) {
+  state.exerciseState.selectedSet = new Set();
+  return `<div>
+    <div class="text-sm text-slate-400 mb-3">Pilih semua jawaban yang benar:</div>
+    <div class="space-y-2" id="saOptions">
+      ${lesson.o.map((opt, i) => `
+        <div class="opt-card" data-idx="${i}" onclick="toggleSA(${i})">
+          <span class="w-6 h-6 rounded border-2 border-slate-600 flex items-center justify-center flex-shrink-0 sa-check"></span>
+          <span>${opt}</span>
+        </div>
+      `).join('')}
+    </div>
+  </div>`;
+}
+
+function toggleSA(idx) {
+  if (state.exerciseState.answered) return;
+  const set = state.exerciseState.selectedSet;
+  if (set.has(idx)) set.delete(idx); else set.add(idx);
+  document.querySelectorAll('#saOptions .opt-card').forEach((el, i) => {
+    const check = el.querySelector('.sa-check');
+    if (set.has(i)) {
+      el.classList.add('selected');
+      check.innerHTML = '<i class="fa-solid fa-check text-emerald-400 text-xs"></i>';
+      check.style.borderColor = '#10b981';
+    } else {
+      el.classList.remove('selected');
+      check.innerHTML = '';
+      check.style.borderColor = '';
+    }
+  });
+  document.getElementById('checkBtn').disabled = set.size === 0;
+}
+
+// Code Output
+function renderCode(lesson) {
+  return `<div>
+    <div class="text-sm text-slate-400 mb-3">Tulis output yang akan ditampilkan:</div>
+    <input type="text" class="ex-input font-mono" id="codeInput" placeholder="Ketik output..." autocomplete="off" oninput="onCodeInput()">
+  </div>`;
+}
+
+function onCodeInput() {
+  const val = document.getElementById('codeInput').value.trim();
+  document.getElementById('checkBtn').disabled = val.length === 0;
+}
+
+// ============================================================
+// CHECK ANSWER
+// ============================================================
+function checkAnswer() {
+  if (state.exerciseState.answered) return;
+  state.exerciseState.answered = true;
+
+  // Sembunyikan tombol Hint dan Reset
+  const resetBtn = document.getElementById('resetBtn');
+  if (resetBtn) resetBtn.style.display = 'none';
+
+  const lesson = COURSE.maps[state.currentMap].lessons[state.currentLesson];
+  const etype = lesson.etype;
+  let correct = false;
+  let correctAnswer = '';
+
+  switch(etype) {
+    case 'mc': {
+      const sel = state.exerciseState.selected;
+      correct = sel === lesson.a;
+      document.querySelectorAll('#mcOptions .opt-card').forEach((el, i) => {
+        el.classList.add('disabled');
+        if (i === lesson.a) el.classList.add('correct');
+        if (i === sel && !correct) el.classList.add('wrong');
+      });
+      correctAnswer = lesson.o[lesson.a];
+      break;
+    }
+    case 'tf': {
+      const sel = state.exerciseState.selected;
+      correct = sel === lesson.a;
+      document.querySelectorAll('#tfOptions .opt-card').forEach(el => {
+        el.classList.add('disabled');
+        if (String(lesson.a) === el.dataset.val) el.classList.add('correct');
+        if (String(sel) === el.dataset.val && !correct) el.classList.add('wrong');
+      });
+            correctAnswer = lesson.a ? 'True <span class="id-lang">Benar</span>' : 'False <span class="id-lang">Salah</span>';
+      break;
+    }
+    case 'fb': {
+      const input = document.getElementById('fbInput').value.trim();
+      // Normalisasi: hapus semua spasi dan ubah jadi huruf kecil
+      const normalize = str => str
+        .replace(/[\u200B-\u200D\u2060-\u206F\uFEFF]/g, '') // Hapus karakter tak terlihat (Zero-width, function apply, BOM)
+        .replace(/[（﹝]/g, '(') // Ubah kurung buka full-width ke setengah
+        .replace(/[）﹞]/g, ')') // Ubah kurung tutup full-width ke setengah
+        .replace(/\s+/g, '')    // Hapus semua spasi
+        .toLowerCase();         // Jadiin huruf kecil
+      // Terima beberapa jawaban yang benar (dipisah /)
+      const answers = lesson.a.split('||');
+      correct = answers.some(a => normalize(input) === normalize(a));
+      document.getElementById('fbInput').classList.add(correct ? 'correct' : 'wrong');
+      document.getElementById('fbInput').disabled = true;
+      correctAnswer = lesson.a;
+      break;
+    }
+    case 'ord': {
+      const order = state.exerciseState.ordOrder;
+      correct = order.length === lesson.a.length && order.every((v, i) => v === lesson.a[i]);
+      correctAnswer = lesson.a.map(i => lesson.o[i]).join(' → ');
+      break;
+    }
+    case 'match': {
+      const pairs = state.exerciseState.matchPairs;
+      const lesson_data = lesson;
+      correct = pairs.length === lesson_data.a.length && pairs.every((p, i) => {
+        // Cek apakah leftIdx-i cocok dengan right yang benar
+        const expectedRightVal = lesson_data.right[lesson_data.a[p.leftIdx]];
+        return p.rightVal === expectedRightVal;
+      });
+      correctAnswer = lesson_data.left.map((l, i) => `${l} ↔ ${lesson_data.right[lesson_data.a[i]]}`).join(', ');
+      break;
+    }
+    case 'sa': {
+      const selected = [...state.exerciseState.selectedSet].sort();
+      const expected = [...lesson.a].sort();
+      correct = selected.length === expected.length && selected.every((v, i) => v === expected[i]);
+      document.querySelectorAll('#saOptions .opt-card').forEach((el, i) => {
+        el.classList.add('disabled');
+        if (lesson.a.includes(i)) el.classList.add('correct');
+        if (selected.includes(i) && !lesson.a.includes(i)) el.classList.add('wrong');
+      });
+      correctAnswer = lesson.a.map(i => lesson.o[i]).join(', ');
+      break;
+    }
+    case 'code': {
+      const input = document.getElementById('codeInput').value.trim();
+      // Normalisasi: hapus semua spasi dan ubah jadi huruf kecil
+      const normalize = str => str
+        .replace(/[\u200B-\u200D\u2060-\u206F\uFEFF]/g, '') // Hapus karakter tak terlihat
+        .replace(/[（﹝]/g, '(') // Standar kurung buka
+        .replace(/[）﹞]/g, ')') // Standar kurung tutup
+        .replace(/\s+/g, '')    // Hapus spasi
+        .toLowerCase();         // Huruf kecil
+      correct = normalize(input) === normalize(lesson.a);
+      document.getElementById('codeInput').classList.add(correct ? 'correct' : 'wrong');
+      document.getElementById('codeInput').disabled = true;
+      correctAnswer = lesson.a;
+      break;
+    }
+  }
+
+  // Simpan jawaban untuk Print Result
+  const mi = state.currentMap;
+  const li = state.currentLesson;
+  let studentAnswerText = "";
+  let correctAnswerText = "";
+
+  switch(etype) {
+    case 'mc':
+      studentAnswerText = state.exerciseState.selected !== undefined ? lesson.o[state.exerciseState.selected] : "-";
+      correctAnswerText = lesson.o[lesson.a];
+      break;
+    case 'tf':
+      studentAnswerText = state.exerciseState.selected !== null ? (state.exerciseState.selected ? "True" : "False") : "-";
+      correctAnswerText = lesson.a ? "True" : "False";
+      break;
+    case 'fb':
+      studentAnswerText = document.getElementById('fbInput').value.trim() || "-";
+      correctAnswerText = lesson.a;
+      break;
+    case 'code':
+      studentAnswerText = document.getElementById('codeInput').value.trim() || "-";
+      correctAnswerText = lesson.a;
+      break;
+    case 'ord':
+      studentAnswerText = state.exerciseState.ordOrder.map(i => lesson.o[i]).join(' → ') || "-";
+      correctAnswerText = lesson.a.map(i => lesson.o[i]).join(' → ');
+      break;
+    case 'match':
+      studentAnswerText = "Matched pairs";
+      correctAnswerText = lesson.left.map((l, i) => `${l} ↔ ${lesson.right[lesson.a[i]]}`).join('; ');
+      break;
+    case 'sa':
+      studentAnswerText = [...state.exerciseState.selectedSet].sort().map(i => lesson.o[i]).join(', ') || "-";
+      correctAnswerText = lesson.a.map(i => lesson.o[i]).join(', ');
+      break;
+  }
+
+  if (!state.mapAnswers) state.mapAnswers = {};
+  if (!state.mapAnswers[mi]) state.mapAnswers[mi] = {};
+  state.mapAnswers[mi][li] = {
+    q: lesson.q,
+    studentAnswer: studentAnswerText,
+    correctAnswer: correctAnswerText,
+    isCorrect: correct
+  };
+  saveState();
+
+  // Tampilkan feedback
+  const feedback = document.getElementById('feedbackArea');
+  if (correct) {
+    feedback.innerHTML = `
+      <div class="feedback-bar correct-fb">
+        <i class="fa-solid fa-check-circle text-2xl"></i>
+        <div>
+          <div class="text-lg">Correct! Excellent! <span class="id-lang">Benar! Hebat!</span></div>
+          ${correctAnswer ? `<div class="text-sm opacity-80 mt-1">Answer: ${correctAnswer}</div>` : ''}
+        </div>
+      </div>
+    `;
+    // Tambah XP
+    state.xp += 10;
+    state.streak += 1;
+    showXPPopup(10);
+    spawnConfetti();
+  } else {
+    feedback.innerHTML = `
+      <div class="feedback-bar wrong-fb">
+        <i class="fa-solid fa-times-circle text-2xl"></i>
+        <div>
+            <div class="text-lg">Incorrect <span class="id-lang">Belum tepat</span></div>
+            <div class="text-sm opacity-80 mt-1">Answer: ${correctAnswer}</div>
+        </div>
+      </div>
+    `;
+    state.streak = 0;
+  }
+  
+  renderKatexInElement(feedback);
+  
+  // Update header
+  document.getElementById('headerXP').textContent = state.xp;
+  document.getElementById('headerStreak').textContent = state.streak;
+
+  // Ganti tombol check menjadi lanjut
+  const checkBtn = document.getElementById('checkBtn');
+  checkBtn.textContent = 'Lanjut ';
+  checkBtn.innerHTML = 'Next <span class="id-lang" style="color:rgba(11,17,33,0.7); display:inline;">Lanjut</span> <i class="fa-solid fa-arrow-right"></i>';
+  checkBtn.disabled = false;
+  checkBtn.onclick = () => completeAndNext();
+
+  saveState();
+}
+
+// ============================================================
+// PRINT RESULT UNTUK ASSESSMENT
+// ============================================================
+function showPrintResultForm(mapIdx) {
+  const map = COURSE.maps[mapIdx];
+  const totalLessons = map.lessons.length;
+  let correctCount = 0;
+  
+  if (state.mapAnswers && state.mapAnswers[mapIdx]) {
+    for (let i = 0; i < totalLessons; i++) {
+      if (state.mapAnswers[mapIdx][i] && state.mapAnswers[mapIdx][i].isCorrect) {
+        correctCount++;
+      }
+    }
+  }
+  
+  const score = Math.round((correctCount / totalLessons) * 100);
+
+  const content = document.getElementById('lessonContent');
+  content.innerHTML = `
+    <div class="stagger-in text-center">
+      <div class="text-5xl mb-4">🎉</div>
+      <h2 class="text-2xl font-bold mb-2">Assessment Completed! <span class="id-lang">Asesmen Selesai!</span></h2>
+      <p class="text-slate-400 mb-6">You scored <span class="text-emerald-400 font-bold text-xl">${score}%</span> (${correctCount}/${totalLessons})</p>
+      
+      <div class="max-w-md mx-auto text-left space-y-4 mb-8">
+        <div>
+          <label class="text-sm text-slate-400 block mb-1">Name / <span class="id-lang">Nama</span></label>
+          <input type="text" id="printName" class="ex-input" placeholder="Enter your name / Masukkan nama">
+        </div>
+        <div>
+          <label class="text-sm text-slate-400 block mb-1">Date / <span class="id-lang">Tanggal</span></label>
+          <input type="date" id="printDate" class="ex-input" value="${new Date().toISOString().split('T')[0]}">
+        </div>
+        <div>
+          <label class="text-sm text-slate-400 block mb-1">Assessment / <span class="id-lang">Asesmen</span></label>
+          <input type="text" class="ex-input" value="Assessment ${map.id}" disabled style="opacity:0.6">
+        </div>
+        <div>
+          <label class="text-sm text-slate-400 block mb-1">Score / <span class="id-lang">Skor</span></label>
+          <input type="text" class="ex-input" value="${score}%" disabled style="opacity:0.6">
+        </div>
+      </div>
+
+      <button class="btn-primary text-lg" onclick="generatePrintout(${mapIdx})">
+        <i class="fa-solid fa-print mr-2"></i> Print Result <span class="id-lang" style="color:rgba(11,17,33,0.7); display:inline;">Cetak Hasil</span>
+      </button>
+      
+      <div class="mt-4">
+        <button class="btn-secondary" onclick="openPeta(${mapIdx})">
+          Back to Map <span class="id-lang">Kembali ke Peta</span>
+        </button>
+      </div>
+    </div>
+  `;
+}
+
+function generatePrintout(mapIdx) {
+  const map = COURSE.maps[mapIdx];
+  const studentName = document.getElementById('printName').value || '-';
+  const printDate = document.getElementById('printDate').value || '-';
+  
+  let correctCount = 0;
+  let tableRows = '';
+  
+  for (let i = 0; i < map.lessons.length; i++) {
+    const ansData = (state.mapAnswers && state.mapAnswers[mapIdx] && state.mapAnswers[mapIdx][i]) ? state.mapAnswers[mapIdx][i] : null;
+    // Hapus tag id-lang dari pertanyaan agar printout lebih bersih (hanya bahasa Inggris)
+    const qText = map.lessons[i].q.replace(/<span class='id-lang'>.*?<\/span>/g, '');
+    const studentAns = ansData ? ansData.studentAnswer : '-';
+    const correctAns = ansData ? ansData.correctAnswer : '-';
+    const isCorrect = ansData ? ansData.isCorrect : false;
+    
+    if (isCorrect) correctCount++;
+    
+    const noteSymbol = isCorrect ? '✓' : '✗';
+    const noteColor = isCorrect ? 'green' : 'red';
+    
+    tableRows += `
+      <tr>
+        <td style="text-align:center; width: 40px;">${i + 1}</td>
+        <td>${qText}</td>
+        <td>${studentAns}</td>
+        <td>${correctAns}</td>
+        <td style="text-align:center; color: ${noteColor}; font-weight:bold; font-size:1.2rem;">${noteSymbol}</td>
+      </tr>
+    `;
+  }
+  
+  const score = Math.round((correctCount / map.lessons.length) * 100);
+
+  const printWindow = window.open('', '_blank');
+  printWindow.document.write(`
+    <!DOCTYPE html>
+    <html lang="id">
+    <head>
+      <meta charset="UTF-8">
+      <title>Assessment Result - ${map.id}</title>
+      <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.css">
+      <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.js"><\/script>
+      <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/contrib/auto-render.min.js"
+        onload="renderMathInElement(document.body, {delimiters: [{left: '\\\\(', right: '\\\\)', display: false},{left: '\\\\[', right: '\\\\]', display: true}], throwOnError: false}); setTimeout(function(){window.print();}, 1000);"><\/script>
+      <style>
+        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; padding: 30px; color: #333; line-height: 1.5; }
+        h1 { text-align: center; margin-bottom: 5px; }
+        .subtitle { text-align: center; color: #666; font-size: 0.9rem; margin-bottom: 20px; }
+        .header-info { margin-bottom: 20px; border: 1px solid #ddd; padding: 15px; border-radius: 8px; display: flex; justify-content: space-between; flex-wrap: wrap; }
+        .header-info p { margin: 5px 0; font-size: 14px; }
+        .header-info strong { margin-right: 10px; }
+        table { width: 100%; border-collapse: collapse; margin-top: 20px; font-size: 13px; }
+        th, td { border: 1px solid #333; padding: 10px; text-align: left; vertical-align: top; }
+        th { background: #f0f0f0; font-weight: bold; text-align: center; }
+        @media print {
+          body { padding: 0; }
+          .header-info { border: none; padding: 0; }
+        }
+      </style>
+    </head>
+    <body>
+      <h1>Assessment Result</h1>
+      <div class="subtitle">Direct and Inverse Proportions</div>
+      
+      <div class="header-info">
+        <div style="flex:1; min-width: 200px;">
+          <p><strong>Name:</strong> ${studentName}</p>
+          <p><strong>Date:</strong> ${printDate}</p>
+        </div>
+        <div style="flex:1; min-width: 200px;">
+          <p><strong>Assessment:</strong> ${map.id}</p>
+          <p><strong>Score:</strong> ${score}% (${correctCount}/${map.lessons.length})</p>
+        </div>
+      </div>
+
+      <table>
+        <thead>
+          <tr>
+            <th>No.</th>
+            <th>Question</th>
+            <th>Student Answer</th>
+            <th>Correct Answer</th>
+            <th>Note</th>
+          </tr>
+        </thead>
+        <tbody>
+          ${tableRows}
+        </tbody>
+      </table>
+    </body>
+    </html>
+  `);
+  printWindow.document.close();
+}
+
+// ============================================================
+// COMPLETE & NEXT
+// ============================================================
+function completeAndNext() {
+  const mi = state.currentMap;
+  const li = state.currentLesson;
+  state.completed[`${mi}-${li}`] = true;
+  saveState();
+
+  const map = COURSE.maps[mi];
+  const isLastLesson = li + 1 >= map.lessons.length;
+  const isAssessment = map.branch; // Peta 7A-7E adalah branch: true
+
+  // Jika ini exercise terakhir di Assessment, tampilkan form Print
+  if (isAssessment && isLastLesson) {
+    showPrintResultForm(mi);
+  } else if (li + 1 < map.lessons.length && isLessonUnlocked(mi, li + 1)) {
+    openLesson(mi, li + 1);
+  } else {
+    openPeta(mi);
+  }
+}
+
+// ============================================================
+// NAVIGASI
+// ============================================================
+function showView(viewName) {
+  document.querySelectorAll('.view').forEach(v => v.classList.remove('active'));
+  document.getElementById(viewName + 'View').classList.add('active');
+  state.currentView = viewName;
+  window.scrollTo(0, 0);
+}
+
+function showMap() {
+  showView('map');
+  renderMap();
+}
+
+function closeLesson() {
+  openPeta(state.currentMap);
+}
+
+// ============================================================
+// UI HELPERS
+// ============================================================
+function showToast(msg, type='info') {
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.className = `toast ${type} show`;
+  setTimeout(() => t.classList.remove('show'), 2500);
+}
+
+function showXPPopup(amount) {
+  document.getElementById('xpAmount').textContent = amount;
+  const popup = document.getElementById('xpPopup');
+  popup.classList.add('show');
+  setTimeout(() => popup.classList.remove('show'), 1500);
+}
+
+function spawnConfetti() {
+  const colors = ['#10b981','#f59e0b','#ec4899','#8b5cf6','#06b6d4','#ef4444'];
+  for (let i = 0; i < 30; i++) {
+    const c = document.createElement('div');
+    c.className = 'confetti';
+    c.style.left = Math.random() * 100 + 'vw';
+    c.style.background = colors[Math.floor(Math.random() * colors.length)];
+    c.style.width = (Math.random() * 8 + 4) + 'px';
+    c.style.height = (Math.random() * 8 + 4) + 'px';
+    c.style.borderRadius = Math.random() > 0.5 ? '50%' : '2px';
+    c.style.animationDuration = (Math.random() * 1.5 + 1) + 's';
+    c.style.animationDelay = (Math.random() * 0.5) + 's';
+    document.body.appendChild(c);
+    setTimeout(() => c.remove(), 3000);
+  }
+}
+
+function showHint() {
+  document.getElementById('hintArea').classList.remove('hidden');
+  document.getElementById('hintBtn').disabled = true;
+}
+
+function escapeHTML(str) {
+  return str.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+}
+
+// --- FUNGSI UNTUK MODAL RULES ---
+function openRules() {
+  document.getElementById('rulesModal').classList.add('active');
+}
+
+function closeRules() {
+  document.getElementById('rulesModal').classList.remove('active');
+}
+
+// ============================================================
+// KATEX RENDERING
+// ============================================================
+function renderKatexInElement(el) {
+  if (typeof renderMathInElement === 'function') {
+    renderMathInElement(el, {
+      delimiters: [
+        {left: '\\(', right: '\\)', display: false},  //
+        {left: '\\[', right: '\\]', display: true}    //
+      ],
+      throwOnError: false
+    });
+  }
+}
+
+// Override showView untuk render KaTeX setiap pindah halaman
+const originalShowView = showView;
+showView = function(viewName) {
+  originalShowView(viewName);
+  setTimeout(() => renderKatexInElement(document.body), 100);
+};
+
+// Override openLesson untuk render KaTeX di konten lesson
+const originalOpenLesson = openLesson;
+openLesson = function(mapIdx, lessonIdx) {
+  originalOpenLesson(mapIdx, lessonIdx);
+  setTimeout(() => renderKatexInElement(document.body), 100);
+};
+
+// ============================================================
+// INISIALISASI APLIKASI
+// ============================================================
+loadState();
+renderMap();
+
+// Keyboard shortcuts
+document.addEventListener('keydown', (e) => {
+  // Tekan Escape untuk menutup lesson
+  if (e.key === 'Escape' && state.currentView === 'lesson') {
+    closeLesson();
+  }
+  
+  // Tekan Enter untuk memeriksa jawaban / lanjut ke soal berikutnya
+  if (e.key === 'Enter' && state.currentView === 'lesson') {
+    const checkBtn = document.getElementById('checkBtn');
+    // Pastikan tombol ada dan tidak dalam keadaan disabled
+    if (checkBtn && !checkBtn.disabled) {
+      e.preventDefault(); 
+      checkBtn.click();   // Untuk halaman Exercise
+    } else if (nextBtn) {
+      e.preventDefault();
+      nextBtn.click();    // Untuk halaman Teori
+    }
+  }
+});
+</script>
+</body>
+</html>

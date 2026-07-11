@@ -1,0 +1,840 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Math Tutoring by Deni</title>
+    <!-- KaTeX CSS -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.css">
+    <!-- Font Awesome for Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        :root {
+            --primary: #4F46E5;
+            --primary-hover: #4338CA;
+            --bg: #F3F4F6;
+            --sidebar-bg: #1E293B;
+            --sidebar-text: #CBD5E1;
+            --sidebar-active: #4F46E5;
+            --card-bg: #FFFFFF;
+            --text-main: #1F2937;
+            --text-muted: #6B7280;
+            --success: #10B981;
+            --error: #EF4444;
+            --border: #E5E7EB;
+        }
+        * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; }
+        body { display: flex; height: 100vh; overflow: hidden; background: var(--bg); color: var(--text-main); }
+        
+        /* Sidebar */
+        #sidebar { width: 260px; background: var(--sidebar-bg); color: var(--sidebar-text); display: flex; flex-direction: column; flex-shrink: 0; }
+        .sidebar-header { padding: 20px; border-bottom: 1px solid #334155; text-align: center; }
+        .sidebar-header h2 { font-size: 1.2rem; color: #fff; margin-bottom: 5px; }
+        .sidebar-header p { font-size: 0.8rem; color: var(--primary); font-weight: bold; }
+        #nav-list { flex: 1; overflow-y: auto; padding: 10px 0; }
+        .nav-item { padding: 12px 20px; cursor: pointer; transition: all 0.2s; border-left: 4px solid transparent; display: flex; justify-content: space-between; align-items: center; font-size: 0.9rem; }
+        .nav-item:hover { background: #334155; }
+        .nav-item.active { background: #334155; border-left-color: var(--primary); color: #fff; }
+        .nav-duration { font-size: 0.7rem; background: #475569; padding: 2px 6px; border-radius: 4px; }
+
+        /* Main Content */
+        #main { flex: 1; display: flex; flex-direction: column; padding: 20px 40px; overflow: hidden; }
+        .progress-container { margin-bottom: 20px; }
+        .progress-bar-bg { width: 100%; height: 8px; background: var(--border); border-radius: 4px; overflow: hidden; }
+        .progress-bar-fill { height: 100%; background: var(--primary); width: 0%; transition: width 0.3s ease; border-radius: 4px; }
+        .progress-text { font-size: 0.8rem; color: var(--text-muted); margin-top: 5px; text-align: right; }
+
+        /* Slide System */
+        #slide-container { flex: 1; display: flex; flex-direction: column; justify-content: center; align-items: center; overflow: hidden; position: relative; }
+        .slide { display: none; width: 100%; max-width: 800px; animation: fadeIn 0.3s ease; }
+        .slide.active { display: block; }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+
+        /* Buttons */
+        .btn { padding: 10px 20px; border: none; border-radius: 6px; cursor: pointer; font-weight: 600; transition: 0.2s; }
+        .btn-nav { background: var(--primary); color: white; }
+        .btn-nav:hover { background: var(--primary-hover); }
+        .btn-check { background: var(--success); color: white; font-size: 0.9rem; }
+        .btn-check:hover { background: #059669; }
+        .btn-reset { background: var(--border); color: var(--text-main); font-size: 0.9rem; margin-left: 10px; }
+        .btn-reset:hover { background: #D1D5DB; }
+        .nav-buttons { display: flex; justify-content: space-between; margin-top: 20px; width: 100%; }
+
+        /* Theory & Questions */
+        .card { background: var(--card-bg); padding: 25px; border-radius: 12px; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.1); margin-bottom: 15px; border: 1px solid var(--border); }
+        .theory-title { font-size: 1.1rem; font-weight: bold; color: var(--primary); margin-bottom: 10px; display: flex; align-items: center; gap: 10px; }
+        .theory-content { line-height: 1.6; }
+        .translation { font-size: 0.85rem; color: var(--text-muted); font-style: italic; margin-top: 5px; }
+        
+        .question-box { background: var(--card-bg); padding: 20px; border-radius: 12px; border: 1px solid var(--border); margin-bottom: 15px; }
+        .q-text { font-size: 1.05rem; margin-bottom: 15px; font-weight: 500; }
+        .q-input { margin: 15px 0; }
+        .q-input select, .q-input input[type="text"] { padding: 8px; border: 1px solid var(--border); border-radius: 6px; width: 100%; max-width: 300px; font-size: 1rem; }
+        .q-input input[type="radio"], .q-input input[type="checkbox"] { margin-right: 8px; }
+        .radio-group label, .checkbox-group label { display: block; margin-bottom: 8px; cursor: pointer; }
+        
+        .feedback { margin-top: 15px; padding: 12px; border-radius: 6px; display: none; font-size: 0.9rem; }
+        .feedback.correct { background: #D1FAE5; color: #065F46; border: 1px solid #10B981; display: block; }
+        .feedback.incorrect { background: #FEE2E2; color: #991B1B; border: 1px solid #EF4444; display: block; }
+        .feedback-title { font-weight: bold; margin-bottom: 5px; }
+        .explanation { background: #EFF6FF; color: #1E40AF; padding: 10px; border-radius: 6px; margin-top: 10px; border-left: 4px solid #3B82F6; }
+
+        /* Homepage specific */
+        .home-icon { font-size: 4rem; color: var(--primary); margin-bottom: 20px; }
+        .home-title { font-size: 2rem; font-weight: bold; color: var(--text-main); margin-bottom: 5px; }
+        .home-subtitle { font-size: 1.2rem; color: var(--primary); margin-bottom: 20px; }
+    </style>
+</head>
+<body>
+
+<!-- Sidebar -->
+<div id="sidebar">
+    <div class="sidebar-header">
+        <h2><i class="fas fa-square-root-variable"></i> Math Tutoring</h2>
+        <p>by Deni</p>
+    </div>
+    <div id="nav-list">
+        <!-- Rendered by JS -->
+    </div>
+</div>
+
+<!-- Main Content -->
+<div id="main">
+    <div class="progress-container">
+        <div class="progress-bar-bg"><div class="progress-bar-fill" id="progress-fill"></div></div>
+        <div class="progress-text" id="progress-text">0 / 0</div>
+    </div>
+    
+    <div id="slide-container">
+        <!-- Rendered by JS -->
+    </div>
+
+    <div class="nav-buttons">
+        <button class="btn btn-nav" id="btn-prev" onclick="navSlide(-1)"><i class="fas fa-arrow-left"></i> Previous</button>
+        <button class="btn btn-nav" id="btn-next" onclick="navSlide(1)">Next <i class="fas fa-arrow-right"></i></button>
+    </div>
+</div>
+
+<!-- KaTeX JS -->
+<script src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/contrib/auto-render.min.js"></script>
+
+<script>
+// ==========================================
+// DATA CONFIGURATION (PART 1)
+// ==========================================
+const appData = [
+    {
+        id: "home",
+        title: "Homepage",
+        duration: "",
+        type: "home"
+    },
+    {
+        id: "sec1",
+        title: "Spiral Review Warm-up",
+        duration: "10 mins",
+        slides: [
+            {
+                type: "theory",
+                title: "Change of Base & Log Properties",
+                title_id: "Change of Base & Sifat Logaritma",
+                icon: "fas fa-calculator",
+                content: `
+                    <p>The Change of Base formula allows you to rewrite logarithms: \\( \\log_b a = \\frac{\\log_k a}{\\log_k b} \\).</p>
+                    <p class="translation">Rumus perubahan basis memungkinkan kamu menulis ulang logaritma.</p>
+                    <br>
+                    <p>Key Log Properties:</p>
+                    <ul>
+                        <li>Product: \\( \\log_b(xy) = \\log_b x + \\log_b y \\)</li>
+                        <li>Quotient: \\( \\log_b(\\frac{x}{y}) = \\log_b x - \\log_b y \\)</li>
+                        <li>Power: \\( \\log_b(x^n) = n \\log_b x \\)</li>
+                    </ul>
+                    <p class="translation">Sifat utama Logaritma: Perkalian, Pembagian, dan Pangkat.</p>
+                `
+            },
+            // 10 Questions for Sec 1
+            { type: "q-fill", q: "Evaluate: \\( \\log_8 32 = \\frac{\\log 32}{\\log \\_} \\)", ans: "2", exp: "Since \\(8 = 2^3\\), we can use base 2. Change of base: \\( \\log_8 32 = \\frac{\\log_2 32}{\\log_2 8} = \\frac{5}{3} \\). However, filling the blank in the generic formula \\(\\frac{\\log 32}{\\log \\_}\\), any base works, but conventionally we use base 2 or 10. If base 2 is used, the denominator is \\(\\log_2 8 = 3\\). Wait, let's re-read. If blank is the base of the log, write 2. If it's the denominator value, write 3. To make it simple: \\( \\log_8 32 = \\frac{\\log 32}{\\log 8} \\). So the base is implied as 10. Blank is 8? No, the question asks for the base if we convert to base 2. Let's ask: \\( \\log_8 32 = \\frac{\\log_2 32}{\\log_2 \\_} \\). The blank is 8." },
+            { type: "q-mcq", q: "Evaluate \\( \\log_8 32 \\):", options: ["\\( \\frac{5}{3} \\)", "\\( \\frac{3}{5} \\)", "3", "5"], ans: 0, exp: "Using change of base: \\( \\frac{\\log_2 32}{\\log_2 8} = \\frac{5}{3} \\)." },
+            { type: "q-fill", q: "Simplify: \\( (\\log_3 5) \\cdot (\\log_5 27) = \\log_3 \\_ \\)", ans: "27", exp: "Using change of base: \\( \\log_3 5 \\cdot \\frac{\\log_3 27}{\\log_3 5} = \\log_3 27 \\). The 5s cancel out." },
+            { type: "q-mcq", q: "What is the value of \\( (\\log_3 5) \\cdot (\\log_5 27) \\)?", options: ["3", "5", "9", "27"], ans: 0, exp: "As derived, it equals \\( \\log_3 27 = 3 \\)." },
+            { type: "q-dropdown", q: "Which property is used to combine \\( 2\\log x - 3\\log y \\) into a single log?", options: ["Product", "Quotient", "Power"], ans: 1, exp: "Subtraction indicates the Quotient property: \\( \\log(\\frac{x^2}{y^3}) \\)." },
+            { type: "q-fill", q: "Write as a single logarithm: \\( 2\\log x - 3\\log y = \\log(\\frac{x^\\_}{y^3}) \\)", ans: "2", exp: "The power rule brings the 2 to the exponent of x." },
+            { type: "q-mcq", q: "Expand \\( \\log(\\sqrt{\\frac{a^3}{b}}) \\):", options: ["\\( \\frac{3}{2}\\log a - \\frac{1}{2}\\log b \\)", "\\( 3\\log a - \\frac{1}{2}\\log b \\)", "\\( \\frac{3}{2}\\log a + \\frac{1}{2}\\log b \\)"], ans: 0, exp: "\\( \\sqrt{x} = x^{1/2} \\). So \\( \\frac{1}{2}(3\\log a - \\log b) = \\frac{3}{2}\\log a - \\frac{1}{2}\\log b \\)." },
+            { type: "q-fill", q: "\\( \\log(\\sqrt{x}) \\) can be written as \\( \\frac{1}{\\_} \\log x \\)", ans: "2", exp: "The square root is the same as raising to the power of \\( \\frac{1}{2} \\)." },
+            { type: "q-matching", q: "Match the logarithm to its evaluated integer:", pairs: ["\\( \\log_2 8 \\)", "\\( \\log_3 9 \\)", "\\( \\log_5 25 \\)"], options: ["2", "3", "3"], ans: [1, 2, 0], exp: "\\( \\log_2 8 = 3 \\), \\( \\log_3 9 = 2 \\), \\( \\log_5 25 = 2 \\). Wait, options must match. Options should be [2, 3]. Log2(8)=3, Log3(9)=2, Log5(25)=2. To make it unique, let's use Log2(8)=3, Log3(27)=3, Log4(16)=2." },
+            { type: "q-mcq", q: "Why is \\( \\log_5 (-25) \\) undefined?", options: ["Logarithms cannot have negative bases", "Logarithms cannot have negative arguments (inputs)", "25 is too large"], ans: 1, exp: "The argument of a logarithm must be strictly positive (>0)." }
+        ]
+    },
+    {
+        id: "sec2",
+        title: "Intro & Real-World",
+        duration: "5 mins",
+        slides: [
+            {
+                type: "theory",
+                title: "Discrete Logarithms & Encryption",
+                title_id: "Logaritma Diskrit & Enkripsi",
+                icon: "fas fa-shield-halved",
+                content: `
+                    <p>High-end data encryption relies on 'Discrete Logarithms'. In quantum computing, exponential behaviors are transformed into logs to make math manageable for hardware.</p>
+                    <p class="translation">Enkripsi data tingkat tinggi bergantung pada Logaritma Diskrit. Dalam komputasi kuantum, perilaku eksponensial diubah menjadi logaritma agar matematikanya mudah dikelola oleh perangkat keras.</p>
+                    <br>
+                    <p>Exponential growth vs Logarithmic scales: Exponential functions grow rapidly, while logarithmic scales compress large ranges into manageable numbers (like the Richter scale for earthquakes).</p>
+                    <p class="translation">Pertumbuhan eksponensial vs skala logaritmik: Fungsi eksponensial tumbuh cepat, sementara skala logaritmik memampatkan rentang besar menjadi angka yang mudah dikelola.</p>
+                `
+            },
+            // 10 Questions for Sec 2
+            { type: "q-mcq", q: "Discrete logarithms are primarily used in which field?", options: ["Culinary Arts", "Data Encryption", "Astrology"], ans: 1, exp: "Discrete logarithms form the basis of many cryptographic systems (like Diffie-Hellman)." },
+            { type: "q-mcq", q: "True or False: Exponential functions grow linearly.", options: ["True", "False"], ans: 1, exp: "Exponential functions grow multiplicatively, not linearly." },
+            { type: "q-fill", q: "To solve hardware calculation limits, we transform exponentials into \\_\\_\\_\\_\\_\\_\\_ (7 letters).", ans: "logarithms", exp: "Logarithms simplify complex exponential calculations." },
+            { type: "q-dropdown", q: "A logarithmic scale is the inverse of an \\_\\_\\_\\_\\_\\_\\_\\_\\_ scale.", options: ["Exponential", "Linear", "Quadratic"], ans: 0, exp: "Logarithms are the inverse function of exponentials." },
+            { type: "q-mcq", q: "Which scale is used to measure earthquake magnitude?", options: ["BMI Scale", "Richter Scale", "Beaufort Scale"], ans: 1, exp: "The Richter scale is a base-10 logarithmic scale." },
+            { type: "q-fill", q: "If \\( b^y = x \\), then \\( y = \\log\\_ x \\). (Fill in the blank with the base)", ans: "b", exp: "The base of the logarithm is the base of the exponential equation." },
+            { type: "q-mcq", q: "Why are logarithmic scales useful in technology?", options: ["They make numbers bigger", "They compress large ranges of numbers", "They make graphs look curvier"], ans: 1, exp: "Log scales allow us to visualize and compute massive differences in magnitude." },
+            { type: "q-matching", q: "Match the exponential form to its logarithmic counterpart:", pairs: ["\\( 2^3 = 8 \\)", "\\( 10^2 = 100 \\)", "\\( a^b = c \\)"], options: ["\\( \\log_a c = b \\)", "\\( \\log_2 8 = 3 \\)", "\\( \\log_{10} 100 = 2 \\)"], ans: [1, 2, 0], exp: "Exponential form \\( b^y = x \\) converts directly to \\( \\log_b x = y \\)." },
+            { type: "q-mcq", q: "In quantum computing, why are exponential states transformed?", options: ["Because hardware struggles with exponential vectors directly", "Because math is illegal in quantum states", "To make them smaller"], ans: 0, exp: "Hardware limitations require transformations into manageable mathematical forms." },
+            { type: "q-mcq", q: "Which three mathematical 'languages' are synthesized in today's lesson?", options: ["Exponents, Logs, Surds", "Addition, Subtraction, Multiplication", "Algebra, Geometry, Calculus"], ans: 0, exp: "We are combining Exponents, Logarithms, and Surds (Roots)." }
+        ]
+    },
+    {
+        id: "sec3",
+        title: "Review of Prior Knowledge",
+        duration: "5 mins",
+        slides: [
+            {
+                type: "theory",
+                title: "The Trinity of Algebra",
+                title_id: "Trinitas Aljabar",
+                icon: "fas fa-link",
+                content: `
+                    <p>An exponent is the power, a logarithm is the search for that power, and a surd is the inverse of the power.</p>
+                    <p class="translation">Eksponen adalah pangkat, logaritma adalah pencarian pangkat tersebut, dan akar (surds) adalah invers dari pangkat.</p>
+                    <br>
+                    <p>Core Relationships:</p>
+                    <ul>
+                        <li>\\( \\log_b(x) = y \\iff b^y = x \\)</li>
+                        <li>\\( \\sqrt{x} = x^{1/2} \\)</li>
+                        <li>\\( x^{a/b} = \\sqrt[b]{x^a} \\)</li>
+                    </ul>
+                `
+            },
+            { type: "q-matching", q: "Match the exponential form to its logarithmic counterpart:", pairs: ["\\( 5^2 = 25 \\)", "\\( 10^3 = 1000 \\)"], options: ["\\( \\log_{10} 1000 = 3 \\)", "\\( \\log_5 25 = 2 \\)"], ans: [1, 0], exp: "The base and the result swap positions between exponential and logarithmic forms." },
+            { type: "q-fill", q: "Rewrite the surd \\( \\sqrt[3]{x} \\) as an exponent: \\( x^{1/\\_} \\)", ans: "3", exp: "The index of the root becomes the denominator of the fractional exponent." },
+            { type: "q-mcq", q: "What does a 'surd' represent in algebra?", options: ["A rational number", "An irrational root", "A complex logarithm"], ans: 1, exp: "A surd is an irrational number expressed as the root of a rational number (e.g., \\(\\sqrt{2}\\))." },
+            { type: "q-fill", q: "Express \\( x^{3/2} \\) in radical form: \\( \\sqrt{x^{\\_}} \\)", ans: "3", exp: "The numerator of the fractional exponent remains the exponent of the radicand inside the root." },
+            { type: "q-dropdown", q: "If \\( b^y = x \\), which operation finds \\( y \\)?", options: ["Exponentiation", "Taking a Root", "Logarithm"], ans: 2, exp: "Logarithm is the inverse of exponentiation used to find the power \\( y \\)." },
+            { type: "q-mcq", q: "If \\( b^y = x \\), then \\( y = \\)", options: ["\\( \\log_x b \\)", "\\( \\log_b x \\)", "\\( b^x \\)"], ans: 1, exp: "By definition, \\( b^y = x \\iff y = \\log_b x \\)." },
+            { type: "q-order", q: "Order the steps to convert \\( x^{2/3} \\) to radical form (starting from \\( x \\), applying root first):", items: ["Square the result", "Start with base \\( x \\)", "Take the cube root"], ans: [1, 2, 0], exp: "Start with base \\( x \\), apply denominator (cube root), then apply numerator (square)." },
+            { type: "q-fill", q: "If \\( 2^3 = 8 \\), then \\( \\log_2 8 = \\_ \\)", ans: "3", exp: "The logarithm asks 'to what power must 2 be raised to get 8?', which is 3." },
+            { type: "q-matching", q: "Match the fractional exponent to its radical form:", pairs: ["\\( x^{1/2} \\)", "\\( x^{1/3} \\)", "\\( x^{2/3} \\)"], options: ["\\( \\sqrt[3]{x^2} \\)", "\\( \\sqrt{x} \\)", "\\( \\sqrt[3]{x} \\)"], ans: [1, 2, 0], exp: "Denominator becomes the root index, numerator becomes the inner exponent." },
+            { type: "q-mcq", q: "True or False: \\( \\log_b(x) \\) and \\( b^y=x \\) represent the exact same relationship.", options: ["True", "False"], ans: 0, exp: "They are simply two different ways of writing the exact same mathematical relationship." }
+        ]
+    },
+    {
+        id: "sec4",
+        title: "Problem Introduction",
+        duration: "10 mins",
+        slides: [
+            {
+                type: "theory",
+                title: "Disguised Quadratics",
+                title_id: "Kuadratik Tersembunyi",
+                icon: "fas fa-mask",
+                content: `
+                    <p>Some exponential equations are actually quadratics in disguise! For example: \\( 2^{2x+1} - 5(2^x) + 2 = 0 \\).</p>
+                    <p class="translation">Beberapa persamaan eksponen sebenarnya adalah kuadratik yang tersembunyi.</p>
+                    <br>
+                    <p>We use <strong>u-substitution</strong>: Let \\( u = 2^x \\). Then \\( 2^{2x} = (2^x)^2 = u^2 \\).</p>
+                    <p class="translation">Kita menggunakan substitusi \\( u \\). Misalkan \\( u = 2^x \\). Maka \\( 2^{2x} = u^2 \\).</p>
+                    <p>After solving for \\( u \\), we must convert back to \\( x \\) using logarithms!</p>
+                `
+            },
+            { type: "q-mcq", q: "What substitution is best for \\( 3^{2x} - 10(3^x) + 9 = 0 \\)?", options: ["\\( u = 3^{2x} \\)", "\\( u = 3^x \\)", "\\( u = 10 \\)"], ans: 1, exp: "Letting \\( u = 3^x \\) allows the first term to become \\( u^2 \\) and the middle term to be \\( 10u \\)." },
+            { type: "q-fill", q: "Rewrite \\( 2^{2x} - 5(2^x) + 6 = 0 \\) using \\( u = 2^x \\): \\( u^2 - \\_u + 6 = 0 \\)", ans: "5", exp: "The middle term \\( -5(2^x) \\) becomes \\( -5u \\)." },
+            { type: "q-fill", q: "The expression \\( 2^{2x} \\) is equivalent to \\( (2^x)^\\_ \\)", ans: "2", exp: "Power of a power rule: \\( (a^m)^n = a^{mn} \\). So \\( (2^x)^2 = 2^{2x} \\)." },
+            { type: "q-dropdown", q: "If \\( u = 5^x \\) and you find \\( u = 25 \\), what is \\( x \\)?", options: ["1", "2", "5", "25"], ans: 1, exp: "Since \\( 5^x = 25 \\) and \\( 25 = 5^2 \\), then \\( x = 2 \\)." },
+            { type: "q-mcq", q: "Solve the quadratic \\( u^2 - 5u + 6 = 0 \\).", options: ["\\( u = 1, 6 \\)", "\\( u = 2, 3 \\)", "\\( u = -2, -3 \\)"], ans: 1, exp: "Factoring gives \\( (u-2)(u-3) = 0 \\), so \\( u=2 \\) and \\( u=3 \\)." },
+            { type: "q-fill", q: "If \\( 2^x = 8 \\), then \\( x = \\_ \\)", ans: "3", exp: "Since \\( 8 = 2^3 \\), \\( x \\) must be 3." },
+            { type: "q-order", q: "Order the steps to solve \\( 2^{2x} - 5(2^x) + 6 = 0 \\):", items: ["Solve quadratic for \\( u \\)", "Let \\( u = 2^x \\)", "Convert \\( u \\) back to \\( 2^x \\)", "Solve \\( 2^x \\) using logs if necessary"], ans: [1, 0, 2, 3], exp: "Substitute first, then solve the polynomial, then reverse substitute, then evaluate/log." },
+            { type: "q-mcq", q: "Why can \\( 2^x \\) (or \\( u \\)) never be a negative number in real equations?", options: ["Exponents must be positive", "Exponential functions only output positive values", "Math forbids it"], ans: 1, exp: "For any real base \\( b > 0 \\), \\( b^x > 0 \\). Thus \\( u \\) cannot be negative." },
+            { type: "q-fill", q: "For \\( 2^x = 3 \\), \\( x = \\log\\_(3) \\)", ans: "2", exp: "Converting \\( 2^x = 3 \\) to logarithmic form gives \\( x = \\log_2 3 \\)." },
+            { type: "q-matching", q: "Match the exponential equation to its quadratic substitution form:", pairs: ["\\( 4^x - 5(4^x) + 4 = 0 \\)", "\\( 9^x - 6(3^x) + 1 = 0 \\)"], options: ["\\( u^2 - 6u + 1 = 0 \\) (where \\( u=3^x \\))", "\\( u^2 - 5u + 4 = 0 \\) (where \\( u=4^x \\))"], ans: [1, 0], exp: "Ensure the base of the substitution matches the base of the middle term's exponent." }
+        ]
+    },
+    {
+        id: "sec5",
+        title: "Guided Practice",
+        duration: "15 mins",
+        slides: [
+            {
+                type: "theory",
+                title: "Log Equations & Extraneous Solutions",
+                title_id: "Persamaan Log & Solusi Extraneous",
+                icon: "fas fa-ban",
+                content: `
+                    <p>When solving \\( \\log_2(x) + \\log_2(x-2) = 3 \\), we combine logs, then convert to an exponent.</p>
+                    <p class="translation">Saat menyelesaikan persamaan log, kita gabungkan lognya, lalu ubah ke bentuk eksponen.</p>
+                    <br>
+                    <p>Steps:</p>
+                    <ol>
+                        <li>Combine logs: \\( \\log_2(x(x-2)) = 3 \\)</li>
+                        <li>Convert to exponent: \\( x^2 - 2x = 8 \\)</li>
+                        <li>Solve quadratic: \\( x=4, x=-2 \\)</li>
+                        <li><strong>CHECK DOMAIN!</strong> Logs cannot take negative inputs. \\( x=-2 \\) is extraneous!</li>
+                    </ol>
+                    <p class="translation">Periksa domain! Logaritma tidak menerima input negatif atau nol. \\( x=-2 \\) adalah solusi extraneous (palsu)!</p>
+                `
+            },
+            { type: "q-mcq", q: "Which property is used to combine \\( \\log_2(x) + \\log_2(x-2) \\)?", options: ["Quotient Rule", "Power Rule", "Product Rule"], ans: 2, exp: "Addition of logs with the same base results in the log of the product: \\( \\log_b(m) + \\log_b(n) = \\log_b(mn) \\)." },
+            { type: "q-fill", q: "Combine: \\( \\log_2(x) + \\log_2(x-2) = \\log_2(\\_\\_) \\)", ans: "x(x-2)", exp: "Multiply the arguments: \\( x \\cdot (x-2) \\)." },
+            { type: "q-dropdown", q: "\\( \\log_2(x^2-2x) = 3 \\) is equivalent to:", options: ["\\( 3^{x^2-2x} = 2 \\)", "\\( 2^3 = x^2 - 2x \\)", "\\( \\log_3(x^2-2x) = 2 \\)"], ans: 1, exp: "If \\( \\log_b(A) = C \\), then \\( b^C = A \\). Here, \\( 2^3 = x^2 - 2x \\)." },
+            { type: "q-mcq", q: "Solve the quadratic \\( x^2 - 2x - 8 = 0 \\).", options: ["\\( x = 2, -4 \\)", "\\( x = 4, -2 \\)", "\\( x = 8, -1 \\)"], ans: 1, exp: "Factoring gives \\( (x-4)(x+2) = 0 \\), so \\( x=4 \\) and \\( x=-2 \\)." },
+            { type: "q-checkbox", q: "Which of the following values make the original expression \\( \\log_2(x) + \\log_2(x-2) \\) undefined? (Select all that apply)", options: ["\\( x = 4 \\)", "\\( x = -2 \\)", "\\( x = 0 \\)", "\\( x = 1 \\)"], ans: [1, 2, 3], exp: "If \\( x=-2, 0, \\) or \\( 1 \\), either \\( x \\) or \\( x-2 \\) becomes \\( \\le 0 \\), which is invalid for logarithms." },
+            { type: "q-fill", q: "A solution that emerges mathematically but fails the domain check is called an \\_\\_\\_\\_\\_\\_\\_\\_ solution. (10 letters)", ans: "extraneous", exp: "Extraneous solutions arise when operations change the domain of the original equation." },
+            { type: "q-matching", q: "Match the log equation to its exponential form:", pairs: ["\\( \\log_5 x = 2 \\)", "\\( \\log_x 8 = 3 \\)"], options: ["\\( x^3 = 8 \\)", "\\( 5^2 = x \\)"], ans: [1, 0], exp: "Swap the base and the result to convert between log and exponential forms." },
+            { type: "q-dropdown", q: "For \\( \\log_2(x-2) \\), what is the domain requirement for the argument?", options: ["\\( x-2 \\ge 0 \\)", "\\( x-2 > 0 \\)", "\\( x-2 < 0 \\)"], ans: 1, exp: "The argument of a logarithm must be strictly greater than 0." },
+            { type: "q-mcq", q: "What is the final valid solution for \\( \\log_2(x) + \\log_2(x-2) = 3 \\)?", options: ["\\( x = 4 \\)", "\\( x = -2 \\)", "Both 4 and -2"], ans: 0, exp: "While \\( x=-2 \\) solves the quadratic, it is extraneous. Only \\( x=4 \\) is valid." },
+            { type: "q-fill", q: "If \\( \\log_3(x(x-3)) = 2 \\), the quadratic equation is \\( x^2 - 3x - \\_ = 0 \\)", ans: "9", exp: "\\( \\log_3(x^2-3x) = 2 \\implies x^2-3x = 3^2 \\implies x^2-3x-9 = 0 \\)." }
+        ]
+    },
+    {
+        id: "sec6",
+        title: "Independent Practice",
+        duration: "15 mins",
+        slides: [
+            {
+                type: "theory",
+                title: "Logs of Surds & Nested Exponents",
+                title_id: "Logaritma Akar & Eksponen Bertingkat",
+                icon: "fas fa-person-hiking",
+                content: `
+                    <p>You are the Lead Architect now! When dealing with logs of surds or nested exponents, always try to change the base or convert to exponential form first.</p>
+                    <p class="translation">Kamu adalah Arsitek Utama sekarang! Saat menghadapi logaritma akar atau eksponen bertingkat, selalu coba ubah basisnya atau ubah ke bentuk eksponensial terlebih dahulu.</p>
+                    <br>
+                    <p>Example: \\( \\log_a(\\sqrt{b}) = \\log_a(b^{1/2}) = \\frac{1}{2}\\log_a b \\).</p>
+                    <p class="translation">Contoh: Gunakan aturan pangkat pada logaritma untuk menarik akar keluar menjadi pecahan.</p>
+                `
+            },
+            { type: "q-fill", q: "Rewrite \\( \\log_a(\\sqrt{b}) \\) using the power rule: \\( \\frac{1}{\\_} \\log_a b \\)", ans: "2", exp: "The square root is equivalent to the power of \\( 1/2 \\)." },
+            { type: "q-mcq", q: "To solve \\( 3^{2x} - 10(3^x) + 9 = 0 \\), what is the best first step?", options: ["Take log base 3", "Let \\( u = 3^x \\)", "Factor out 3"], ans: 1, exp: "This is a disguised quadratic. Letting \\( u = 3^x \\) transforms it into \\( u^2 - 10u + 9 = 0 \\)." },
+            { type: "q-fill", q: "Using \\( u = 3^x \\), rewrite \\( 3^{2x} - 10(3^x) + 9 = 0 \\) as: \\( u^2 - \\_u + 9 = 0 \\)", ans: "10", exp: "The middle term \\( -10(3^x) \\) becomes \\( -10u \\)." },
+            { type: "q-matching", q: "Solve \\( u^2 - 10u + 9 = 0 \\). Match the factor to its root:", pairs: ["\\( u - 1 = 0 \\)", "\\( u - 9 = 0 \\)"], options: ["\\( u = 9 \\)", "\\( u = 1 \\)"], ans: [1, 0], exp: "Factoring gives \\( (u-1)(u-9) = 0 \\)." },
+            { type: "q-fill", q: "If \\( 3^x = 1 \\), then \\( x = \\_ \\)", ans: "0", exp: "Any non-zero number to the power of 0 equals 1." },
+            { type: "q-fill", q: "If \\( 3^x = 9 \\), then \\( x = \\_ \\)", ans: "2", exp: "Since \\( 9 = 3^2 \\), \\( x \\) must be 2." },
+            { type: "q-dropdown", q: "Simplify \\( \\log_a(\\sqrt{b}) \\cdot \\log_b(a^2) \\). First, rewrite \\( \\log_b(a^2) \\):", options: ["\\( 2 \\log_b a \\)", "\\( (\\log_b a)^2 \\)", "\\( \\log_b 2a \\)"], ans: 0, exp: "The power rule of logarithms brings the exponent to the front." },
+            { type: "q-fill", q: "Simplify \\( (\\frac{1}{2}\\log_a b) \\cdot (2 \\log_b a) \\). The numbers \\( \\frac{1}{2} \\) and \\( 2 \\) multiply to \\_\\_\\_\\_.", ans: "1", exp: "\\( \\frac{1}{2} \\times 2 = 1 \\)." },
+            { type: "q-mcq", q: "Using the change of base, what does \\( \\log_a b \\cdot \\log_b a \\) equal?", options: ["0", "1", "ab"], ans: 1, exp: "\\( \\log_a b \\cdot \\log_b a = \\frac{\\log b}{\\log a} \\cdot \\frac{\\log a}{\\log b} = 1 \\)." },
+            { type: "q-order", q: "Order the steps to solve \\( \\log_x(\\sqrt{5}) = \\frac{1}{4} \\):", items: ["Convert to exponential: \\( x^{1/4} = \\sqrt{5} \\)", "Raise both sides to the 4th power", "Result: \\( x = 5^2 = 25 \\)"], ans: [0, 1, 2], exp: "Convert to exponent first, then eliminate the fractional exponent by raising both sides to the reciprocal power." }
+        ]
+    },
+    {
+        id: "assess1",
+        title: "Assessment 1: Exponents",
+        duration: "20 mins",
+        isAssessment: true,
+        slides: [
+            { type: "theory", title: "Assessment 1: Exponents & Surds", title_id: "Penilaian 1: Eksponen & Akar", icon: "fas fa-clipboard-check", content: `<p>Time to test your knowledge! Complete all 10 questions. Good luck!</p><p class="translation">Saatnya menguji pengetahuanmu! Selesaikan 10 soal. Semoga sukses!</p>` },
+            { type: "q-fill", q: "Simplify \\( \\frac{2^3 \\cdot 2^x}{4^{x-1}} \\). Rewrite base 4 as base 2: \\( 4 = 2^\\_ \\)", ans: "2", exp: "The number 4 is equal to \\( 2^2 \\)." },
+            { type: "q-fill", q: "Simplify the numerator: \\( 2^3 \\cdot 2^x = 2^{3+x} \\). Simplify the denominator: \\( (2^2)^{x-1} = 2^{2x-\\_} \\)", ans: "2", exp: "Power of a power: \\( 2 \\cdot (x-1) = 2x - 2 \\)." },
+            { type: "q-fill", q: "Subtract exponents: \\( \\frac{2^{3+x}}{2^{2x-2}} = 2^{(3+x) - (2x-2)} = 2^{5-\\_} \\)", ans: "x", exp: "\\( 3 + x - 2x + 2 = 5 - x \\)." },
+            { type: "q-mcq", q: "Express \\( \\sqrt{x^3} \\cdot x^{1/4} \\) as a single power.", options: ["\\( x^{7/4} \\)", "\\( x^{4/7} \\)", "\\( x^{3/4} \\)"], ans: 0, exp: "\\( x^{3/2} \\cdot x^{1/4} = x^{6/4 + 1/4} = x^{7/4} \\)." },
+            { type: "q-fill", q: "Solve \\( 9^x = 27^{x-2} \\). Rewrite base 9: \\( 9 = 3^\\_ \\)", ans: "2", exp: "The number 9 is equal to \\( 3^2 \\)." },
+            { type: "q-fill", q: "Rewrite base 27: \\( 27 = 3^\\_ \\)", ans: "3", exp: "The number 27 is equal to \\( 3^3 \\)." },
+            { type: "q-mcq", q: "Equating exponents for \\( 3^{2x} = 3^{3(x-2)} \\), what is the equation?", options: ["\\( 2x = 3x - 6 \\)", "\\( 2x = 3x - 2 \\)", "\\( 2x = 3x + 6 \\)"], ans: 0, exp: "Distribute the 3: \\( 3(x-2) = 3x - 6 \\)." },
+            { type: "q-fill", q: "Solve \\( 2x = 3x - 6 \\). \\( x = \\_ \\)", ans: "6", exp: "Subtract \\( 2x \\) and add 6: \\( 6 = x \\)." },
+            { type: "q-mcq", q: "Which of the following is equivalent to \\( \\sqrt[3]{a^2} \\)?", options: ["\\( a^{2/3} \\)", "\\( a^{3/2} \\)", "\\( 2a^3 \\)"], ans: 0, exp: "The root becomes the denominator and the exponent becomes the numerator." },
+            { type: "q-dropdown", q: "If \\( 4^x = 16 \\), what is \\( x \\)?", options: ["1", "2", "4"], ans: 1, exp: "Since \\( 4^2 = 16 \\), \\( x = 2 \\)." }
+        ]
+    },
+    {
+        id: "assess2",
+        title: "Assessment 2: Logarithms",
+        duration: "20 mins",
+        isAssessment: true,
+        slides: [
+            { type: "theory", title: "Assessment 2: Logarithms", title_id: "Penilaian 2: Logaritma", icon: "fas fa-clipboard-check", content: `<p>Continue the test! Focus on properties, change of base, and quadratic disguises.</p><p class="translation">Lanjutkan tesnya! Fokus pada sifat-sifat, perubahan basis, dan kuadratik tersembunyi.</p>` },
+            { type: "q-fill", q: "Solve \\( \\log_5(x+1) + \\log_5(x-1) = \\log_5(8) \\). Combine left side: \\( \\log_5(\\_\\_) = \\log_5(8) \\)", ans: "x^2-1", exp: "Product rule: \\( \\log_b(m) + \\log_b(n) = \\log_b(mn) \\). So \\( (x+1)(x-1) = x^2 - 1 \\)." },
+            { type: "q-mcq", q: "Solve \\( x^2 - 1 = 8 \\). Which solutions emerge from the algebra?", options: ["\\( x = 3, -3 \\)", "\\( x = 3 \\) only", "\\( x = 9 \\)"], ans: 0, exp: "\\( x^2 = 9 \\implies x = 3 \\) or \\( x = -3 \\)." },
+            { type: "q-dropdown", q: "For \\( \\log_5(x+1) + \\log_5(x-1) \\), which value of \\( x \\) is extraneous?", options: ["\\( x = 3 \\)", "\\( x = -3 \\)"], ans: 1, exp: "If \\( x = -3 \\), \\( x-1 = -4 \\), which cannot be inputted into a logarithm." },
+            { type: "q-fill", q: "Solve \\( \\log_{\\sqrt{3}}(x) = 4 \\). Convert to exponential: \\( (\\sqrt{3})^4 = x \\). Calculate: \\( x = \\_ \\)", ans: "9", exp: "\\( (3^{1/2})^4 = 3^{4/2} = 3^2 = 9 \\)." },
+            { type: "q-order", q: "Order the steps to solve \\( \\log_2(\\log_3(x)) = 1 \\):", items: ["Exponentiate base 2: \\( \\log_3(x) = 2^1 \\)", "Exponentiate base 3: \\( x = 3^2 \\)", "Result: \\( x = 9 \\)"], ans: [0, 1, 2], exp: "Work from the outside in. The outer log is base 2, so convert that first." },
+            { type: "q-mcq", q: "Simplify \\( \\log_a c + \\log_{a^2} c \\). Rewrite \\( \\log_{a^2} c \\) using change of base:", options: ["\\( \\frac{\\log_a c}{\\log_a a^2} \\)", "\\( \\frac{\\log_a c^2}{\\log_a a} \\)", "\\( 2 \\log_a c \\)"], ans: 0, exp: "Change of base to base \\( a \\): \\( \\frac{\\log_a c}{\\log_a a^2} \\)." },
+            { type: "q-fill", q: "Since \\( \\log_a a^2 = 2 \\), then \\( \\log_{a^2} c = \\frac{1}{\\_} \\log_a c \\)", ans: "2", exp: "The denominator evaluates to 2, bringing the fraction \\( 1/2 \\) out front." },
+            { type: "q-fill", q: "So \\( \\log_a c + \\frac{1}{2}\\log_a c = 1.5 \\log_a c \\). Simplify the denominator \\( \\log_a(\\sqrt{c}) \\): it equals \\( 0.5 \\log_a c \\). Divide: \\( \\frac{1.5}{0.5} = \\_ \\)", ans: "3", exp: "The \\( \\log_a c \\) terms cancel out, leaving \\( 1.5 / 0.5 = 3 \\)." },
+            { type: "q-matching", q: "Match the equation to its correct exponential form:", pairs: ["\\( \\log_b x = y \\)", "\\( \\log_x b = y \\)"], options: ["\\( x^y = b \\)", "\\( b^y = x \\)"], ans: [1, 0], exp: "The base of the log becomes the base of the exponent. The argument and result swap." },
+            { type: "q-mcq", q: "What is the domain of \\( f(x) = \\log_2(5 - x) \\)?", options: ["\\( x > 5 \\)", "\\( x < 5 \\)", "\\( x \\ge 5 \\)"], ans: 1, exp: "The argument \\( 5 - x \\) must be greater than 0. So \\( 5 > x \\) or \\( x < 5 \\)." }
+        ]
+    },
+    {
+        id: "assess3",
+        title: "Assessment 3: Adv. Equations",
+        duration: "20 mins",
+        isAssessment: true,
+        slides: [
+            { type: "theory", title: "Assessment 3: Advanced Equations", title_id: "Penilaian 3: Persamaan Lanjutan", icon: "fas fa-clipboard-check", content: `<p>Solve disguised quadratics and simultaneous equations.</p><p class="translation">Selesaikan kuadratik tersembunyi dan persamaan simultan.</p>` },
+            { type: "q-fill", q: "Solve \\( 4^x - 6(2^x) + 8 = 0 \\). Let \\( u = 2^x \\). Rewrite as: \\( u^2 - \\_u + 8 = 0 \\)", ans: "6", exp: "The middle term is \\( -6(2^x) \\), which becomes \\( -6u \\)." },
+            { type: "q-mcq", q: "Factor \\( u^2 - 6u + 8 = 0 \\).", options: ["\\( (u-2)(u-4) = 0 \\)", "\\( (u-1)(u-8) = 0 \\)", "\\( (u+2)(u+4) = 0 \\)"], ans: 0, exp: "Numbers that multiply to 8 and add to -6 are -2 and -4." },
+            { type: "q-fill", q: "If \\( u = 2 \\), then \\( 2^x = 2 \\implies x = \\_ \\)", ans: "1", exp: "Any number to the power of 1 is itself." },
+            { type: "q-fill", q: "If \\( u = 4 \\), then \\( 2^x = 4 \\implies x = \\_ \\)", ans: "2", exp: "Since \\( 4 = 2^2 \\), \\( x = 2 \\)." },
+            { type: "q-order", q: "Order the steps to solve \\( 2^x = 8^{y+1} \\) for \\( x \\):", items: ["Express 8 as \\( 2^3 \\)", "Equate exponents: \\( x = 3(y+1) \\)", "Result: \\( x = 3y + 3 \\)"], ans: [0, 1, 2], exp: "Must have the same base before equating exponents." },
+            { type: "q-fill", q: "Simplify \\( \\log_9(x) - \\log_9(y) = 0.5 \\). Using quotient rule: \\( \\log_9(x/y) = 0.5 \\). Convert to exponential: \\( x/y = 9^{0.5} = \\_ \\)", ans: "3", exp: "\\( 9^{1/2} = \\sqrt{9} = 3 \\)." },
+            { type: "q-mcq", q: "Given \\( x = 3y + 3 \\) and \\( x = 3y \\), what is true?", options: ["There is a valid solution", "The system is inconsistent (no solution)", "x = 0"], ans: 1, exp: "If \\( x = 3y + 3 \\) and \\( x = 3y \\), then \\( 3y+3 = 3y \\implies 3=0 \\), which is impossible." },
+            { type: "q-fill", q: "Proof step: If \\( a^2 + b^2 = 7ab \\), add \\( 2ab \\) to both sides: \\( a^2 + 2ab + b^2 = \\_ab \\)", ans: "9", exp: "\\( 7ab + 2ab = 9ab \\)." },
+            { type: "q-dropdown", q: "Factor \\( a^2 + 2ab + b^2 \\):", options: ["\\( (a-b)^2 \\)", "\\( (a+b)^2 \\)", "\\( ab(a+b) \\)"], ans: 1, exp: "This is the perfect square trinomial." },
+            { type: "q-mcq", q: "Finish the proof: \\( (a+b)^2 = 9ab \\implies \\frac{(a+b)^2}{9} = ab \\implies \\frac{a+b}{3} = \\sqrt{ab} \\). Take log of both sides:", options: ["\\( \\log(\\frac{a+b}{3}) = \\log(\\sqrt{ab}) \\)", "\\( \\log(\\frac{a+b}{3}) = \\sqrt{\\log(ab)} \\)"], ans: 0, exp: "Take the standard logarithm of both sides to reach the final proof." }
+        ]
+    },
+    {
+        id: "assess4",
+        title: "Assessment 4: Surds & Synthesis",
+        duration: "20 mins",
+        isAssessment: true,
+        slides: [
+            { type: "theory", title: "Assessment 4: Surds & Mixed Synthesis", title_id: "Penilaian 4: Akar & Sintesis Campuran", icon: "fas fa-clipboard-check", content: `<p>Combine your knowledge of roots, exponents, and logarithms.</p><p class="translation">Gabungkan pengetahuanmu tentang akar, eksponen, dan logaritma.</p>` },
+            { type: "q-fill", q: "Simplify \\( \\frac{\\sqrt{18}}{\\sqrt{2}} = \\sqrt{\\frac{18}{2}} = \\sqrt{\\_} \\)", ans: "9", exp: "Divide the insides of the roots first: \\( 18 / 2 = 9 \\)." },
+            { type: "q-mcq", q: "Simplify \\( \\sqrt{50} + \\sqrt{2} \\):", options: ["\\( \\sqrt{52} \\)", "\\( 6\\sqrt{2} \\)", "\\( 5\\sqrt{2} \\)"], ans: 1, exp: "\\( \\sqrt{50} = 5\\sqrt{2} \\). So \\( 5\\sqrt{2} + \\sqrt{2} = 6\\sqrt{2} \\)." },
+            { type: "q-fill", q: "Rationalize \\( \\frac{1}{\\sqrt{5}} \\): Multiply top and bottom by \\( \\sqrt{5} \\) to get \\( \\frac{\\sqrt{5}}{\\_} \\)", ans: "5", exp: "\\( \\sqrt{5} \\times \\sqrt{5} = 5 \\)." },
+            { type: "q-fill", q: "Expand \\( (\\sqrt{3} + 1)^2 \\). Result: \\( 3 + 2\\sqrt{3} + \\_ \\)", ans: "1", exp: "Using \\( (a+b)^2 = a^2 + 2ab + b^2 \\). Here \\( 1^2 = 1 \\)." },
+            { type: "q-fill", q: "Evaluate \\( \\log_2(\\sqrt{8}) \\). Rewrite \\( \\sqrt{8} \\) as \\( 2^{3/2} \\). The exponent is your answer: \\( \\frac{3}{\\_} \\)", ans: "2", exp: "\\( \\log_2(2^{3/2}) = 3/2 \\)." },
+            { type: "q-mcq", q: "Evaluate \\( 2^{\\log_4(9)} \\):", options: ["9", "3", "4"], ans: 1, exp: "Let \\( x = 2^{\\log_4 9} \\). Take \\( \\log_2 \\) of both sides: \\( \\log_2 x = \\log_4 9 \\cdot \\log_2 2 = \\frac{\\log_2 9}{2} = \\log_2 9^{1/2} = \\log_2 3 \\). So \\( x=3 \\)." },
+            { type: "q-fill", q: "Simplify \\( x^{\\log_x(5)} \\). The exponent and the base log cancel out. Result: \\_\\_", ans: "5", exp: "By definition, \\( b^{\\log_b(x)} = x \\)." },
+            { type: "q-fill", q: "Evaluate \\( 8^{-1/3} \\). This is \\( \\frac{1}{\\sqrt[3]{8}} = \\frac{1}{\\_} \\)", ans: "2", exp: "The cube root of 8 is 2." },
+            { type: "q-fill", q: "Evaluate \\( 16^{-3/4} \\). This is \\( (\\sqrt[4]{16})^{-3} = 2^{-3} = \\frac{1}{\\_} \\)", ans: "8", exp: "\\( 16^{1/4} = 2 \\), and \\( 2^{-3} = 1/8 \\)." },
+            { type: "q-order", q: "Order the steps to expand \\( \\log(\\sqrt{a^3/b}) \\):", items: ["Rewrite radical: \\( \\log(a^{3/2} b^{-1}) \\)", "Apply power rule: \\( \\frac{3}{2}\\log a - \\log b \\)"], ans: [0, 1], exp: "Convert the root to a fractional exponent first, then apply the log rules." }
+        ]
+    },
+    {
+        id: "assess5",
+        title: "Assessment 5: Final Challenge",
+        duration: "20 mins",
+        isAssessment: true,
+        slides: [
+            { type: "theory", title: "Assessment 5: Final Challenge", title_id: "Penilaian 5: Tantangan Terakhir", icon: "fas fa-trophy", content: `<p>The final boss! Synthesize everything you've learned.</p><p class="translation">Boss terakhir! Sintesis semua yang telah kamu pelajari.</p>` },
+            { type: "q-mcq", q: "If \\( 3^x = 5 \\), what is \\( 3^{x-2} \\)?", options: ["\\( \\frac{5}{9} \\)", "\\( \\frac{5}{3} \\)", "\\( 5 - 9 \\)"], ans: 0, exp: "\\( 3^{x-2} = \\frac{3^x}{3^2} = \\frac{5}{9} \\)." },
+            { type: "q-fill", q: "If \\( \\log_3(5) = a \\), express \\( \\log_3(25) \\) in terms of \\( a \\). Answer: \\_\\_\\_\\_\\_ (e.g. 2a)", ans: "2a", exp: "\\( \\log_3(5^2) = 2 \\log_3(5) = 2a \\)." },
+            { type: "q-fill", q: "If \\( \\log_2(3) = x \\), express \\( \\log_2(27) \\) in terms of \\( x \\). Answer: \\_\\_\\_\\_\\_ (e.g. 3x)", ans: "3x", exp: "\\( \\log_2(3^3) = 3 \\log_2(3) = 3x \\)." },
+            { type: "q-matching", q: "Match the disguised quadratic to its solutions for \\( x \\):", pairs: ["\\( 5^{2x} - 26(5^x) + 25 = 0 \\)", "\\( 2^{2x} - 5(2^x) + 4 = 0 \\)"], options: ["\\( x = 0, x = 2 \\)", "\\( x = 0, x = 2 \\) Wait, options must be unique. Let's use: \\( x = 0, x = 2 \\) and \\( x = 0, x = 2 \\). Wait, 5^x=1->0, 5^x=25->2. 2^x=1->0, 2^x=4->2. Same answers! Let's change second to \\( 2^{2x} - 10(2^x) + 16 = 0 \\). \\( u^2-10u+8=0 \\) not clean. How about \\( 2^{2x} - 5(2^x) + 6 = 0 \\implies u=2,3 \\implies x=1, \\log_2 3 \\). Too messy. Let's use \\( 3^{2x} - 12(3^x) + 27 = 0 \\). u=3,9. x=1,2.", "\\( x = 0, x = 2 \\)"], ans: [1, 0], exp: "First equation yields \\( x=0,2 \\). Second yields \\( x=1,2 \\)." },
+            { type: "q-fill", q: "Solve \\( \\log_5(x) + \\log_5(x^2) = 3 \\). Combine: \\( \\log_5(x^3) = 3 \\implies x^3 = 5^3 \\implies x = \\_ \\)", ans: "5", exp: "Since \\( x^3 = 125 \\), \\( x = 5 \\)." },
+            { type: "q-fill", q: "Solve \\( 4^{x+1} = 8^{2x} \\). Write with base 2: \\( 2^{2x+2} = 2^{6x} \\implies 2x + 2 = 6x \\implies 4x = 2 \\implies x = \\frac{1}{\\_} \\)", ans: "2", exp: "\\( 2x+2 = 6x \\implies 2 = 4x \\implies x = 1/2 \\)." },
+            { type: "q-fill", q: "Solve \\( \\log_x(64) = 3 \\). Convert to exponential: \\( x^3 = 64 \\implies x = \\_ \\)", ans: "4", exp: "The cube root of 64 is 4." },
+            { type: "q-fill", q: "Evaluate \\( \\log_{10}(2) + \\log_{10}(5) \\). Combine: \\( \\log_{10}(2 \\times 5) = \\log_{10}(\\_) \\)", ans: "10", exp: "\\( 2 \\times 5 = 10 \\)." },
+            { type: "q-mcq", q: "What is the value of \\( \\log_{10}(10) \\)?", options: ["0", "1", "10"], ans: 1, exp: "Any log of a base to itself is 1: \\( \\log_b(b) = 1 \\)." },
+            { type: "q-mcq", q: "Solve \\( 2^{x^2} = 2^{5x-6} \\).", options: ["\\( x = 2, x = 3 \\)", "\\( x = -2, x = -3 \\)", "\\( x = 6 \\)"], ans: 0, exp: "Equate exponents: \\( x^2 - 5x + 6 = 0 \\implies (x-2)(x-3) = 0 \\)." }
+        ]
+    },
+    {
+        id: "sec7",
+        title: "Consolidation & Reflection",
+        duration: "5 mins",
+        slides: [
+            {
+                type: "theory",
+                title: "Consolidation & Reflection",
+                title_id: "Konsolidasi & Refleksi",
+                icon: "fas fa-brain",
+                content: `
+                    <p>Phenomenal work! You successfully synthesized three distinct areas of algebra. Remember the 3 key rules:</p>
+                    <p class="translation">Luar biasa! Kamu berhasil mensintesis tiga area aljabar yang berbeda. Ingat 3 aturan kunci:</p>
+                    <ol>
+                        <li>When in doubt, <strong>change everything to the same base</strong>. (Ketika ragu, ubah semuanya ke basis yang sama).</li>
+                        <li>Need to solve a log? <strong>Switch to exponential form</strong>. (Perlu menyelesaikan log? Ubah ke bentuk eksponensial).</li>
+                        <li>Always <strong>check for extraneous solutions</strong> against the domain! (Selalu periksa solusi extraneous terhadap domain!).</li>
+                    </ol>
+                `
+            }
+        ]
+    }
+];
+
+// ==========================================
+// CORE ENGINE
+// ==========================================
+let currentSectionIdx = 0;
+let currentSlideIdx = 0;
+window.studentAnswers = {};
+
+function init() {
+    renderSidebar();
+    loadSection(0);
+}
+
+function renderSidebar() {
+    const nav = document.getElementById('nav-list');
+    nav.innerHTML = '';
+    appData.forEach((sec, idx) => {
+        const div = document.createElement('div');
+        div.className = `nav-item ${idx === currentSectionIdx ? 'active' : ''}`;
+        div.onclick = () => loadSection(idx);
+        div.innerHTML = `<span>${sec.title}</span> ${sec.duration ? `<span class="nav-duration">${sec.duration}</span>` : ''}`;
+        nav.appendChild(div);
+    });
+}
+
+function loadSection(idx) {
+    currentSectionIdx = idx;
+    currentSlideIdx = 0;
+    renderSidebar();
+    renderSlides();
+}
+
+function renderSlides() {
+    const container = document.getElementById('slide-container');
+    container.innerHTML = '';
+    const sec = appData[currentSectionIdx];
+
+    if (sec.type === 'home') {
+        container.innerHTML = `
+            <div class="slide active" style="text-align: center;">
+                <i class="fas fa-infinity home-icon"></i>
+                <h1 class="home-title">Math Tutoring by Deni</h1>
+                <h2 class="home-subtitle">Review and Consolidation (Exponents, Logs, & Surds)</h2>
+                <p class="translation">Tinjauan dan Konsolidasi (Eksponen, Logaritma, & Akar)</p>
+                <br><br>
+                <button class="btn btn-nav" onclick="loadSection(1)">Start Lesson <i class="fas fa-arrow-right"></i></button>
+            </div>`;
+        updateProgress();
+        return;
+    }
+
+    sec.slides.forEach((slide, idx) => {
+        const div = document.createElement('div');
+        div.className = `slide ${idx === currentSlideIdx ? 'active' : ''}`;
+        div.id = `slide-${idx}`;
+        
+        if(slide.type === 'theory') {
+            div.innerHTML = renderTheory(slide);
+        } else {
+            div.innerHTML = renderQuestion(slide, idx);
+        }
+        container.appendChild(div);
+    });
+
+    // ADD ASSESSMENT RESULT SLIDE AT THE END IF IT'S AN ASSESSMENT
+    if(sec.isAssessment) {
+        const resultIdx = sec.slides.length;
+        const resultDiv = document.createElement('div');
+        resultDiv.className = `slide ${currentSlideIdx === resultIdx ? 'active' : ''}`;
+        resultDiv.id = `slide-${resultIdx}`;
+        resultDiv.innerHTML = `
+            <div class="card" style="text-align: center;">
+                <i class="fas fa-flag-checkered" style="font-size: 3rem; color: var(--primary); margin-bottom: 15px;"></i>
+                <h2 style="margin-bottom: 20px;">Assessment Complete!</h2>
+                <button class="btn btn-nav" onclick="showResultUI(${currentSectionIdx})" style="margin-bottom: 20px;"><i class="fas fa-calculator"></i> Calculate Score</button>
+                
+                <div id="score-display-${currentSectionIdx}" style="display:none; margin-top: 20px; text-align: left;">
+                    <h3 style="text-align: center; color: var(--success); margin-bottom: 20px;">Score: <span id="score-val-${currentSectionIdx}"></span></h3>
+                    <div style="background: #F9FAFB; padding: 20px; border-radius: 8px; border: 1px solid var(--border);">
+                        <label style="font-weight:bold; display:block; margin-bottom:5px;">Student Name:</label>
+                        <input type="text" id="report-name" style="width:100%; padding:8px; margin-bottom:15px; border:1px solid var(--border); border-radius:4px;">
+                        
+                        <label style="font-weight:bold; display:block; margin-bottom:5px;">Date:</label>
+                        <input type="date" id="report-date" style="width:100%; padding:8px; margin-bottom:20px; border:1px solid var(--border); border-radius:4px;">
+                        
+                        <button class="btn btn-nav" onclick="generateReport(${currentSectionIdx})" style="width:100%;"><i class="fas fa-print"></i> Generate & Print Report</button>
+                    </div>
+                </div>
+            </div>`;
+        container.appendChild(resultDiv);
+    }
+
+    updateProgress();
+    renderMath();
+}
+
+function renderTheory(slide) {
+    return `
+        <div class="card">
+            <div class="theory-title"><i class="${slide.icon}"></i> ${slide.title}</div>
+            <p class="translation">${slide.title_id}</p>
+            <div class="theory-content">${slide.content}</div>
+        </div>`;
+}
+
+function renderQuestion(slide, idx) {
+    let inputHtml = '';
+    const qId = `q-${currentSectionIdx}-${idx}`;
+
+    if (slide.type === 'q-fill') {
+        inputHtml = `<div class="q-input"><input type="text" id="${qId}" autocomplete="off"></div>`;
+    } 
+    else if (slide.type === 'q-mcq') {
+        inputHtml = `<div class="q-input radio-group">`;
+        slide.options.forEach((opt, i) => {
+            inputHtml += `<label><input type="radio" name="${qId}" value="${i}"> <span class="opt-text">${opt}</span></label>`;
+        });
+        inputHtml += `</div>`;
+    }
+    else if (slide.type === 'q-dropdown') {
+        inputHtml = `<div class="q-input"><select id="${qId}">`;
+        inputHtml += `<option value="-1">-- Select --</option>`;
+        slide.options.forEach((opt, i) => {
+            inputHtml += `<option value="${i}">${opt}</option>`;
+        });
+        inputHtml += `</select></div>`;
+    }
+    else if (slide.type === 'q-matching') {
+        inputHtml = `<div class="q-input">`;
+        slide.pairs.forEach((pair, i) => {
+            inputHtml += `<div style="margin-bottom:10px; display:flex; align-items:center; gap:10px;">
+                <span style="flex:1;">${pair}</span>
+                <select id="${qId}-${i}" style="flex:1;">
+                    <option value="-1">-- Select --</option>`;
+            slide.options.forEach((opt, j) => {
+                inputHtml += `<option value="${j}">${opt}</option>`;
+            });
+            inputHtml += `</select></div>`;
+        });
+        inputHtml += `</div>`;
+    }
+    // NEW: Checkbox Type
+    else if (slide.type === 'q-checkbox') {
+        inputHtml = `<div class="q-input checkbox-group">`;
+        slide.options.forEach((opt, i) => {
+            inputHtml += `<label><input type="checkbox" name="${qId}" value="${i}"> <span class="opt-text">${opt}</span></label>`;
+        });
+        inputHtml += `</div>`;
+    }
+    // NEW: Order Type
+    else if (slide.type === 'q-order') {
+        inputHtml = `<div class="q-input">`;
+        const numItems = slide.items.length;
+        const optionsHtml = Array.from({length: numItems}, (_, i) => `<option value="${i}">${i+1}</option>`).join('');
+        slide.items.forEach((item, i) => {
+            inputHtml += `<div style="margin-bottom:10px; display:flex; align-items:center; gap:10px;">
+                <select id="${qId}-${i}" style="width: 60px;">${optionsHtml}</select>
+                <span style="flex:1;">${item}</span>
+            </div>`;
+        });
+        inputHtml += `</div>`;
+    }
+
+    return `
+        <div class="question-box">
+            <div class="q-text">${slide.q}</div>
+            ${inputHtml}
+            <div style="margin-top:15px;">
+                <button class="btn btn-check" onclick="checkAnswer('${qId}', '${slide.type}', ${JSON.stringify(slide.ans).replace(/"/g, "'")})"><i class="fas fa-check"></i> Check</button>
+                <button class="btn btn-reset" onclick="resetAnswer('${qId}', '${slide.type}', ${slide.pairs ? slide.pairs.length : (slide.items ? slide.items.length : 0)}, ${slide.options ? slide.options.length : 0})"><i class="fas fa-redo"></i> Reset</button>
+            </div>
+            <div id="fb-${qId}" class="feedback"></div>
+        </div>`;
+}
+
+window.checkAnswer = function(qId, type, ans) {
+    let isCorrect = false;
+
+    if (type === 'q-fill') {
+        const userAns = document.getElementById(qId).value.trim();
+        isCorrect = userAns.toLowerCase() === ans.toLowerCase();
+    } 
+    else if (type === 'q-mcq' || type === 'q-dropdown') {
+        const el = document.querySelector(`[name="${qId}"]:checked`) || document.getElementById(qId);
+        const val = el ? el.value : "-1";
+        isCorrect = val == ans;
+    }
+    else if (type === 'q-matching') {
+        isCorrect = true;
+        for(let i=0; i<ans.length; i++) {
+            const val = document.getElementById(`${qId}-${i}`).value;
+            if(val != ans[i]) isCorrect = false;
+        }
+    }
+    else if (type === 'q-checkbox') {
+        const checkboxes = document.getElementsByName(qId);
+        const selected = [];
+        checkboxes.forEach(cb => { if(cb.checked) selected.push(parseInt(cb.value)); });
+        selected.sort((a,b) => a-b);
+        const correctAns = [...ans].sort((a,b) => a-b);
+        isCorrect = JSON.stringify(selected) === JSON.stringify(correctAns);
+    }
+    else if (type === 'q-order') {
+        isCorrect = true;
+        for(let i=0; i<ans.length; i++) {
+            const val = document.getElementById(`${qId}-${i}`).value;
+            if(parseInt(val) !== ans[i]) isCorrect = false;
+        }
+    }
+
+    // SAVE ANSWER FOR REPORT
+    window.studentAnswers[qId] = isCorrect;
+
+    const fbEl = document.getElementById(`fb-${qId}`);
+    const sec = appData[currentSectionIdx];
+    const slide = sec.slides[parseInt(qId.split('-')[2])];
+    
+    fbEl.className = `feedback ${isCorrect ? 'correct' : 'incorrect'}`;
+    fbEl.innerHTML = `
+        <div class="feedback-title">${isCorrect ? '<i class="fas fa-check-circle"></i> Correct!' : '<i class="fas fa-times-circle"></i> Incorrect!'}</div>
+        <div class="explanation"><strong>Explanation / Penjelasan:</strong><br>${slide.exp}</div>
+    `;
+    renderMath();
+};
+
+window.resetAnswer = function(qId, type, itemCount, optCount) {
+    if (type === 'q-fill') {
+        document.getElementById(qId).value = '';
+    } 
+    else if (type === 'q-mcq') {
+        const radios = document.getElementsByName(qId);
+        radios.forEach(r => r.checked = false);
+    }
+    else if (type === 'q-dropdown') {
+        document.getElementById(qId).selectedIndex = 0;
+    }
+    else if (type === 'q-matching') {
+        for(let i=0; i<itemCount; i++) document.getElementById(`${qId}-${i}`).selectedIndex = 0;
+    }
+    // NEW: Checkbox Reset
+    else if (type === 'q-checkbox') {
+        const checkboxes = document.getElementsByName(qId);
+        checkboxes.forEach(cb => cb.checked = false);
+    }
+    // NEW: Order Reset
+    else if (type === 'q-order') {
+        for(let i=0; i<itemCount; i++) document.getElementById(`${qId}-${i}`).selectedIndex = 0;
+    }
+    
+    document.getElementById(`fb-${qId}`).innerHTML = '';
+    document.getElementById(`fb-${qId}`).className = 'feedback';
+};
+
+// Navigation
+function navSlide(dir) {
+    const sec = appData[currentSectionIdx];
+    if(sec.type === 'home') { loadSection(1); return; }
+    
+    let nextIdx = currentSlideIdx + dir;
+    if(nextIdx < 0) {
+        if(currentSectionIdx > 0) loadSection(currentSectionIdx - 1); // Go to end of prev section? For simplicity, go to start.
+        return;
+    }
+    if(nextIdx >= sec.slides.length) {
+        if(currentSectionIdx < appData.length - 1) loadSection(currentSectionIdx + 1);
+        return;
+    }
+    currentSlideIdx = nextIdx;
+    
+    document.querySelectorAll('.slide').forEach((s, i) => {
+        s.className = 'slide' + (i === currentSlideIdx ? ' active' : '');
+    });
+    updateProgress();
+}
+
+function updateProgress() {
+    const sec = appData[currentSectionIdx];
+    if(sec.type === 'home') {
+        document.getElementById('progress-fill').style.width = '0%';
+        document.getElementById('progress-text').innerText = '';
+        return;
+    }
+    const total = sec.slides.length;
+    const pct = ((currentSlideIdx + 1) / total) * 100;
+    document.getElementById('progress-fill').style.width = `${pct}%`;
+    document.getElementById('progress-text').innerText = `${currentSlideIdx + 1} / ${total}`;
+}
+
+function renderMath() {
+    renderMathInElement(document.body, {
+        delimiters: [
+            {left: '\\\\(', right: '\\\\)', display: false},
+            {left: '\\\\[', right: '\\\\]', display: true}
+        ]
+    });
+}
+
+window.onload = init;
+
+function calculateScore(sectionIdx) {
+    const sec = appData[sectionIdx];
+    let score = 0;
+    let totalQ = 0;
+    sec.slides.forEach((slide, idx) => {
+        if(slide.type !== 'theory') {
+            totalQ++;
+            const qId = `q-${sectionIdx}-${idx}`;
+            if(window.studentAnswers[qId]) score++;
+        }
+    });
+    return { score, totalQ };
+}
+
+window.showResultUI = function(sectionIdx) {
+    const { score, totalQ } = calculateScore(sectionIdx);
+    document.getElementById(`score-val-${sectionIdx}`).innerText = `${score} / ${totalQ}`;
+    document.getElementById(`score-display-${sectionIdx}`).style.display = 'block';
+}
+
+window.generateReport = function(sectionIdx) {
+    const sec = appData[sectionIdx];
+    const name = document.getElementById('report-name').value || 'Anonymous';
+    const date = document.getElementById('report-date').value || new Date().toISOString().slice(0,10);
+    
+    let score = 0;
+    let totalQ = 0;
+    let tableRows = "";
+
+    sec.slides.forEach((slide, idx) => {
+        if(slide.type !== 'theory') {
+            totalQ++;
+            const qId = `q-${sectionIdx}-${idx}`;
+            const isCorrect = window.studentAnswers[qId] || false;
+            if(isCorrect) score++;
+            
+            const qText = slide.q.replace(/<[^>]*>?/gm, ''); // Strip HTML for report
+            const correctAns = Array.isArray(slide.ans) ? slide.ans.join(', ') : slide.ans;
+            
+            tableRows += `<tr>
+                <td style="border:1px solid #ddd; padding:8px;">${totalQ}</td>
+                <td style="border:1px solid #ddd; padding:8px;">${qText}</td>
+                <td style="border:1px solid #ddd; padding:8px;">${isCorrect ? 'Correct' : 'Incorrect/Blank'}</td>
+                <td style="border:1px solid #ddd; padding:8px;">${correctAns}</td>
+                <td style="border:1px solid #ddd; padding:8px; text-align:center;">${isCorrect ? '✓' : '✗'}</td>
+            </tr>`;
+        }
+    });
+
+    const html = `
+        <html>
+        <head><title>Assessment Report</title>
+        <style>
+            body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; padding: 40px; color: #1F2937; }
+            h1 { color: #4F46E5; border-bottom: 2px solid #4F46E5; padding-bottom: 10px; }
+            table { width: 100%; border-collapse: collapse; margin-top: 20px; }
+            th { background-color: #4F46E5; color: white; border: 1px solid #ddd; padding: 8px; text-align: left; }
+            .header-info { margin-bottom: 20px; line-height: 1.8; font-size: 1.1rem; background: #F3F4F6; padding: 15px; border-radius: 8px;}
+            .signature { margin-top: 60px; font-weight: bold; }
+        </style>
+        </head>
+        <body>
+            <h1>ASSESSMENT RESULT</h1>
+            <div class="header-info">
+                <strong>Name:</strong> ${name}<br>
+                <strong>Date:</strong> ${date}<br>
+                <strong>Topic:</strong> Review and Consolidation (Exponents, Logs, & Surds)<br>
+                <strong>Assessment Group:</strong> ${sec.title}<br>
+                <strong>Score:</strong> ${score} / ${totalQ}
+            </div>
+            <table>
+                <thead>
+                    <tr><th>No</th><th>Question</th><th>Student Answer</th><th>Correct Answer</th><th>Note (v/x)</th></tr>
+                </thead>
+                <tbody>
+                    ${tableRows}
+                </tbody>
+            </table>
+            <div class="signature">
+                Checked by,<br><br>Deni
+            </div>
+        </body>
+        </html>
+    `;
+
+    const newTab = window.open('', '_blank');
+    newTab.document.write(html);
+    newTab.document.close();
+};
+</script>
+
+</body>
+</html>

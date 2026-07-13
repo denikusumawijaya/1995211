@@ -154,15 +154,15 @@ const appData = [
                 `
             },
             // 10 Questions for Sec 1
-            { type: "q-fill", q: "Evaluate: \\( \\log_8 32 = \\frac{\\log 32}{\\log \\_} \\)", ans: "2", exp: "Since \\(8 = 2^3\\), we can use base 2. Change of base: \\( \\log_8 32 = \\frac{\\log_2 32}{\\log_2 8} = \\frac{5}{3} \\). However, filling the blank in the generic formula \\(\\frac{\\log 32}{\\log \\_}\\), any base works, but conventionally we use base 2 or 10. If base 2 is used, the denominator is \\(\\log_2 8 = 3\\). Wait, let's re-read. If blank is the base of the log, write 2. If it's the denominator value, write 3. To make it simple: \\( \\log_8 32 = \\frac{\\log 32}{\\log 8} \\). So the base is implied as 10. Blank is 8? No, the question asks for the base if we convert to base 2. Let's ask: \\( \\log_8 32 = \\frac{\\log_2 32}{\\log_2 \\_} \\). The blank is 8." },
+            { type: "q-fill", q: "Using change of base: \\( \\log_8 32 = \\frac{\\log_2 32}{\\log_2 \\boxed{\\,}} \\). Fill in the blank.", ans: "8", exp: "Using change of base to base 2: \\( \\log_8 32 = \\frac{\\log_2 32}{\\log_2 8} \\). Therefore, the missing base in the denominator is 8." },
             { type: "q-mcq", q: "Evaluate \\( \\log_8 32 \\):", options: ["\\( \\frac{5}{3} \\)", "\\( \\frac{3}{5} \\)", "3", "5"], ans: 0, exp: "Using change of base: \\( \\frac{\\log_2 32}{\\log_2 8} = \\frac{5}{3} \\)." },
             { type: "q-fill", q: "Simplify: \\( (\\log_3 5) \\cdot (\\log_5 27) = \\log_3 \\_ \\)", ans: "27", exp: "Using change of base: \\( \\log_3 5 \\cdot \\frac{\\log_3 27}{\\log_3 5} = \\log_3 27 \\). The 5s cancel out." },
             { type: "q-mcq", q: "What is the value of \\( (\\log_3 5) \\cdot (\\log_5 27) \\)?", options: ["3", "5", "9", "27"], ans: 0, exp: "As derived, it equals \\( \\log_3 27 = 3 \\)." },
             { type: "q-dropdown", q: "Which property is used to combine \\( 2\\log x - 3\\log y \\) into a single log?", options: ["Product", "Quotient", "Power"], ans: 1, exp: "Subtraction indicates the Quotient property: \\( \\log(\\frac{x^2}{y^3}) \\)." },
             { type: "q-fill", q: "Write as a single logarithm: \\( 2\\log x - 3\\log y = \\log(\\frac{x^\\_}{y^3}) \\)", ans: "2", exp: "The power rule brings the 2 to the exponent of x." },
             { type: "q-mcq", q: "Expand \\( \\log(\\sqrt{\\frac{a^3}{b}}) \\):", options: ["\\( \\frac{3}{2}\\log a - \\frac{1}{2}\\log b \\)", "\\( 3\\log a - \\frac{1}{2}\\log b \\)", "\\( \\frac{3}{2}\\log a + \\frac{1}{2}\\log b \\)"], ans: 0, exp: "\\( \\sqrt{x} = x^{1/2} \\). So \\( \\frac{1}{2}(3\\log a - \\log b) = \\frac{3}{2}\\log a - \\frac{1}{2}\\log b \\)." },
-            { type: "q-fill", q: "\\( \\log(\\sqrt{x}) \\) can be written as \\( \\frac{1}{\\_} \\log x \\)", ans: "2", exp: "The square root is the same as raising to the power of \\( \\frac{1}{2} \\)." },
-            { type: "q-matching", q: "Match the logarithm to its evaluated integer:", pairs: ["\\( \\log_2 8 \\)", "\\( \\log_3 9 \\)", "\\( \\log_5 25 \\)"], options: ["2", "3", "3"], ans: [1, 2, 0], exp: "\\( \\log_2 8 = 3 \\), \\( \\log_3 9 = 2 \\), \\( \\log_5 25 = 2 \\). Wait, options must match. Options should be [2, 3]. Log2(8)=3, Log3(9)=2, Log5(25)=2. To make it unique, let's use Log2(8)=3, Log3(27)=3, Log4(16)=2." },
+            { type: "q-fill", q: "\\( \\log(\\sqrt{x}) \\) can be written as \\( \\frac{1}{\\boxed{\\,}} \\log x \\)", ans: "2", exp: "The square root is the same as raising to the power of \\( \\frac{1}{2} \\)." },
+            { type: "q-matching", q: "Match the logarithm to its evaluated integer:", pairs: ["\\( \\log_2 8 \\)", "\\( \\log_3 9 \\)", "\\( \\log_4 16 \\)"], options: ["\\( 3 \\)", "\\( 2 \\)"], ans: [0, 1, 1], exp: "\\( \\log_2 8 = 3 \\), \\( \\log_3 9 = 2 \\), \\( \\log_4 16 = 2 \\)." },
             { type: "q-mcq", q: "Why is \\( \\log_5 (-25) \\) undefined?", options: ["Logarithms cannot have negative bases", "Logarithms cannot have negative arguments (inputs)", "25 is too large"], ans: 1, exp: "The argument of a logarithm must be strictly positive (>0)." }
         ]
     },
@@ -190,7 +190,7 @@ const appData = [
             { type: "q-fill", q: "To solve hardware calculation limits, we transform exponentials into \\_\\_\\_\\_\\_\\_\\_ (7 letters).", ans: "logarithms", exp: "Logarithms simplify complex exponential calculations." },
             { type: "q-dropdown", q: "A logarithmic scale is the inverse of an \\_\\_\\_\\_\\_\\_\\_\\_\\_ scale.", options: ["Exponential", "Linear", "Quadratic"], ans: 0, exp: "Logarithms are the inverse function of exponentials." },
             { type: "q-mcq", q: "Which scale is used to measure earthquake magnitude?", options: ["BMI Scale", "Richter Scale", "Beaufort Scale"], ans: 1, exp: "The Richter scale is a base-10 logarithmic scale." },
-            { type: "q-fill", q: "If \\( b^y = x \\), then \\( y = \\log\\_ x \\). (Fill in the blank with the base)", ans: "b", exp: "The base of the logarithm is the base of the exponential equation." },
+            { type: "q-fill", q: "If \\( b^y = x \\), then \\( y = \\log_{\\boxed{\\,}} x \\). (Fill in the blank with the base)", ans: "b", exp: "The base of the logarithm is the base of the exponential equation." },
             { type: "q-mcq", q: "Why are logarithmic scales useful in technology?", options: ["They make numbers bigger", "They compress large ranges of numbers", "They make graphs look curvier"], ans: 1, exp: "Log scales allow us to visualize and compute massive differences in magnitude." },
             { type: "q-matching", q: "Match the exponential form to its logarithmic counterpart:", pairs: ["\\( 2^3 = 8 \\)", "\\( 10^2 = 100 \\)", "\\( a^b = c \\)"], options: ["\\( \\log_a c = b \\)", "\\( \\log_2 8 = 3 \\)", "\\( \\log_{10} 100 = 2 \\)"], ans: [1, 2, 0], exp: "Exponential form \\( b^y = x \\) converts directly to \\( \\log_b x = y \\)." },
             { type: "q-mcq", q: "In quantum computing, why are exponential states transformed?", options: ["Because hardware struggles with exponential vectors directly", "Because math is illegal in quantum states", "To make them smaller"], ans: 0, exp: "Hardware limitations require transformations into manageable mathematical forms." },
@@ -220,13 +220,13 @@ const appData = [
                 `
             },
             { type: "q-matching", q: "Match the exponential form to its logarithmic counterpart:", pairs: ["\\( 5^2 = 25 \\)", "\\( 10^3 = 1000 \\)"], options: ["\\( \\log_{10} 1000 = 3 \\)", "\\( \\log_5 25 = 2 \\)"], ans: [1, 0], exp: "The base and the result swap positions between exponential and logarithmic forms." },
-            { type: "q-fill", q: "Rewrite the surd \\( \\sqrt[3]{x} \\) as an exponent: \\( x^{1/\\_} \\)", ans: "3", exp: "The index of the root becomes the denominator of the fractional exponent." },
+            { type: "q-fill", q: "Rewrite the surd \\( \\sqrt[3]{x} \\) as an exponent: \\( x^{1/\\boxed{\\,}} \\)", ans: "3", exp: "The index of the root becomes the denominator of the fractional exponent." },
             { type: "q-mcq", q: "What does a 'surd' represent in algebra?", options: ["A rational number", "An irrational root", "A complex logarithm"], ans: 1, exp: "A surd is an irrational number expressed as the root of a rational number (e.g., \\(\\sqrt{2}\\))." },
-            { type: "q-fill", q: "Express \\( x^{3/2} \\) in radical form: \\( \\sqrt{x^{\\_}} \\)", ans: "3", exp: "The numerator of the fractional exponent remains the exponent of the radicand inside the root." },
+            { type: "q-fill", q: "Express \\( x^{3/2} \\) in radical form: \\( \\sqrt{x^{\\boxed{\\,}}} \\)", ans: "3", exp: "The numerator of the fractional exponent remains the exponent of the radicand inside the root." },
             { type: "q-dropdown", q: "If \\( b^y = x \\), which operation finds \\( y \\)?", options: ["Exponentiation", "Taking a Root", "Logarithm"], ans: 2, exp: "Logarithm is the inverse of exponentiation used to find the power \\( y \\)." },
             { type: "q-mcq", q: "If \\( b^y = x \\), then \\( y = \\)", options: ["\\( \\log_x b \\)", "\\( \\log_b x \\)", "\\( b^x \\)"], ans: 1, exp: "By definition, \\( b^y = x \\iff y = \\log_b x \\)." },
             { type: "q-order", q: "Order the steps to convert \\( x^{2/3} \\) to radical form (starting from \\( x \\), applying root first):", items: ["Square the result", "Start with base \\( x \\)", "Take the cube root"], ans: [1, 2, 0], exp: "Start with base \\( x \\), apply denominator (cube root), then apply numerator (square)." },
-            { type: "q-fill", q: "If \\( 2^3 = 8 \\), then \\( \\log_2 8 = \\_ \\)", ans: "3", exp: "The logarithm asks 'to what power must 2 be raised to get 8?', which is 3." },
+            { type: "q-fill", q: "If \\( 2^3 = 8 \\), then \\( \\log_2 8 = \\boxed{\\,} \\)", ans: "3", exp: "The logarithm asks 'to what power must 2 be raised to get 8?', which is 3." },
             { type: "q-matching", q: "Match the fractional exponent to its radical form:", pairs: ["\\( x^{1/2} \\)", "\\( x^{1/3} \\)", "\\( x^{2/3} \\)"], options: ["\\( \\sqrt[3]{x^2} \\)", "\\( \\sqrt{x} \\)", "\\( \\sqrt[3]{x} \\)"], ans: [1, 2, 0], exp: "Denominator becomes the root index, numerator becomes the inner exponent." },
             { type: "q-mcq", q: "True or False: \\( \\log_b(x) \\) and \\( b^y=x \\) represent the exact same relationship.", options: ["True", "False"], ans: 0, exp: "They are simply two different ways of writing the exact same mathematical relationship." }
         ]
@@ -251,14 +251,14 @@ const appData = [
                 `
             },
             { type: "q-mcq", q: "What substitution is best for \\( 3^{2x} - 10(3^x) + 9 = 0 \\)?", options: ["\\( u = 3^{2x} \\)", "\\( u = 3^x \\)", "\\( u = 10 \\)"], ans: 1, exp: "Letting \\( u = 3^x \\) allows the first term to become \\( u^2 \\) and the middle term to be \\( 10u \\)." },
-            { type: "q-fill", q: "Rewrite \\( 2^{2x} - 5(2^x) + 6 = 0 \\) using \\( u = 2^x \\): \\( u^2 - \\_u + 6 = 0 \\)", ans: "5", exp: "The middle term \\( -5(2^x) \\) becomes \\( -5u \\)." },
-            { type: "q-fill", q: "The expression \\( 2^{2x} \\) is equivalent to \\( (2^x)^\\_ \\)", ans: "2", exp: "Power of a power rule: \\( (a^m)^n = a^{mn} \\). So \\( (2^x)^2 = 2^{2x} \\)." },
+            { type: "q-fill", q: "Rewrite \\( 2^{2x} - 5(2^x) + 6 = 0 \\) using \\( u = 2^x \\): \\( u^2 - \\boxed{\\,}u + 6 = 0 \\)", ans: "5", exp: "The middle term \\( -5(2^x) \\) becomes \\( -5u \\)." },
+            { type: "q-fill", q: "The expression \\( 2^{2x} \\) is equivalent to \\( (2^x)^{\\boxed{\\,}} \\) (Ini untuk soal (2^x)^_)", ans: "2", exp: "Power of a power rule: \\( (a^m)^n = a^{mn} \\). So \\( (2^x)^2 = 2^{2x} \\)." },
             { type: "q-dropdown", q: "If \\( u = 5^x \\) and you find \\( u = 25 \\), what is \\( x \\)?", options: ["1", "2", "5", "25"], ans: 1, exp: "Since \\( 5^x = 25 \\) and \\( 25 = 5^2 \\), then \\( x = 2 \\)." },
             { type: "q-mcq", q: "Solve the quadratic \\( u^2 - 5u + 6 = 0 \\).", options: ["\\( u = 1, 6 \\)", "\\( u = 2, 3 \\)", "\\( u = -2, -3 \\)"], ans: 1, exp: "Factoring gives \\( (u-2)(u-3) = 0 \\), so \\( u=2 \\) and \\( u=3 \\)." },
-            { type: "q-fill", q: "If \\( 2^x = 8 \\), then \\( x = \\_ \\)", ans: "3", exp: "Since \\( 8 = 2^3 \\), \\( x \\) must be 3." },
+            { type: "q-fill", q: "If \\( 2^x = 8 \\), then \\( x = \\boxed{\\,} \\)", ans: "3", exp: "Since \\( 8 = 2^3 \\), \\( x \\) must be 3." },
             { type: "q-order", q: "Order the steps to solve \\( 2^{2x} - 5(2^x) + 6 = 0 \\):", items: ["Solve quadratic for \\( u \\)", "Let \\( u = 2^x \\)", "Convert \\( u \\) back to \\( 2^x \\)", "Solve \\( 2^x \\) using logs if necessary"], ans: [1, 0, 2, 3], exp: "Substitute first, then solve the polynomial, then reverse substitute, then evaluate/log." },
             { type: "q-mcq", q: "Why can \\( 2^x \\) (or \\( u \\)) never be a negative number in real equations?", options: ["Exponents must be positive", "Exponential functions only output positive values", "Math forbids it"], ans: 1, exp: "For any real base \\( b > 0 \\), \\( b^x > 0 \\). Thus \\( u \\) cannot be negative." },
-            { type: "q-fill", q: "For \\( 2^x = 3 \\), \\( x = \\log\\_(3) \\)", ans: "2", exp: "Converting \\( 2^x = 3 \\) to logarithmic form gives \\( x = \\log_2 3 \\)." },
+            { type: "q-fill", q: "For \\( 2^x = 3 \\), \\( x = \\log_{\\boxed{\\,}}(3) \\)", ans: "2", exp: "Converting \\( 2^x = 3 \\) to logarithmic form gives \\( x = \\log_2 3 \\)." },
             { type: "q-matching", q: "Match the exponential equation to its quadratic substitution form:", pairs: ["\\( 4^x - 5(4^x) + 4 = 0 \\)", "\\( 9^x - 6(3^x) + 1 = 0 \\)"], options: ["\\( u^2 - 6u + 1 = 0 \\) (where \\( u=3^x \\))", "\\( u^2 - 5u + 4 = 0 \\) (where \\( u=4^x \\))"], ans: [1, 0], exp: "Ensure the base of the substitution matches the base of the middle term's exponent." }
         ]
     },
@@ -287,7 +287,7 @@ const appData = [
                 `
             },
             { type: "q-mcq", q: "Which property is used to combine \\( \\log_2(x) + \\log_2(x-2) \\)?", options: ["Quotient Rule", "Power Rule", "Product Rule"], ans: 2, exp: "Addition of logs with the same base results in the log of the product: \\( \\log_b(m) + \\log_b(n) = \\log_b(mn) \\)." },
-            { type: "q-fill", q: "Combine: \\( \\log_2(x) + \\log_2(x-2) = \\log_2(\\_\\_) \\)", ans: "x(x-2)", exp: "Multiply the arguments: \\( x \\cdot (x-2) \\)." },
+            { type: "q-fill", q: "Combine: \\( \\log_2(x) + \\log_2(x-2) = \\log_2(\\underline{\\quad\\quad}) \\)", ans: "x(x-2)", exp: "Multiply the arguments: \\( x \\cdot (x-2) \\)." },
             { type: "q-dropdown", q: "\\( \\log_2(x^2-2x) = 3 \\) is equivalent to:", options: ["\\( 3^{x^2-2x} = 2 \\)", "\\( 2^3 = x^2 - 2x \\)", "\\( \\log_3(x^2-2x) = 2 \\)"], ans: 1, exp: "If \\( \\log_b(A) = C \\), then \\( b^C = A \\). Here, \\( 2^3 = x^2 - 2x \\)." },
             { type: "q-mcq", q: "Solve the quadratic \\( x^2 - 2x - 8 = 0 \\).", options: ["\\( x = 2, -4 \\)", "\\( x = 4, -2 \\)", "\\( x = 8, -1 \\)"], ans: 1, exp: "Factoring gives \\( (x-4)(x+2) = 0 \\), so \\( x=4 \\) and \\( x=-2 \\)." },
             { type: "q-checkbox", q: "Which of the following values make the original expression \\( \\log_2(x) + \\log_2(x-2) \\) undefined? (Select all that apply)", options: ["\\( x = 4 \\)", "\\( x = -2 \\)", "\\( x = 0 \\)", "\\( x = 1 \\)"], ans: [1, 2, 3], exp: "If \\( x=-2, 0, \\) or \\( 1 \\), either \\( x \\) or \\( x-2 \\) becomes \\( \\le 0 \\), which is invalid for logarithms." },
@@ -295,7 +295,7 @@ const appData = [
             { type: "q-matching", q: "Match the log equation to its exponential form:", pairs: ["\\( \\log_5 x = 2 \\)", "\\( \\log_x 8 = 3 \\)"], options: ["\\( x^3 = 8 \\)", "\\( 5^2 = x \\)"], ans: [1, 0], exp: "Swap the base and the result to convert between log and exponential forms." },
             { type: "q-dropdown", q: "For \\( \\log_2(x-2) \\), what is the domain requirement for the argument?", options: ["\\( x-2 \\ge 0 \\)", "\\( x-2 > 0 \\)", "\\( x-2 < 0 \\)"], ans: 1, exp: "The argument of a logarithm must be strictly greater than 0." },
             { type: "q-mcq", q: "What is the final valid solution for \\( \\log_2(x) + \\log_2(x-2) = 3 \\)?", options: ["\\( x = 4 \\)", "\\( x = -2 \\)", "Both 4 and -2"], ans: 0, exp: "While \\( x=-2 \\) solves the quadratic, it is extraneous. Only \\( x=4 \\) is valid." },
-            { type: "q-fill", q: "If \\( \\log_3(x(x-3)) = 2 \\), the quadratic equation is \\( x^2 - 3x - \\_ = 0 \\)", ans: "9", exp: "\\( \\log_3(x^2-3x) = 2 \\implies x^2-3x = 3^2 \\implies x^2-3x-9 = 0 \\)." }
+            { type: "q-fill", q: "If \\( \\log_3(x(x-3)) = 2 \\), the quadratic equation is \\( x^2 - 3x - \\boxed{\\,} = 0 \\)", ans: "9", exp: "\\( \\log_3(x^2-3x) = 2 \\implies x^2-3x = 3^2 \\implies x^2-3x-9 = 0 \\)." }
         ]
     },
     {
@@ -316,14 +316,14 @@ const appData = [
                     <p class="translation">Contoh: Gunakan aturan pangkat pada logaritma untuk menarik akar keluar menjadi pecahan.</p>
                 `
             },
-            { type: "q-fill", q: "Rewrite \\( \\log_a(\\sqrt{b}) \\) using the power rule: \\( \\frac{1}{\\_} \\log_a b \\)", ans: "2", exp: "The square root is equivalent to the power of \\( 1/2 \\)." },
+            { type: "q-fill", q: "Rewrite \\( \\log_a(\\sqrt{b}) \\) using the power rule: \\( \\frac{1}{\\boxed{\\,}} \\log_a b \\)", ans: "2", exp: "The square root is equivalent to the power of \\( 1/2 \\)." },
             { type: "q-mcq", q: "To solve \\( 3^{2x} - 10(3^x) + 9 = 0 \\), what is the best first step?", options: ["Take log base 3", "Let \\( u = 3^x \\)", "Factor out 3"], ans: 1, exp: "This is a disguised quadratic. Letting \\( u = 3^x \\) transforms it into \\( u^2 - 10u + 9 = 0 \\)." },
-            { type: "q-fill", q: "Using \\( u = 3^x \\), rewrite \\( 3^{2x} - 10(3^x) + 9 = 0 \\) as: \\( u^2 - \\_u + 9 = 0 \\)", ans: "10", exp: "The middle term \\( -10(3^x) \\) becomes \\( -10u \\)." },
+            { type: "q-fill", q: "Using \\( u = 3^x \\), rewrite \\( 3^{2x} - 10(3^x) + 9 = 0 \\) as: \\( u^2 - \\boxed{\\,}u + 9 = 0 \\)", ans: "10", exp: "The middle term \\( -10(3^x) \\) becomes \\( -10u \\)." },
             { type: "q-matching", q: "Solve \\( u^2 - 10u + 9 = 0 \\). Match the factor to its root:", pairs: ["\\( u - 1 = 0 \\)", "\\( u - 9 = 0 \\)"], options: ["\\( u = 9 \\)", "\\( u = 1 \\)"], ans: [1, 0], exp: "Factoring gives \\( (u-1)(u-9) = 0 \\)." },
-            { type: "q-fill", q: "If \\( 3^x = 1 \\), then \\( x = \\_ \\)", ans: "0", exp: "Any non-zero number to the power of 0 equals 1." },
-            { type: "q-fill", q: "If \\( 3^x = 9 \\), then \\( x = \\_ \\)", ans: "2", exp: "Since \\( 9 = 3^2 \\), \\( x \\) must be 2." },
+            { type: "q-fill", q: "If \\( 3^x = 1 \\), then \\( x = \\boxed{\\,} \\)", ans: "0", exp: "Any non-zero number to the power of 0 equals 1." },
+            { type: "q-fill", q: "If \\( 3^x = 9 \\), then \\( x = \\boxed{\\,} \\)", ans: "2", exp: "Since \\( 9 = 3^2 \\), \\( x \\) must be 2." },
             { type: "q-dropdown", q: "Simplify \\( \\log_a(\\sqrt{b}) \\cdot \\log_b(a^2) \\). First, rewrite \\( \\log_b(a^2) \\):", options: ["\\( 2 \\log_b a \\)", "\\( (\\log_b a)^2 \\)", "\\( \\log_b 2a \\)"], ans: 0, exp: "The power rule of logarithms brings the exponent to the front." },
-            { type: "q-fill", q: "Simplify \\( (\\frac{1}{2}\\log_a b) \\cdot (2 \\log_b a) \\). The numbers \\( \\frac{1}{2} \\) and \\( 2 \\) multiply to \\_\\_\\_\\_.", ans: "1", exp: "\\( \\frac{1}{2} \\times 2 = 1 \\)." },
+            { type: "q-fill", q: "Simplify \\( (\\frac{1}{2}\\log_a b) \\cdot (2 \\log_b a) \\). The numbers \\( \\frac{1}{2} \\) and \\( 2 \\) multiply to \\( \\boxed{\\,} \\).", ans: "1", exp: "\\( \\frac{1}{2} \\times 2 = 1 \\)." },
             { type: "q-mcq", q: "Using the change of base, what does \\( \\log_a b \\cdot \\log_b a \\) equal?", options: ["0", "1", "ab"], ans: 1, exp: "\\( \\log_a b \\cdot \\log_b a = \\frac{\\log b}{\\log a} \\cdot \\frac{\\log a}{\\log b} = 1 \\)." },
             { type: "q-order", q: "Order the steps to solve \\( \\log_x(\\sqrt{5}) = \\frac{1}{4} \\):", items: ["Convert to exponential: \\( x^{1/4} = \\sqrt{5} \\)", "Raise both sides to the 4th power", "Result: \\( x = 5^2 = 25 \\)"], ans: [0, 1, 2], exp: "Convert to exponent first, then eliminate the fractional exponent by raising both sides to the reciprocal power." }
         ]
@@ -335,14 +335,14 @@ const appData = [
         isAssessment: true,
         slides: [
             { type: "theory", title: "Assessment 1: Exponents & Surds", title_id: "Penilaian 1: Eksponen & Akar", icon: "fas fa-clipboard-check", content: `<p>Time to test your knowledge! Complete all 10 questions. Good luck!</p><p class="translation">Saatnya menguji pengetahuanmu! Selesaikan 10 soal. Semoga sukses!</p>` },
-            { type: "q-fill", q: "Simplify \\( \\frac{2^3 \\cdot 2^x}{4^{x-1}} \\). Rewrite base 4 as base 2: \\( 4 = 2^\\_ \\)", ans: "2", exp: "The number 4 is equal to \\( 2^2 \\)." },
-            { type: "q-fill", q: "Simplify the numerator: \\( 2^3 \\cdot 2^x = 2^{3+x} \\). Simplify the denominator: \\( (2^2)^{x-1} = 2^{2x-\\_} \\)", ans: "2", exp: "Power of a power: \\( 2 \\cdot (x-1) = 2x - 2 \\)." },
-            { type: "q-fill", q: "Subtract exponents: \\( \\frac{2^{3+x}}{2^{2x-2}} = 2^{(3+x) - (2x-2)} = 2^{5-\\_} \\)", ans: "x", exp: "\\( 3 + x - 2x + 2 = 5 - x \\)." },
+            { type: "q-fill", q: "Simplify \\( \\frac{2^3 \\cdot 2^x}{4^{x-1}} \\). Rewrite base 4 as base 2: \\( 4 = 2^{\\boxed{\\,}} \\)", ans: "2", exp: "The number 4 is equal to \\( 2^2 \\)." },
+            { type: "q-fill", q: "Simplify the numerator: \\( 2^3 \\cdot 2^x = 2^{3+x} \\). Simplify the denominator: \\( (2^2)^{x-1} = 2^{2x-\\boxed{\\,}} \\)", ans: "2", exp: "Power of a power: \\( 2 \\cdot (x-1) = 2x - 2 \\)." },
+            { type: "q-fill", q: "Subtract exponents: \\( \\frac{2^{3+x}}{2^{2x-2}} = 2^{(3+x) - (2x-2)} = 2^{5-\\boxed{\\,}} \\)", ans: "x", exp: "\\( 3 + x - 2x + 2 = 5 - x \\)." },
             { type: "q-mcq", q: "Express \\( \\sqrt{x^3} \\cdot x^{1/4} \\) as a single power.", options: ["\\( x^{7/4} \\)", "\\( x^{4/7} \\)", "\\( x^{3/4} \\)"], ans: 0, exp: "\\( x^{3/2} \\cdot x^{1/4} = x^{6/4 + 1/4} = x^{7/4} \\)." },
-            { type: "q-fill", q: "Solve \\( 9^x = 27^{x-2} \\). Rewrite base 9: \\( 9 = 3^\\_ \\)", ans: "2", exp: "The number 9 is equal to \\( 3^2 \\)." },
-            { type: "q-fill", q: "Rewrite base 27: \\( 27 = 3^\\_ \\)", ans: "3", exp: "The number 27 is equal to \\( 3^3 \\)." },
+            { type: "q-fill", q: "Solve \\( 9^x = 27^{x-2} \\). Rewrite base 9: \\( 9 = 3^{\\boxed{\\,}} \\)", ans: "2", exp: "The number 9 is equal to \\( 3^2 \\)." },
+            { type: "q-fill", q: "Rewrite base 27: \\( 27 = 3^{\\boxed{\\,}} \\)", ans: "3", exp: "The number 27 is equal to \\( 3^3 \\)." },
             { type: "q-mcq", q: "Equating exponents for \\( 3^{2x} = 3^{3(x-2)} \\), what is the equation?", options: ["\\( 2x = 3x - 6 \\)", "\\( 2x = 3x - 2 \\)", "\\( 2x = 3x + 6 \\)"], ans: 0, exp: "Distribute the 3: \\( 3(x-2) = 3x - 6 \\)." },
-            { type: "q-fill", q: "Solve \\( 2x = 3x - 6 \\). \\( x = \\_ \\)", ans: "6", exp: "Subtract \\( 2x \\) and add 6: \\( 6 = x \\)." },
+            { type: "q-fill", q: "Solve \\( 2x = 3x - 6 \\). \\( x = \\boxed{\\,} \\)", ans: "6", exp: "Subtract \\( 2x \\) and add 6: \\( 6 = x \\)." },
             { type: "q-mcq", q: "Which of the following is equivalent to \\( \\sqrt[3]{a^2} \\)?", options: ["\\( a^{2/3} \\)", "\\( a^{3/2} \\)", "\\( 2a^3 \\)"], ans: 0, exp: "The root becomes the denominator and the exponent becomes the numerator." },
             { type: "q-dropdown", q: "If \\( 4^x = 16 \\), what is \\( x \\)?", options: ["1", "2", "4"], ans: 1, exp: "Since \\( 4^2 = 16 \\), \\( x = 2 \\)." }
         ]
@@ -354,14 +354,14 @@ const appData = [
         isAssessment: true,
         slides: [
             { type: "theory", title: "Assessment 2: Logarithms", title_id: "Penilaian 2: Logaritma", icon: "fas fa-clipboard-check", content: `<p>Continue the test! Focus on properties, change of base, and quadratic disguises.</p><p class="translation">Lanjutkan tesnya! Fokus pada sifat-sifat, perubahan basis, dan kuadratik tersembunyi.</p>` },
-            { type: "q-fill", q: "Solve \\( \\log_5(x+1) + \\log_5(x-1) = \\log_5(8) \\). Combine left side: \\( \\log_5(\\_\\_) = \\log_5(8) \\)", ans: "x^2-1", exp: "Product rule: \\( \\log_b(m) + \\log_b(n) = \\log_b(mn) \\). So \\( (x+1)(x-1) = x^2 - 1 \\)." },
+            { type: "q-fill", q: "Solve \\( \\log_5(x+1) + \\log_5(x-1) = \\log_5(8) \\). Combine left side: \\( \\log_5(\\underline{\\quad\\quad}) = \\log_5(8) \\)", ans: "x^2-1", exp: "Product rule: \\( \\log_b(m) + \\log_b(n) = \\log_b(mn) \\). So \\( (x+1)(x-1) = x^2 - 1 \\)." },
             { type: "q-mcq", q: "Solve \\( x^2 - 1 = 8 \\). Which solutions emerge from the algebra?", options: ["\\( x = 3, -3 \\)", "\\( x = 3 \\) only", "\\( x = 9 \\)"], ans: 0, exp: "\\( x^2 = 9 \\implies x = 3 \\) or \\( x = -3 \\)." },
             { type: "q-dropdown", q: "For \\( \\log_5(x+1) + \\log_5(x-1) \\), which value of \\( x \\) is extraneous?", options: ["\\( x = 3 \\)", "\\( x = -3 \\)"], ans: 1, exp: "If \\( x = -3 \\), \\( x-1 = -4 \\), which cannot be inputted into a logarithm." },
-            { type: "q-fill", q: "Solve \\( \\log_{\\sqrt{3}}(x) = 4 \\). Convert to exponential: \\( (\\sqrt{3})^4 = x \\). Calculate: \\( x = \\_ \\)", ans: "9", exp: "\\( (3^{1/2})^4 = 3^{4/2} = 3^2 = 9 \\)." },
+            { type: "q-fill", q: "Solve \\( \\log_{\\sqrt{3}}(x) = 4 \\). Convert to exponential: \\( (\\sqrt{3})^4 = x \\). Calculate: \\( x = \\boxed{\\,} \\)", ans: "9", exp: "\\( (3^{1/2})^4 = 3^{4/2} = 3^2 = 9 \\)." },
             { type: "q-order", q: "Order the steps to solve \\( \\log_2(\\log_3(x)) = 1 \\):", items: ["Exponentiate base 2: \\( \\log_3(x) = 2^1 \\)", "Exponentiate base 3: \\( x = 3^2 \\)", "Result: \\( x = 9 \\)"], ans: [0, 1, 2], exp: "Work from the outside in. The outer log is base 2, so convert that first." },
             { type: "q-mcq", q: "Simplify \\( \\log_a c + \\log_{a^2} c \\). Rewrite \\( \\log_{a^2} c \\) using change of base:", options: ["\\( \\frac{\\log_a c}{\\log_a a^2} \\)", "\\( \\frac{\\log_a c^2}{\\log_a a} \\)", "\\( 2 \\log_a c \\)"], ans: 0, exp: "Change of base to base \\( a \\): \\( \\frac{\\log_a c}{\\log_a a^2} \\)." },
-            { type: "q-fill", q: "Since \\( \\log_a a^2 = 2 \\), then \\( \\log_{a^2} c = \\frac{1}{\\_} \\log_a c \\)", ans: "2", exp: "The denominator evaluates to 2, bringing the fraction \\( 1/2 \\) out front." },
-            { type: "q-fill", q: "So \\( \\log_a c + \\frac{1}{2}\\log_a c = 1.5 \\log_a c \\). Simplify the denominator \\( \\log_a(\\sqrt{c}) \\): it equals \\( 0.5 \\log_a c \\). Divide: \\( \\frac{1.5}{0.5} = \\_ \\)", ans: "3", exp: "The \\( \\log_a c \\) terms cancel out, leaving \\( 1.5 / 0.5 = 3 \\)." },
+            { type: "q-fill", q: "Since \\( \\log_a a^2 = 2 \\), then \\( \\log_{a^2} c = \\frac{1}{\\boxed{\\,}} \\log_a c \\)", ans: "2", exp: "The denominator evaluates to 2, bringing the fraction \\( 1/2 \\) out front." },
+            { type: "q-fill", q: "So \\( \\log_a c + \\frac{1}{2}\\log_a c = 1.5 \\log_a c \\). Simplify the denominator \\( \\log_a(\\sqrt{c}) \\): it equals \\( 0.5 \\log_a c \\). Divide: \\( \\frac{1.5}{0.5} = \\boxed{\\,} \\)", ans: "3", exp: "The \\( \\log_a c \\) terms cancel out, leaving \\( 1.5 / 0.5 = 3 \\)." },
             { type: "q-matching", q: "Match the equation to its correct exponential form:", pairs: ["\\( \\log_b x = y \\)", "\\( \\log_x b = y \\)"], options: ["\\( x^y = b \\)", "\\( b^y = x \\)"], ans: [1, 0], exp: "The base of the log becomes the base of the exponent. The argument and result swap." },
             { type: "q-mcq", q: "What is the domain of \\( f(x) = \\log_2(5 - x) \\)?", options: ["\\( x > 5 \\)", "\\( x < 5 \\)", "\\( x \\ge 5 \\)"], ans: 1, exp: "The argument \\( 5 - x \\) must be greater than 0. So \\( 5 > x \\) or \\( x < 5 \\)." }
         ]
@@ -373,14 +373,14 @@ const appData = [
         isAssessment: true,
         slides: [
             { type: "theory", title: "Assessment 3: Advanced Equations", title_id: "Penilaian 3: Persamaan Lanjutan", icon: "fas fa-clipboard-check", content: `<p>Solve disguised quadratics and simultaneous equations.</p><p class="translation">Selesaikan kuadratik tersembunyi dan persamaan simultan.</p>` },
-            { type: "q-fill", q: "Solve \\( 4^x - 6(2^x) + 8 = 0 \\). Let \\( u = 2^x \\). Rewrite as: \\( u^2 - \\_u + 8 = 0 \\)", ans: "6", exp: "The middle term is \\( -6(2^x) \\), which becomes \\( -6u \\)." },
+            { type: "q-fill", q: "Solve \\( 4^x - 6(2^x) + 8 = 0 \\). Let \\( u = 2^x \\). Rewrite as: \\( u^2 - \\boxed{\\,}u + 8 = 0 \\)", ans: "6", exp: "The middle term is \\( -6(2^x) \\), which becomes \\( -6u \\)." },
             { type: "q-mcq", q: "Factor \\( u^2 - 6u + 8 = 0 \\).", options: ["\\( (u-2)(u-4) = 0 \\)", "\\( (u-1)(u-8) = 0 \\)", "\\( (u+2)(u+4) = 0 \\)"], ans: 0, exp: "Numbers that multiply to 8 and add to -6 are -2 and -4." },
-            { type: "q-fill", q: "If \\( u = 2 \\), then \\( 2^x = 2 \\implies x = \\_ \\)", ans: "1", exp: "Any number to the power of 1 is itself." },
-            { type: "q-fill", q: "If \\( u = 4 \\), then \\( 2^x = 4 \\implies x = \\_ \\)", ans: "2", exp: "Since \\( 4 = 2^2 \\), \\( x = 2 \\)." },
+            { type: "q-fill", q: "If \\( u = 2 \\), then \\( 2^x = 2 \\implies x = \\boxed{\\,} \\)", ans: "1", exp: "Any number to the power of 1 is itself." },
+            { type: "q-fill", q: "If \\( u = 4 \\), then \\( 2^x = 4 \\implies x = \\boxed{\\,} \\)", ans: "2", exp: "Since \\( 4 = 2^2 \\), \\( x = 2 \\)." },
             { type: "q-order", q: "Order the steps to solve \\( 2^x = 8^{y+1} \\) for \\( x \\):", items: ["Express 8 as \\( 2^3 \\)", "Equate exponents: \\( x = 3(y+1) \\)", "Result: \\( x = 3y + 3 \\)"], ans: [0, 1, 2], exp: "Must have the same base before equating exponents." },
-            { type: "q-fill", q: "Simplify \\( \\log_9(x) - \\log_9(y) = 0.5 \\). Using quotient rule: \\( \\log_9(x/y) = 0.5 \\). Convert to exponential: \\( x/y = 9^{0.5} = \\_ \\)", ans: "3", exp: "\\( 9^{1/2} = \\sqrt{9} = 3 \\)." },
+            { type: "q-fill", q: "Simplify \\( \\log_9(x) - \\log_9(y) = 0.5 \\). Using quotient rule: \\( \\log_9(x/y) = 0.5 \\). Convert to exponential: \\( x/y = 9^{0.5} = \\boxed{\\,} \\)", ans: "3", exp: "\\( 9^{1/2} = \\sqrt{9} = 3 \\)." },
             { type: "q-mcq", q: "Given \\( x = 3y + 3 \\) and \\( x = 3y \\), what is true?", options: ["There is a valid solution", "The system is inconsistent (no solution)", "x = 0"], ans: 1, exp: "If \\( x = 3y + 3 \\) and \\( x = 3y \\), then \\( 3y+3 = 3y \\implies 3=0 \\), which is impossible." },
-            { type: "q-fill", q: "Proof step: If \\( a^2 + b^2 = 7ab \\), add \\( 2ab \\) to both sides: \\( a^2 + 2ab + b^2 = \\_ab \\)", ans: "9", exp: "\\( 7ab + 2ab = 9ab \\)." },
+            { type: "q-fill", q: "Proof step: If \\( a^2 + b^2 = 7ab \\), add \\( 2ab \\) to both sides: \\( a^2 + 2ab + b^2 = \\boxed{\\,}ab \\)", ans: "9", exp: "\\( 7ab + 2ab = 9ab \\)." },
             { type: "q-dropdown", q: "Factor \\( a^2 + 2ab + b^2 \\):", options: ["\\( (a-b)^2 \\)", "\\( (a+b)^2 \\)", "\\( ab(a+b) \\)"], ans: 1, exp: "This is the perfect square trinomial." },
             { type: "q-mcq", q: "Finish the proof: \\( (a+b)^2 = 9ab \\implies \\frac{(a+b)^2}{9} = ab \\implies \\frac{a+b}{3} = \\sqrt{ab} \\). Take log of both sides:", options: ["\\( \\log(\\frac{a+b}{3}) = \\log(\\sqrt{ab}) \\)", "\\( \\log(\\frac{a+b}{3}) = \\sqrt{\\log(ab)} \\)"], ans: 0, exp: "Take the standard logarithm of both sides to reach the final proof." }
         ]
@@ -392,15 +392,15 @@ const appData = [
         isAssessment: true,
         slides: [
             { type: "theory", title: "Assessment 4: Surds & Mixed Synthesis", title_id: "Penilaian 4: Akar & Sintesis Campuran", icon: "fas fa-clipboard-check", content: `<p>Combine your knowledge of roots, exponents, and logarithms.</p><p class="translation">Gabungkan pengetahuanmu tentang akar, eksponen, dan logaritma.</p>` },
-            { type: "q-fill", q: "Simplify \\( \\frac{\\sqrt{18}}{\\sqrt{2}} = \\sqrt{\\frac{18}{2}} = \\sqrt{\\_} \\)", ans: "9", exp: "Divide the insides of the roots first: \\( 18 / 2 = 9 \\)." },
+            { type: "q-fill", q: "Simplify \\( \\frac{\\sqrt{18}}{\\sqrt{2}} = \\sqrt{\\frac{18}{2}} = \\sqrt{\\boxed{\\,}} \\)", ans: "9", exp: "Divide the insides of the roots first: \\( 18 / 2 = 9 \\)." },
             { type: "q-mcq", q: "Simplify \\( \\sqrt{50} + \\sqrt{2} \\):", options: ["\\( \\sqrt{52} \\)", "\\( 6\\sqrt{2} \\)", "\\( 5\\sqrt{2} \\)"], ans: 1, exp: "\\( \\sqrt{50} = 5\\sqrt{2} \\). So \\( 5\\sqrt{2} + \\sqrt{2} = 6\\sqrt{2} \\)." },
-            { type: "q-fill", q: "Rationalize \\( \\frac{1}{\\sqrt{5}} \\): Multiply top and bottom by \\( \\sqrt{5} \\) to get \\( \\frac{\\sqrt{5}}{\\_} \\)", ans: "5", exp: "\\( \\sqrt{5} \\times \\sqrt{5} = 5 \\)." },
-            { type: "q-fill", q: "Expand \\( (\\sqrt{3} + 1)^2 \\). Result: \\( 3 + 2\\sqrt{3} + \\_ \\)", ans: "1", exp: "Using \\( (a+b)^2 = a^2 + 2ab + b^2 \\). Here \\( 1^2 = 1 \\)." },
-            { type: "q-fill", q: "Evaluate \\( \\log_2(\\sqrt{8}) \\). Rewrite \\( \\sqrt{8} \\) as \\( 2^{3/2} \\). The exponent is your answer: \\( \\frac{3}{\\_} \\)", ans: "2", exp: "\\( \\log_2(2^{3/2}) = 3/2 \\)." },
+            { type: "q-fill", q: "Rationalize \\( \\frac{1}{\\sqrt{5}} \\): Multiply top and bottom by \\( \\sqrt{5} \\) to get \\( \\frac{\\sqrt{5}}{\\boxed{\\,}} \\)", ans: "5", exp: "\\( \\sqrt{5} \\times \\sqrt{5} = 5 \\)." },
+            { type: "q-fill", q: "Expand \\( (\\sqrt{3} + 1)^2 \\). Result: \\( 3 + 2\\sqrt{3} + \\boxed{\\,} \\)", ans: "1", exp: "Using \\( (a+b)^2 = a^2 + 2ab + b^2 \\). Here \\( 1^2 = 1 \\)." },
+            { type: "q-fill", q: "Evaluate \\( \\log_2(\\sqrt{8}) \\). Rewrite \\( \\sqrt{8} \\) as \\( 2^{3/2} \\). The exponent is your answer: \\( \\frac{3}{\\boxed{\\,}} \\)", ans: "2", exp: "\\( \\log_2(2^{3/2}) = 3/2 \\)." },
             { type: "q-mcq", q: "Evaluate \\( 2^{\\log_4(9)} \\):", options: ["9", "3", "4"], ans: 1, exp: "Let \\( x = 2^{\\log_4 9} \\). Take \\( \\log_2 \\) of both sides: \\( \\log_2 x = \\log_4 9 \\cdot \\log_2 2 = \\frac{\\log_2 9}{2} = \\log_2 9^{1/2} = \\log_2 3 \\). So \\( x=3 \\)." },
-            { type: "q-fill", q: "Simplify \\( x^{\\log_x(5)} \\). The exponent and the base log cancel out. Result: \\_\\_", ans: "5", exp: "By definition, \\( b^{\\log_b(x)} = x \\)." },
-            { type: "q-fill", q: "Evaluate \\( 8^{-1/3} \\). This is \\( \\frac{1}{\\sqrt[3]{8}} = \\frac{1}{\\_} \\)", ans: "2", exp: "The cube root of 8 is 2." },
-            { type: "q-fill", q: "Evaluate \\( 16^{-3/4} \\). This is \\( (\\sqrt[4]{16})^{-3} = 2^{-3} = \\frac{1}{\\_} \\)", ans: "8", exp: "\\( 16^{1/4} = 2 \\), and \\( 2^{-3} = 1/8 \\)." },
+            { type: "q-fill", q: "Simplify \\( x^{\\log_x(5)} \\). The exponent and the base log cancel out. Result: \\( \\boxed{\\,} \\)", ans: "5", exp: "By definition, \\( b^{\\log_b(x)} = x \\)." },
+            { type: "q-fill", q: "Evaluate \\( 8^{-1/3} \\). This is \\( \\frac{1}{\\sqrt[3]{8}} = \\frac{1}{\\boxed{\\,}} \\)", ans: "2", exp: "The cube root of 8 is 2." },
+            { type: "q-fill", q: "Evaluate \\( 16^{-3/4} \\). This is \\( (\\sqrt[4]{16})^{-3} = 2^{-3} = \\frac{1}{\\boxed{\\,}} \\)", ans: "8", exp: "\\( 16^{1/4} = 2 \\), and \\( 2^{-3} = 1/8 \\)." },
             { type: "q-order", q: "Order the steps to expand \\( \\log(\\sqrt{a^3/b}) \\):", items: ["Rewrite radical: \\( \\log(a^{3/2} b^{-1}) \\)", "Apply power rule: \\( \\frac{3}{2}\\log a - \\log b \\)"], ans: [0, 1], exp: "Convert the root to a fractional exponent first, then apply the log rules." }
         ]
     },
@@ -414,11 +414,11 @@ const appData = [
             { type: "q-mcq", q: "If \\( 3^x = 5 \\), what is \\( 3^{x-2} \\)?", options: ["\\( \\frac{5}{9} \\)", "\\( \\frac{5}{3} \\)", "\\( 5 - 9 \\)"], ans: 0, exp: "\\( 3^{x-2} = \\frac{3^x}{3^2} = \\frac{5}{9} \\)." },
             { type: "q-fill", q: "If \\( \\log_3(5) = a \\), express \\( \\log_3(25) \\) in terms of \\( a \\). Answer: \\_\\_\\_\\_\\_ (e.g. 2a)", ans: "2a", exp: "\\( \\log_3(5^2) = 2 \\log_3(5) = 2a \\)." },
             { type: "q-fill", q: "If \\( \\log_2(3) = x \\), express \\( \\log_2(27) \\) in terms of \\( x \\). Answer: \\_\\_\\_\\_\\_ (e.g. 3x)", ans: "3x", exp: "\\( \\log_2(3^3) = 3 \\log_2(3) = 3x \\)." },
-            { type: "q-matching", q: "Match the disguised quadratic to its solutions for \\( x \\):", pairs: ["\\( 5^{2x} - 26(5^x) + 25 = 0 \\)", "\\( 2^{2x} - 5(2^x) + 4 = 0 \\)"], options: ["\\( x = 0, x = 2 \\)", "\\( x = 0, x = 2 \\) Wait, options must be unique. Let's use: \\( x = 0, x = 2 \\) and \\( x = 0, x = 2 \\). Wait, 5^x=1->0, 5^x=25->2. 2^x=1->0, 2^x=4->2. Same answers! Let's change second to \\( 2^{2x} - 10(2^x) + 16 = 0 \\). \\( u^2-10u+8=0 \\) not clean. How about \\( 2^{2x} - 5(2^x) + 6 = 0 \\implies u=2,3 \\implies x=1, \\log_2 3 \\). Too messy. Let's use \\( 3^{2x} - 12(3^x) + 27 = 0 \\). u=3,9. x=1,2.", "\\( x = 0, x = 2 \\)"], ans: [1, 0], exp: "First equation yields \\( x=0,2 \\). Second yields \\( x=1,2 \\)." },
-            { type: "q-fill", q: "Solve \\( \\log_5(x) + \\log_5(x^2) = 3 \\). Combine: \\( \\log_5(x^3) = 3 \\implies x^3 = 5^3 \\implies x = \\_ \\)", ans: "5", exp: "Since \\( x^3 = 125 \\), \\( x = 5 \\)." },
-            { type: "q-fill", q: "Solve \\( 4^{x+1} = 8^{2x} \\). Write with base 2: \\( 2^{2x+2} = 2^{6x} \\implies 2x + 2 = 6x \\implies 4x = 2 \\implies x = \\frac{1}{\\_} \\)", ans: "2", exp: "\\( 2x+2 = 6x \\implies 2 = 4x \\implies x = 1/2 \\)." },
-            { type: "q-fill", q: "Solve \\( \\log_x(64) = 3 \\). Convert to exponential: \\( x^3 = 64 \\implies x = \\_ \\)", ans: "4", exp: "The cube root of 64 is 4." },
-            { type: "q-fill", q: "Evaluate \\( \\log_{10}(2) + \\log_{10}(5) \\). Combine: \\( \\log_{10}(2 \\times 5) = \\log_{10}(\\_) \\)", ans: "10", exp: "\\( 2 \\times 5 = 10 \\)." },
+            { type: "q-matching", q: "Match the disguised quadratic to its solutions for \\( x \\):", pairs: ["\\( 5^{2x} - 26(5^x) + 25 = 0 \\)", "\\( 3^{2x} - 12(3^x) + 27 = 0 \\)"], options: ["\\( x = 0, x = 2 \\)", "\\( x = 1, x = 2 \\)"], ans: [0, 1], exp: "First equation yields \\( u=1, 25 \\implies x=0, 2 \\). Second yields \\( u=3, 9 \\implies x=1, 2 \\)." },
+            { type: "q-fill", q: "Solve \\( \\log_5(x) + \\log_5(x^2) = 3 \\). Combine: \\( \\log_5(x^3) = 3 \\implies x^3 = 5^3 \\implies x = \\boxed{\\,} \\)", ans: "5", exp: "Since \\( x^3 = 125 \\), \\( x = 5 \\)." },
+            { type: "q-fill", q: "Solve \\( 4^{x+1} = 8^{2x} \\). Write with base 2: \\( 2^{2x+2} = 2^{6x} \\implies 2x + 2 = 6x \\implies 4x = 2 \\implies x = \\frac{1}{\\boxed{\\,}} \\)", ans: "2", exp: "\\( 2x+2 = 6x \\implies 2 = 4x \\implies x = 1/2 \\)." },
+            { type: "q-fill", q: "Solve \\( \\log_x(64) = 3 \\). Convert to exponential: \\( x^3 = 64 \\implies x = \\boxed{\\,} \\)", ans: "4", exp: "The cube root of 64 is 4." },
+            { type: "q-fill", q: "Evaluate \\( \\log_{10}(2) + \\log_{10}(5) \\). Combine: \\( \\log_{10}(2 \\times 5) = \\log_{10}(\\boxed{\\,}) \\)", ans: "10", exp: "\\( 2 \\times 5 = 10 \\)." },
             { type: "q-mcq", q: "What is the value of \\( \\log_{10}(10) \\)?", options: ["0", "1", "10"], ans: 1, exp: "Any log of a base to itself is 1: \\( \\log_b(b) = 1 \\)." },
             { type: "q-mcq", q: "Solve \\( 2^{x^2} = 2^{5x-6} \\).", options: ["\\( x = 2, x = 3 \\)", "\\( x = -2, x = -3 \\)", "\\( x = 6 \\)"], ans: 0, exp: "Equate exponents: \\( x^2 - 5x + 6 = 0 \\implies (x-2)(x-3) = 0 \\)." }
         ]
@@ -737,8 +737,8 @@ function updateProgress() {
 function renderMath() {
     renderMathInElement(document.body, {
         delimiters: [
-            {left: '\\\\(', right: '\\\\)', display: false},
-            {left: '\\\\[', right: '\\\\]', display: true}
+            {left: '\\(', right: '\\)', display: false},
+            {left: '\\[', right: '\\]', display: true}
         ]
     });
 }

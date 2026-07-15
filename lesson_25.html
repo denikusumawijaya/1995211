@@ -1,0 +1,1607 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Linear Equations & Inequalities</title>
+    <!-- KaTeX for Math Rendering -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.8/dist/katex.min.css">
+    <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.8/dist/katex.min.js"></script>
+    <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.8/dist/contrib/auto-render.min.js"></script>
+    <!-- Font -->
+    <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg: #131f24; --card: #1a2e35; --accent: #1cb0f6; --green: #58cc02; 
+            --red: #ff4b4b; --yellow: #ffc800; --text: #ffffff; --subtext: #8b9ea7;
+            --border: #37464f; --correct-bg: #1b3a1b; --wrong-bg: #3a1b1b;
+        }
+        * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Nunito', sans-serif; }
+        body { background-color: var(--bg); color: var(--text); height: 100vh; overflow: hidden; display: flex; flex-direction: column; }
+        
+        /* Navbar */
+        .navbar { background: var(--card); padding: 10px 20px; display: flex; align-items: center; gap: 15px; border-bottom: 2px solid var(--border); z-index: 10; }
+        .nav-btn { background: none; border: none; color: var(--subtext); font-weight: 700; cursor: pointer; padding: 8px 12px; border-radius: 10px; transition: 0.2s; font-size: 14px; }
+        .nav-btn.active { background: var(--accent); color: white; }
+        .nav-btn:hover { background: var(--border); }
+        .nav-btn.active:hover { background: var(--accent); }
+        .timer { font-size: 12px; color: var(--subtext); display: block; text-align: center; margin-top: 2px; }
+
+        /* Main Content Area */
+        .main-container { flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 20px; overflow: hidden; position: relative; }
+        .progress-bar-container { width: 100%; max-width: 600px; height: 10px; background: var(--border); border-radius: 5px; margin-bottom: 20px; overflow: hidden; }
+        .progress-bar { height: 100%; background: var(--green); width: 0%; transition: width 0.3s ease; border-radius: 5px; }
+
+        /* Slides */
+        .slide { display: none; flex-direction: column; align-items: center; width: 100%; max-width: 600px; animation: fadeIn 0.3s; }
+        .slide.active { display: flex; }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+
+        /* Cards & Typography */
+        .card { background: var(--card); border: 2px solid var(--border); border-radius: 16px; padding: 20px; width: 100%; margin-bottom: 15px; box-shadow: 0 4px 0 var(--border); }
+        h2 { font-size: 22px; margin-bottom: 5px; color: var(--green); }
+        h3 { font-size: 18px; margin-bottom: 10px; }
+        p { font-size: 16px; line-height: 1.5; margin-bottom: 10px; }
+        .sub-id { font-size: 12px; color: var(--subtext); font-style: italic; margin-bottom: 15px; display: block; }
+        .math-block { background: rgba(255,255,255,0.05); padding: 10px; border-radius: 8px; text-align: center; margin: 10px 0; font-size: 1.2em; }
+        
+        /* Icons/SVG */
+        .icon-box { width: 60px; height: 60px; background: var(--accent); border-radius: 15px; display: flex; align-items: center; justify-content: center; margin-bottom: 15px; font-size: 30px; box-shadow: 0 4px 0 rgba(0,0,0,0.2); }
+
+        /* Inputs & Buttons */
+        .input-field { width: 100%; padding: 12px; border: 2px solid var(--border); border-radius: 12px; background: var(--bg); color: white; font-size: 16px; font-family: 'Nunito'; outline: none; transition: 0.2s; }
+        .input-field:focus { border-color: var(--accent); box-shadow: 0 0 0 3px rgba(28, 176, 246, 0.3); }
+        select.input-field { cursor: pointer; appearance: none; background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'%3E%3Cpath fill='%238b9ea7' d='M6 8L1 3h10z'/%3E%3C/svg%3E"); background-repeat: no-repeat; background-position: right 12px center; }
+        
+        .btn { padding: 12px 24px; border: none; border-radius: 12px; font-weight: 700; font-size: 16px; cursor: pointer; transition: 0.1s; text-transform: uppercase; letter-spacing: 1px; }
+        .btn:active { transform: translateY(4px); box-shadow: none; }
+        .btn-primary { background: var(--green); color: white; box-shadow: 0 4px 0 #46a302; }
+        .btn-primary:hover { background: #4db800; }
+        .btn-check { background: var(--accent); color: white; box-shadow: 0 4px 0 #1899d6; margin-top: 10px; width: 100%;}
+        .btn-check:hover { background: #1aa3e6; }
+        .btn-reset { background: var(--border); color: white; box-shadow: 0 4px 0 #2a3840; margin-top: 5px; width: 100%; display: none; }
+        
+        /* Feedback */
+        .feedback { margin-top: 10px; padding: 10px; border-radius: 8px; font-weight: 600; display: none; }
+        .feedback.correct { background: var(--correct-bg); border: 1px solid var(--green); color: var(--green); }
+        .feedback.wrong { background: var(--wrong-bg); border: 1px solid var(--red); color: var(--red); }
+        .explanation { margin-top: 8px; font-size: 14px; color: var(--subtext); display: none; background: rgba(0,0,0,0.2); padding: 8px; border-radius: 6px; }
+
+        /* Specific Input Types */
+        .checkbox-group, .radio-group { display: flex; flex-direction: column; gap: 8px; }
+        .check-label, .radio-label { display: flex; align-items: center; gap: 10px; background: var(--bg); padding: 10px; border-radius: 10px; cursor: pointer; border: 2px solid transparent; transition: 0.2s; }
+        .check-label:hover, .radio-label:hover { border-color: var(--accent); }
+        .check-label.selected, .radio-label.selected { border-color: var(--accent); background: rgba(28, 176, 246, 0.1); }
+        
+        /* Homepage */
+        .homepage { flex-direction: column; align-items: center; text-align: center; }
+        .homepage h1 { color: var(--green); font-size: 28px; margin-bottom: 5px; }
+        .homepage h4 { color: var(--accent); margin-bottom: 20px; }
+
+        /* Assessment Result Form */
+        .result-form { background: var(--card); padding: 20px; border-radius: 16px; text-align: center; }
+        .result-score { font-size: 40px; font-weight: 800; color: var(--green); margin: 10px 0; }
+
+        /* Navbar Horizontal Scroll */
+        .nav-tabs { display: flex; gap: 5px; overflow-x: auto; padding-bottom: 5px; }
+        .nav-tabs::-webkit-scrollbar { height: 4px; }
+        .nav-tabs::-webkit-scrollbar-thumb { background: var(--border); border-radius: 4px; }
+
+        .pair-container { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+        .pair-item { padding: 10px; background: var(--bg); border-radius: 8px; text-align: center; cursor: pointer; border: 2px solid var(--border); transition: 0.2s; }
+        .pair-item.selected-pair { border-color: var(--yellow); background: rgba(255, 200, 0, 0.1); }
+        .pair-item.matched { border-color: var(--green); background: rgba(88, 204, 2, 0.1); opacity: 0.7; pointer-events: none; }
+
+        .order-container { display: flex; flex-direction: column; gap: 8px; }
+        .order-item { padding: 10px; background: var(--bg); border-radius: 8px; text-align: center; cursor: grab; border: 2px solid var(--border); }
+        .order-item:active { cursor: grabbing; border-color: var(--accent); }
+
+    </style>
+</head>
+<body>
+
+    <!-- Navbar -->
+    <div class="navbar">
+        <div class="nav-tabs" id="navTabs">
+            <!-- Tabs will be generated by JS -->
+        </div>
+    </div>
+
+    <!-- Main Content -->
+    <div class="main-container">
+        <div class="progress-bar-container"><div class="progress-bar" id="progressBar"></div></div>
+        
+        <!-- Homepage -->
+        <div class="slide active homepage" id="homepage">
+            <div class="icon-box" style="width:80px; height:80px; font-size:40px;">🧮</div>
+            <h1>Math Tutoring by Deni</h1>
+            <h4>Persamaan & Pertidaksamaan Linear <br><span style="font-size:12px; color:var(--subtext)">Linear Equations & Inequalities</span></h4>
+            <div style="height: 20px;"></div>
+            <button class="btn btn-primary" onclick="startLesson()">START LESSON</button>
+        </div>
+
+        <!-- Slides Container -->
+        <div id="slidesContainer">
+            <!-- Slides injected by JS -->
+        </div>
+    </div>
+
+<script>
+    // --- GLOBAL DATA STRUCTURES ---
+    const SECTIONS = [
+        { id: "sec1", title: "Spiral Review", time: "00:00-00:10" },
+        { id: "sec2", title: "Real-World", time: "00:10-00:15" },
+        { id: "sec3", title: "Prior Knowledge", time: "00:15-00:20" },
+        { id: "sec4", title: "Problem Intro", time: "00:20-00:30" },
+        { id: "sec5", title: "Guided Practice", time: "00:30-00:45" },
+        { id: "sec6", title: "Independent", time: "00:45-01:00" },
+        { id: "assess", title: "Assessment", time: "01:00-01:30" },
+        { id: "sec7", title: "Reflection", time: "01:30-01:35" }
+    ];
+
+    let currentSectionIndex = 0;
+    let currentSlideIndex = 0;
+    let lessonData = {}; // Will hold all sections and questions
+    
+    // Assessment State
+    let assessmentScores = {}; 
+
+    // --- CORE ENGINE FUNCTIONS ---
+    
+    function startLesson() {
+        document.getElementById('homepage').classList.remove('active');
+        buildNavbar();
+        loadSection(0);
+    }
+
+    function buildNavbar() {
+        const nav = document.getElementById('navTabs');
+        nav.innerHTML = '';
+        SECTIONS.forEach((sec, index) => {
+            const btn = document.createElement('button');
+            btn.className = 'nav-btn';
+            btn.innerHTML = `${sec.title} <span class="timer">${sec.time}</span>`;
+            btn.onclick = () => loadSection(index);
+            btn.id = `nav-${sec.id}`;
+            nav.appendChild(btn);
+        });
+    }
+
+    function loadSection(index) {
+        currentSectionIndex = index;
+        currentSlideIndex = 0;
+        
+        // Update Nav Active State
+        document.querySelectorAll('.nav-btn').forEach(btn => btn.classList.remove('active'));
+        document.getElementById(`nav-${SECTIONS[index].id}`).classList.add('active');
+        
+        renderSlide();
+    }
+
+    function renderSlide() {
+        const container = document.getElementById('slidesContainer');
+        const sectionId = SECTIONS[currentSectionIndex].id;
+        const slides = lessonData[sectionId];
+        
+        if (!slides || slides.length === 0) {
+            container.innerHTML = `<div class="card"><p>Section content is loading or not available in this part.</p></div>`;
+            return;
+        }
+
+        // Update Progress Bar
+        const progress = ((currentSlideIndex + 1) / slides.length) * 100;
+        document.getElementById('progressBar').style.width = `${progress}%`;
+
+        const slideData = slides[currentSlideIndex];
+        
+        // Build HTML based on slide type
+        let html = `<div class="slide active">`;
+        
+        if (slideData.type === 'theory') {
+            html += `
+                <div class="card">
+                    <div class="icon-box">${slideData.icon || '📚'}</div>
+                    <h2>${slideData.title}</h2>
+                    <span class="sub-id">${slideData.subtitle_id}</span>
+                    <p>${slideData.content}</p>
+                    ${slideData.math ? `<div class="math-block">${slideData.math}</div>` : ''}
+                </div>
+                <button class="btn btn-primary" onclick="nextSlide()">CONTINUE</button>
+            `;
+        } else if (slideData.type === 'question') {
+            html += `
+                <div class="card">
+                    <h3>${slideData.q_text}</h3>
+                    <span class="sub-id">${slideData.q_id}</span>
+                    ${slideData.q_math ? `<div class="math-block">${slideData.q_math}</div>` : ''}
+                    <div id="input-area-${slideData.id}">${generateInput(slideData)}</div>
+                    
+                    <div class="feedback" id="feedback-${slideData.id}"></div>
+                    <div class="explanation" id="explain-${slideData.id}">${slideData.explanation}</div>
+                </div>
+                <button class="btn btn-check" id="checkBtn-${slideData.id}" onclick="checkAnswer('${slideData.id}')">CHECK</button>
+                <button class="btn btn-reset" id="resetBtn-${slideData.id}" onclick="resetQuestion('${slideData.id}', '${slideData.q_type}')">RESET</button>
+                <button class="btn btn-primary" id="nextBtn-${slideData.id}" onclick="nextSlide()" style="display:none; width:100%; margin-top:10px;">CONTINUE</button>
+            `;
+        } else if (slideData.type === 'assessment-result') {
+            html += generateAssessmentResult(slideData.groupName, slideData.groupIndex);
+        } else if (slideData.type === 'reflection') {
+             html += `
+                <div class="card">
+                    <div class="icon-box">🏆</div>
+                    <h2>Lesson Complete!</h2>
+                    <span class="sub-id">Pelajaran Selesai</span>
+                    <p>You've mastered the LCM method and survived the sign-flip trap!</p>
+                    <p style="font-size:14px; margin-top:10px;">Remember: Join the post-session quiz on your learning platform.</p>
+                </div>
+            `;
+        }
+
+        html += `</div>`;
+        container.innerHTML = html;
+        
+        // Init JS specific elements (ordering only, pairing uses inline onclick now)
+        if (slideData.q_type === 'order') initOrder(slideData.id);
+        
+        // Render KaTeX
+        renderMathInElement(document.body, {
+            delimiters: [{left: '$$', right: '$$', display: true}, {left: '$', right: '$', display: false}]
+        });
+    }
+
+    function nextSlide() {
+        const sectionId = SECTIONS[currentSectionIndex].id;
+        if (currentSlideIndex < lessonData[sectionId].length - 1) {
+            currentSlideIndex++;
+            renderSlide();
+        } else {
+            // Move to next section or finish
+            if (currentSectionIndex < SECTIONS.length - 1) {
+                loadSection(currentSectionIndex + 1);
+            }
+        }
+    }
+
+    // --- INPUT GENERATORS ---
+    function generateInput(data) {
+        const id = data.id;
+        switch(data.q_type) {
+            case 'fill':
+                return `<input type="text" class="input-field" id="ans-${id}" autocomplete="off">`;
+            case 'mcq':
+                let mcqHtml = '<div class="radio-group">';
+                data.options.forEach((opt, i) => {
+                    mcqHtml += `<label class="radio-label" id="label-${id}-${i}" onclick="selectRadio('${id}', ${i}, ${data.options.length})"><input type="radio" name="radio-${id}" value="${opt}" style="display:none"> ${opt}</label>`;
+                });
+                mcqHtml += '</div>';
+                return mcqHtml;
+            case 'dropdown':
+                let ddHtml = `<select class="input-field" id="ans-${id}"><option value="" disabled selected>Select answer...</option>`;
+                data.options.forEach(opt => ddHtml += `<option value="${opt}">${opt}</option>`);
+                ddHtml += '</select>';
+                return ddHtml;
+            case 'checkbox':
+                let cbHtml = '<div class="checkbox-group">';
+                data.options.forEach((opt, i) => {
+                    cbHtml += `<label class="check-label" id="label-${id}-${i}" onclick="toggleCheck('${id}', ${i})"><input type="checkbox" id="cb-${id}-${i}" value="${opt}" style="display:none"> ${opt}</label>`;
+                });
+                cbHtml += '</div>';
+                return cbHtml;
+            case 'pair':
+                // Layout 2 kolom: Kiri (Soal) | Kanan (Jawaban)
+                let pairHtml = '<div style="display:flex; gap:10px;">';
+                
+                // Kolom Kiri
+                pairHtml += '<div style="flex:1; display:flex; flex-direction:column; gap:8px;">';
+                data.pairs.forEach((p, i) => {
+                    pairHtml += `<div class="pair-item" data-side="left" data-key="L${i}" id="left-${id}-${i}" onclick="selectPair('${id}', this)">${p.left}</div>`;
+                });
+                pairHtml += '</div>';
+                
+                // Kolom Kanan (Diacak urutannya)
+                pairHtml += '<div style="flex:1; display:flex; flex-direction:column; gap:8px;">';
+                let rightItems = data.pairs.map((p, i) => ({text: p.right, key: `R${i}`}));
+                rightItems.sort(() => Math.random() - 0.5); // Acak kartu kanan
+                rightItems.forEach((item, i) => {
+                     pairHtml += `<div class="pair-item" data-side="right" data-key="${item.key}" id="right-${id}-${i}" onclick="selectPair('${id}', this)">${item.text}</div>`;
+                });
+                pairHtml += '</div>';
+                
+                pairHtml += '</div><input type="hidden" id="ans-'+id+'">';
+                return pairHtml;
+            case 'order':
+                let ordHtml = '<div class="order-container" id="order-list-'+id+'">';
+                // Shuffle options for display
+                let shuffled = [...data.options].sort(() => Math.random() - 0.5);
+                shuffled.forEach((opt, i) => {
+                    ordHtml += `<div class="order-item" draggable="true" data-val="${opt}">${opt}</div>`;
+                });
+                ordHtml += '</div><input type="hidden" id="ans-'+id+'">';
+                return ordHtml;
+            default:
+                return '';
+        }
+    }
+
+    // --- INTERACTIVE INPUT HANDLERS ---
+    function selectRadio(qId, index, total) {
+        for(let i=0; i<total; i++) document.getElementById(`label-${qId}-${i}`).classList.remove('selected');
+        document.getElementById(`label-${qId}-${index}`).classList.add('selected');
+        document.getElementById(`ans-${qId}`) ? document.getElementById(`ans-${qId}`).value = document.getElementById(`label-${qId}-${index}`).innerText : null; // fallback
+    }
+
+    function toggleCheck(qId, index) {
+        const label = document.getElementById(`label-${qId}-${index}`);
+        label.classList.toggle('selected');
+    }
+
+    // Pairing Logic
+    let pairState = {};
+    function selectPair(qId, element) {
+        if (!pairState[qId]) pairState[qId] = { left: null, right: null, matches: [] };
+        
+        const side = element.dataset.side;
+        const key = element.dataset.key;
+        
+        if (element.classList.contains('matched')) return;
+
+        // Highlight kartu yang dipilih, dan hapuh highlight kartu lain di sisi yang sama
+        document.querySelectorAll(`.pair-item[data-side="${side}"][id^="${side}-${qId}"]`).forEach(e => e.classList.remove('selected-pair'));
+        element.classList.add('selected-pair');
+        
+        pairState[qId][side] = { key, el: element };
+
+        // Jika kiri dan kanan sudah dipilih, cek kecocokannya
+        if (pairState[qId].left && pairState[qId].right) {
+            const leftKey = pairState[qId].left.key;
+            const rightKey = pairState[qId].right.key;
+            
+            // Cek apakah kombinasi key ada di correctPairs (contoh: "L0-R0")
+            const isCorrectMatch = lessonData[SECTIONS[currentSectionIndex].id][currentSlideIndex].correctPairs.includes(`${leftKey}-${rightKey}`);
+            
+            if (isCorrectMatch) {
+                pairState[qId].left.el.classList.add('matched');
+                pairState[qId].left.el.classList.remove('selected-pair');
+                pairState[qId].right.el.classList.add('matched');
+                pairState[qId].right.el.classList.remove('selected-pair');
+                pairState[qId].matches.push(true);
+            } else {
+                // Jika salah, kedua kartu berkedip lalu hilang highlight-nya
+                const leftEl = pairState[qId].left.el;
+                const rightEl = pairState[qId].right.el;
+                setTimeout(() => {
+                    leftEl.classList.remove('selected-pair');
+                    rightEl.classList.remove('selected-pair');
+                }, 400);
+            }
+            pairState[qId].left = null; 
+            pairState[qId].right = null;
+        }
+        
+        // Simpan jumlah pasangan yang benar ke input tersembunyi
+        document.getElementById(`ans-${qId}`).value = pairState[qId].matches.length;
+    }
+
+    // Ordering Logic
+    function initOrder(qId) {
+        const container = document.getElementById(`order-list-${qId}`);
+        let dragEl = null;
+        container.querySelectorAll('.order-item').forEach(item => {
+            item.ondragstart = (e) => { dragEl = e.target; setTimeout(() => e.target.style.display="none", 0); };
+            item.ondragend = (e) => { e.target.style.display="block"; updateOrderVal(qId); };
+            item.ondragover = (e) => e.preventDefault();
+            item.ondrop = (e) => { e.preventDefault(); container.insertBefore(dragEl, e.target); };
+        });
+    }
+    function updateOrderVal(qId) {
+        const items = document.querySelectorAll(`#order-list-${qId} .order-item`);
+        let val = Array.from(items).map(i => i.dataset.val);
+        document.getElementById(`ans-${qId}`).value = JSON.stringify(val);
+    }
+
+    // --- CHECKING & FEEDBACK ---
+    function checkAnswer(qId) {
+        const sectionId = SECTIONS[currentSectionIndex].id;
+        const slideData = lessonData[sectionId].find(s => s.id === qId);
+        if(!slideData) return;
+
+        const qType = slideData.q_type;
+        // Ambil kunci jawaban (cek 'answer', jika tidak ada pakai 'correctPairs' untuk soal pairing)
+        let correctAnswer = slideData.answer || slideData.correctPairs || [];
+        
+        let isCorrect = false;
+        let userAnswer = '';
+
+        try {
+            if (qType === 'fill') {
+                // Menghapus semua spasi dan membuatnya lowercase agar lebih fleksibel
+                userAnswer = document.getElementById(`ans-${qId}`).value.trim().replace(/\s+/g, '').toLowerCase();
+                
+                // Jika jawaban benar adalah Array, cek apakah jawaban user ada di dalamnya
+                if (Array.isArray(correctAnswer)) {
+                    isCorrect = correctAnswer.some(ans => userAnswer === String(ans).replace(/\s+/g, '').toLowerCase());
+                } else {
+                    isCorrect = userAnswer === String(correctAnswer).replace(/\s+/g, '').toLowerCase();
+                }
+            } else if (qType === 'mcq') {
+                const selected = document.querySelector(`label.radio-label.selected[id^="label-${qId}"]`);
+                userAnswer = selected ? selected.innerText : '';
+                isCorrect = userAnswer === correctAnswer;
+            } else if (qType === 'dropdown') {
+                userAnswer = document.getElementById(`ans-${qId}`).value;
+                isCorrect = userAnswer === correctAnswer;
+            } else if (qType === 'checkbox') {
+                let selected = [];
+                document.querySelectorAll(`.check-label.selected[id^="label-${qId}"]`).forEach(el => {
+                    selected.push(el.innerText);
+                });
+                userAnswer = selected.sort().join(', ');
+                isCorrect = JSON.stringify(selected.sort()) === JSON.stringify(correctAnswer.sort());
+            } else if (qType === 'pair') {
+                // correctAnswer sekarang berupa array key (misal: ["L0-R0", "L1-R1"])
+                // Kita cukup cek apakah jumlah pasangan yang berhasil sama dengan jumlah soal
+                let matchedCount = parseInt(document.getElementById(`ans-${qId}`).value) || 0;
+                isCorrect = matchedCount === correctAnswer.length;
+            } else if (qType === 'order') {
+                updateOrderVal(qId);
+                userAnswer = document.getElementById(`ans-${qId}`).value;
+                isCorrect = JSON.stringify(JSON.parse(userAnswer)) === JSON.stringify(correctAnswer);
+            }
+        } catch(e) { isCorrect = false; }
+
+        const feedbackEl = document.getElementById(`feedback-${qId}`);
+        const explainEl = document.getElementById(`explain-${qId}`);
+        const checkBtn = document.getElementById(`checkBtn-${qId}`);
+        const resetBtn = document.getElementById(`resetBtn-${qId}`);
+        const nextBtn = document.getElementById(`nextBtn-${qId}`);
+
+        feedbackEl.style.display = 'block';
+        explainEl.style.display = 'block';
+        checkBtn.style.display = 'none';
+        resetBtn.style.display = 'block';
+        if(nextBtn) nextBtn.style.display = 'block'; // Tampilkan tombol CONTINUE
+
+        if (isCorrect) {
+            feedbackEl.className = 'feedback correct';
+            feedbackEl.innerText = 'Correct! / Benar!';
+        } else {
+            feedbackEl.className = 'feedback wrong';
+            feedbackEl.innerText = 'Incorrect / Salah';
+        }
+        
+        // Nonaktifkan input setelah cek
+        document.querySelectorAll(`#input-area-${qId} input, #input-area-${qId} select`).forEach(el => el.disabled = true);
+        document.querySelectorAll(`#input-area-${qId} label`).forEach(el => el.style.pointerEvents = 'none');
+        document.querySelectorAll(`#input-area-${qId} .pair-item`).forEach(el => el.style.pointerEvents = 'none');
+
+        // Simpan nilai jika ini bagian Assessment
+        const currentSecId = SECTIONS[currentSectionIndex].id;
+        if (currentSecId === 'assess') {
+            if (!assessmentScores[qId.split('_')[0]]) assessmentScores[qId.split('_')[0]] = 0;
+            if (isCorrect) assessmentScores[qId.split('_')[0]]++;
+        }
+    }
+
+    function resetQuestion(qId, qType) {
+        const currentSecId = SECTIONS[currentSectionIndex].id;
+        const slideData = lessonData[currentSecId][currentSlideIndex];
+        document.getElementById(`input-area-${qId}`).innerHTML = generateInput(slideData);
+        document.getElementById(`feedback-${qId}`).style.display = 'none';
+        document.getElementById(`explain-${qId}`).style.display = 'none';
+        document.getElementById(`checkBtn-${qId}`).style.display = 'block';
+        document.getElementById(`resetBtn-${qId}`).style.display = 'none';
+        
+        // Sembunyikan tombol CONTINUE saat reset
+        const nextBtn = document.getElementById(`nextBtn-${qId}`);
+        if(nextBtn) nextBtn.style.display = 'none';
+        
+        if (qType === 'pair') initPair(qId);
+        if (qType === 'order') initOrder(qId);
+        renderMathInElement(document.body, { delimiters: [{left: '$$', right: '$$', display: true}, {left: '$', right: '$', display: false}] });
+    }
+
+    // --- ASSESSMENT RESULT & REPORT ---
+    function generateAssessmentResult(groupName, groupIndex) {
+        // Hitung skor sebenarnya dari assessmentScores
+        const score = assessmentScores[`assess${groupIndex}`] || 0;
+        
+        return `
+        <div class="card result-form" id="resForm-${groupIndex}">
+            <div class="icon-box">🏆</div>
+            <h2>Assessment Complete!</h2>
+            <span class="sub-id">Penilaian Selesai</span>
+            <div class="result-score" id="resScore-${groupIndex}">${score}/10</div>
+            <p>Group: ${groupName}</p>
+            <input type="text" class="input-field" id="resName-${groupIndex}" placeholder="Enter your Name / Nama" style="margin-bottom:10px;">
+            <input type="date" class="input-field" id="resDate-${groupIndex}" style="margin-bottom:10px;">
+            <button class="btn btn-primary" onclick="generateReport('${groupName}', ${groupIndex})" style="width:100%">GENERATE REPORT</button>
+            <button class="btn btn-check" onclick="nextSlide()" style="margin-top:10px; background:var(--border); box-shadow:0 4px 0 #2a3840;">NEXT GROUP</button>
+        </div>`;
+    }
+
+    function generateReport(groupName, groupIndex) {
+        const name = document.getElementById(`resName-${groupIndex}`).value || 'Student';
+        const date = document.getElementById(`resDate-${groupIndex}`).value || new Date().toISOString().split('T')[0];
+        const score = assessmentScores[`assess${groupIndex}`] || 0;
+        
+        let tableRows = '';
+        const sectionSlides = lessonData['assess'].filter(s => s.id && s.id.startsWith(`assess${groupIndex}`));
+        
+        sectionSlides.forEach((slide, idx) => {
+            if(slide.type !== 'question') return;
+            
+            // Hapus nomor soal di awal teks agar tidak ganda
+            let cleanQText = slide.q_text.replace(/^\d+\.\s*/, '');
+            
+            // Rapikan tampilan kunci jawaban untuk laporan
+            let correctAnsDisplay = '-';
+            if (slide.answer) {
+                correctAnsDisplay = Array.isArray(slide.answer) ? slide.answer.join(' / ') : slide.answer;
+            } else if (slide.correctPairs) {
+                correctAnsDisplay = "Matched Pairs";
+            }
+
+            tableRows += `<tr>
+                <td style='padding:8px; border:1px solid #ddd; text-align:center;'>${idx+1}</td>
+                <td style='padding:8px; border:1px solid #ddd;'>${cleanQText}</td>
+                <td style='padding:8px; border:1px solid #ddd; text-align:center; color:#999;'>-</td>
+                <td style='padding:8px; border:1px solid #ddd; text-align:center; font-weight:bold;'>${correctAnsDisplay}</td>
+                <td style='padding:8px; border:1px solid #ddd; text-align:center;'>-</td>
+            </tr>`;
+        });
+
+        // 1. Buat konten laporan dalam bentuk mentah
+        const rawHTML = `
+            <h2>ASSESSMENT RESULT</h2>
+            <p><strong>Name:</strong> ${name}</p>
+            <p><strong>Date:</strong> ${date}</p>
+            <p><strong>Topic:</strong> Linear Equations & Inequalities</p>
+            <p><strong>Assessment Group:</strong> ${groupName}</p>
+            <h3 style="color:#27ae60;">Score: ${score}/10</h3>
+            <table>
+                <tr>
+                    <th style="width:5%;">No</th>
+                    <th style="width:45%;">Question</th>
+                    <th style="width:20%;">Student Answer</th>
+                    <th style="width:20%;">Correct Answer</th>
+                    <th style="width:10%;">Note (v/x)</th>
+                </tr>
+                ${tableRows}
+            </table>
+            <br><br>
+            <p>Checked by,<br><strong>Deni</strong></p>
+        `;
+
+        // 2. Buat elemen div sementara di halaman utama (disembunyikan)
+        const tempDiv = document.createElement('div');
+        tempDiv.style.position = 'absolute';
+        tempDiv.style.left = '-9999px';
+        tempDiv.innerHTML = rawHTML;
+        document.body.appendChild(tempDiv);
+
+        // 3. Render KaTeX di dalam div sementara ini menggunakan engine halaman utama
+        renderMathInElement(tempDiv, {
+            delimiters: [
+                {left: '$$', right: '$$', display: true},
+                {left: '$', right: '$', display: false}
+            ]
+        });
+
+        // 4. Ambil HTML yang sudah jadi (simbol $ sudah berubah jadi tag <span> KaTeX)
+        const renderedHTML = tempDiv.innerHTML;
+
+        // 5. Hapus div sementara dari memori
+        document.body.removeChild(tempDiv);
+
+        // 6. Kirim HTML yang sudah jadi ke jendela baru (Hanya butuh CSS, tanpa JS)
+        const finalReport = `
+            <html>
+            <head>
+                <title>Assessment Report</title>
+                <!-- Hanya load CSS KaTeX, tanpa JavaScript -->
+                <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.8/dist/katex.min.css">
+                <style>
+                    body { font-family: Arial, sans-serif; padding: 20px; color: #333; } 
+                    table { width: 100%; border-collapse: collapse; margin-top: 20px; box-shadow: 0 1px 3px rgba(0,0,0,0.2); } 
+                    th { background: #f4f4f4; padding: 10px; border: 1px solid #ddd; text-align: left; } 
+                    h2 { color: #2c3e50; }
+                    td { vertical-align: top; }
+                </style>
+            </head>
+            <body>
+                ${renderedHTML}
+            </body></html>
+        `;
+
+        const win = window.open('', '_blank');
+        win.document.write(finalReport);
+        win.document.close();
+    }
+
+    // --- LESSON DATA (Part 1) ---
+    lessonData["sec1"] = [
+        {
+            type: 'theory', icon: '🧠',
+            title: 'Spiral Review: Logarithms',
+            subtitle_id: 'Ulangan Spiral: Logaritma',
+            content: 'Before diving into linear equations, let\'s recalibrate our brains with logarithms! Remember the Change of Base formula and log properties.',
+            math: '$$\\log_b(a) = \\frac{\\log_k(a)}{\\log_k(b)}$$'
+        },
+        {
+            type: 'question', id: 's1_q1', q_type: 'fill',
+            q_text: '1. Use the Change of Base formula to rewrite $\\log_2 7$ using base 10.',
+            q_id: 'Tulis ulang menggunakan basis 10',
+            explanation: 'Using the Change of Base Formula: $\\log_2 7 = \\frac{\\log 7}{\\log 2}$',
+            answer: ['log(7)/log(2)', 'log7/log2']
+        },
+        {
+            type: 'question', id: 's1_q2', q_type: 'mcq',
+            q_text: '2. Evaluate: $\\log_9(27)$',
+            q_id: 'Hitunglah nilainya',
+            options: ['1.5', '2', '0.5', '3'],
+            explanation: 'Using Change of Base: $\\frac{\\log 27}{\\log 9} = \\frac{\\log 3^3}{\\log 3^2} = \\frac{3 \\log 3}{2 \\log 3} = 1.5$',
+            answer: '1.5'
+        },
+        {
+            type: 'question', id: 's1_q3', q_type: 'pair',
+            q_text: '3. Match the logarithmic property to its expansion/contraction.',
+            q_id: 'Cocokkan sifat logaritma',
+            pairs: [
+                {left: '$\\log(x^2y)$', right: '$2\\log x + \\log y$'},
+                {left: '$2\\log a - \\log b$', right: '$\\log(\\frac{a^2}{b})$'},
+                {left: '$\\frac{1}{2}\\log x + \\log y$', right: '$\\log(y\\sqrt{x})$'}
+            ],
+            correctPairs: ["L0-R0", "L1-R1", "L2-R2"],
+            explanation: 'Product rule: $\\log(ab) = \\log a + \\log b$. Quotient rule: $\\log(a/b) = \\log a - \\log b$. Power rule: $\\log(a^n) = n\\log a$.'
+        },
+        {
+            type: 'question', id: 's1_q4', q_type: 'fill',
+            q_text: '4. Condense into a single term: $3\\log(a) - \\log(b)$',
+            q_id: 'Kondensasikan menjadi satu suku',
+            explanation: 'Apply power rule then quotient rule: $\\log(a^3) - \\log(b) = \\log(\\frac{a^3}{b})$',
+            answer: ['log(a^3/b)', 'loga^3/logb', 'log(a^3)-log(b)']
+        },
+        {
+            type: 'question', id: 's1_q5', q_type: 'dropdown',
+            q_text: '5. What is the value of $\\log_2(8)$?',
+            q_id: 'Berapa nilainya?',
+            options: ['2', '3', '4', '8'],
+            explanation: 'We ask $2^? = 8$. Since $2^3 = 8$, the answer is 3.',
+            answer: '3'
+        },
+        {
+            type: 'question', id: 's1_q6', q_type: 'checkbox',
+            q_text: '6. Which of the following are valid logarithmic properties? (Select all that apply)',
+            q_id: 'Manakah yang benar?',
+            options: ['$\\log(a+b) = \\log a + \\log b$', '$\\log(ab) = \\log a + \\log b$', '$\\log(a^b) = b \\log a$', '$\\log(0) = 0$'],
+            explanation: '$\\log(a+b)$ cannot be split. $\\log(0)$ is undefined. The other two are the Product and Power rules.',
+            answer: ['$\\log(ab) = \\log a + \\log b$', '$\\log(a^b) = b \\log a$']
+        },
+        {
+            type: 'question', id: 's1_q7', q_type: 'mcq',
+            q_text: '7. Expand $\\log(\\frac{m^2}{n^3})$',
+            q_id: 'Uraikanlah',
+            options: ['$2\\log(m) + 3\\log(n)$', '$2\\log(m) - 3\\log(n)$', '$\\log(m^2) + \\log(n^3)$', '$3\\log(n) - 2\\log(m)$'],
+            explanation: 'Quotient rule first: $\\log(m^2) - \\log(n^3)$. Then power rule: $2\\log(m) - 3\\log(n)$.',
+            answer: '$2\\log(m) - 3\\log(n)$'
+        },
+        {
+            type: 'question', id: 's1_q8', q_type: 'mcq',
+            q_text: '8. If $\\log 2 \\approx 0.301$ and $\\log 3 \\approx 0.477$, what is $\\log 6$?',
+            q_id: 'Hitung log 6',
+            options: ['0.778', '0.143', '0.903', '1'],
+            explanation: '$6 = 2 \\times 3$. So $\\log 6 = \\log 2 + \\log 3 \\approx 0.301 + 0.477 = 0.778$.',
+            answer: '0.778'
+        },
+        {
+            type: 'question', id: 's1_q9', q_type: 'fill',
+            q_text: '9. Rewrite $\\log_5(20)$ using natural log ($\\ln$).',
+            q_id: 'Tulis ulang menggunakan ln',
+            explanation: 'Change of base using natural log: $\\frac{\\ln 20}{\\ln 5}$.',
+            answer: ['ln(20)/ln(5)', 'ln20/ln5']
+        },
+        {
+            type: 'question', id: 's1_q10', q_type: 'order',
+            q_text: '10. Order the steps to condense $2\\log x + \\log y$:',
+            q_id: 'Urutkan langkah-langkah',
+            options: ['Apply Power Rule: $\\log x^2 + \\log y$', 'Start: $2\\log x + \\log y$', 'Apply Product Rule: $\\log(x^2y)$'],
+            explanation: 'First apply the power rule to the first term, then combine using the product rule.',
+            answer: ['Start: $2\\log x + \\log y$', 'Apply Power Rule: $\\log x^2 + \\log y$', 'Apply Product Rule: $\\log(x^2y)$']
+        }
+    ];
+	
+    // --- LESSON DATA (Part 2) ---
+
+    lessonData["sec2"] = [
+        {
+            type: 'theory', icon: '📱',
+            title: 'Real-World Connection',
+            subtitle_id: 'Koneksi Dunia Nyata',
+            content: 'Imagine developing a new app. You have a fixed server cost, but a variable cost per user. If you want profit to remain above $5,000, how many users do you need? This is an inequality! It’s about finding the "boundary" of success.',
+            math: '$$\\text{Profit} > 5000 \\implies \\text{Revenue} - \\text{Cost} > 5000$$'
+        },
+        {
+            type: 'question', id: 's2_q1', q_type: 'fill',
+            q_text: '1. An app has a fixed server cost of $500 and makes $2 per user. Write the expression for Revenue - Cost. (Let $u$ = users)',
+            q_id: 'Tulis ekspresi Pendapatan - Biaya',
+            explanation: 'Revenue is $2u$. Cost is $500$. So, Revenue - Cost = $2u - 500$.',
+            answer: '2u - 500'
+        },
+        {
+            type: 'question', id: 's2_q2', q_type: 'mcq',
+            q_text: '2. If you want your profit to be "above $5000", which inequality symbol do you use?',
+            q_id: 'Simbol mana yang digunakan untuk "di atas $5000"?',
+            options: ['$>$', '$\\ge$', '$<$', '$\\le$'],
+            explanation: '"Above" means strictly greater than, so we use the $>$ symbol.',
+            answer: '$>$'
+        },
+        {
+            type: 'question', id: 's2_q3', q_type: 'fill',
+            q_text: '3. Write the inequality for: "Profit is greater than 5000" using the expression $2u - 500$.',
+            q_id: 'Tulis pertidaksamaannya',
+            explanation: 'Substitute the expression into the condition: $2u - 500 > 5000$.',
+            answer: '2u - 500 > 5000'
+        },
+        {
+            type: 'question', id: 's2_q4', q_type: 'dropdown',
+            q_text: '4. If a boundary is "at least 100 users", which symbol represents it?',
+            q_id: 'Simbol untuk "sedikitnya 100 pengguna"',
+            options: ['$>$', '$\\ge$', '$<$', '$=$'],
+            explanation: '"At least" means greater than or equal to, represented by $\\ge$.',
+            answer: '$\\ge$'
+        },
+        {
+            type: 'question', id: 's2_q5', q_type: 'checkbox',
+            q_text: '5. Which of the following mathematical statements are INEQUALITIES? (Select all that apply)',
+            q_id: 'Manakah yang merupakan pertidaksamaan?',
+            options: ['$x = 5$', '$y > 3$', '$2a \\le 10$', '$b - 4$'],
+            explanation: 'Equations use $=$, while inequalities use $<, >, \\le, \\ge$. $b-4$ is just an expression.',
+            answer: ['$y > 3$', '$2a \\le 10$']
+        },
+        {
+            type: 'question', id: 's2_q6', q_type: 'mcq',
+            q_text: '6. In the inequality $2u - 500 > 5000$, what is the "boundary" value?',
+            q_id: 'Berapa nilai "batas"nya?',
+            options: ['2', '500', '5000', 'u'],
+            explanation: 'The boundary is the constant value being compared to, which is 5000.',
+            answer: '5000'
+        },
+        {
+            type: 'question', id: 's2_q7', q_type: 'pair',
+            q_text: '7. Match the real-world phrase to its mathematical symbol.',
+            q_id: 'Cocokkan frasa dengan simbol matematikanya',
+            pairs: [
+                {left: 'At most', right: '$\\le$'},
+                {left: 'Less than', right: '$<$'},
+                {left: 'At least', right: '$\\ge$'},
+                {left: 'Greater than', right: '$>$'}
+            ],
+            correctPairs: ["L0-R0", "L1-R1", "L2-R2", "L3-R3"],
+            explanation: '"At most" implies maximum ($\\le$), "Less than" is strict ($<$), "At least" implies minimum ($\\ge$), "Greater than" is strict ($>$).'
+        },
+        {
+            type: 'question', id: 's2_q8', q_type: 'fill',
+            q_text: '8. A drone’s battery lasts 30 mins. Each flight takes 5 mins. Write an inequality for the maximum number of flights ($f$) it can make.',
+            q_id: 'Tulis pertidaksamaan untuk jumlah maksimal penerbangan',
+            explanation: 'The total time $5f$ must be less than or equal to 30. So, $5f \\le 30$.',
+            answer: '5f <= 30'
+        },
+        {
+            type: 'question', id: 's2_q9', q_type: 'order',
+            q_text: '9. Order the steps to translate a real-world scenario into math:',
+            q_id: 'Urutkan langkah penerjemahan soal cerita',
+            options: ['Identify the variables', 'Set up the expression', 'Apply the inequality condition', 'Solve the inequality'],
+            explanation: 'First define variables, build the cost/revenue expression, apply the condition (e.g., > 5000), then solve.',
+            answer: ['Identify the variables', 'Set up the expression', 'Apply the inequality condition', 'Solve the inequality']
+        },
+        {
+            type: 'question', id: 's2_q10', q_type: 'fill',
+            q_text: '10. From $2u - 500 > 5000$, what is the minimum whole number of users ($u$) needed to exceed the profit?',
+            q_id: 'Berapa jumlah pengguna minimum agar profit melebihi batas?',
+            explanation: 'Add 500: $2u > 5500$. Divide by 2: $u > 2750$. Since we must EXCEED 2750, the minimum whole number is 2751.',
+            answer: '2751'
+        }
+    ];
+
+    lessonData["sec3"] = [
+        {
+            type: 'theory', icon: '⚖️',
+            title: 'Review: The Golden Rule',
+            subtitle_id: 'Aturan Emas Pertidaksamaan',
+            content: 'When solving $3x + 5 = 20$, we isolate $x$. But in inequalities like $-2x < 10$, when we divide by a negative number, the sign MUST FLIP! This is the number one trap in today\'s lesson.',
+            math: '$$-2x < 10 \\implies x > -5 \\quad \\text{(Sign flipped!)}$$'
+        },
+        {
+            type: 'question', id: 's3_q1', q_type: 'fill',
+            q_text: '1. Solve the equation: $3x + 5 = 20$',
+            q_id: 'Selesaikan persamaan ini',
+            explanation: 'Subtract 5: $3x = 15$. Divide by 3: $x = 5$.',
+            answer: '5'
+        },
+        {
+            type: 'question', id: 's3_q2', q_type: 'mcq',
+            q_text: '2. What happens to the inequality sign when you divide both sides by a negative number?',
+            q_id: 'Apa yang terjadi pada tanda pertidaksamaan?',
+            options: ['It stays the same', 'It flips direction', 'It becomes an equals sign', 'It doubles'],
+            explanation: 'The Golden Rule of inequalities: Multiplying or dividing by a negative number flips the inequality sign!',
+            answer: 'It flips direction'
+        },
+        {
+            type: 'question', id: 's3_q3', q_type: 'fill',
+            q_text: '3. Solve the inequality: $-2x < 10$',
+            q_id: 'Selesaikan pertidaksamaan ini',
+            explanation: 'Divide by -2 and FLIP the sign: $x > -5$.',
+            answer: 'x > -5'
+        },
+        {
+            type: 'question', id: 's3_q4', q_type: 'checkbox',
+            q_text: '4. Which of these operations require you to FLIP the inequality sign? (Select all that apply)',
+            q_id: 'Operasi mana yang membuat tanda dibalik?',
+            options: ['Adding -5 to both sides', 'Multiplying both sides by -1', 'Dividing both sides by -3', 'Subtracting 2 from both sides'],
+            explanation: 'Only multiplying or dividing by a negative number flips the sign. Adding or subtracting negatives does NOT flip the sign.',
+            answer: ['Multiplying both sides by -1', 'Dividing both sides by -3']
+        },
+        {
+            type: 'question', id: 's3_q5', q_type: 'dropdown',
+            q_text: '5. Solve: $-x \\ge 4$',
+            q_id: 'Selesaikan pertidaksamaan ini',
+            options: ['$x \\le -4$', '$x \\ge -4$', '$x \\le 4$', '$x \\ge 4$'],
+            explanation: 'Divide by -1 and flip the sign: $x \\le -4$.',
+            answer: '$x \\le -4$'
+        },
+        {
+            type: 'question', id: 's3_q6', q_type: 'fill',
+            q_text: '6. Solve for $x$: $5y - x > 10$ (Isolate $x$)',
+            q_id: 'Selesaikan untuk x',
+            explanation: 'Subtract $5y$: $-x > 10 - 5y$. Multiply by -1 and flip: $x < 5y - 10$.',
+            answer: 'x < 5y - 10'
+        },
+        {
+            type: 'question', id: 's3_q7', q_type: 'pair',
+            q_text: '7. Match the inequality to its correct solution.',
+            q_id: 'Cocokkan pertidaksamaan dengan solusinya',
+            pairs: [
+                {left: '$2x > 6$', right: '$x > 3$'},
+                {left: '$-2x > 6$', right: '$x < -3$'},
+                {left: '$-x \\le -4$', right: '$x \\ge 4$'}
+            ],
+            correctPairs: ["L0-R0", "L1-R1", "L2-R2"],
+            explanation: 'Dividing by positives keeps the sign. Dividing by negatives ($-2$ and $-1$) flips the sign.'
+        },
+        {
+            type: 'question', id: 's3_q8', q_type: 'mcq',
+            q_text: '8. True or False: Dividing by a positive number flips the inequality sign.',
+            q_id: 'Benar atau Salah?',
+            options: ['True', 'False'],
+            explanation: 'False! Only multiplying or dividing by a NEGATIVE number flips the sign.',
+            answer: 'False'
+        },
+        {
+            type: 'question', id: 's3_q9', q_type: 'fill',
+            q_text: '9. Solve: $4 - x < 0$',
+            q_id: 'Selesaikan pertidaksamaan',
+            explanation: 'Subtract 4: $-x < -4$. Divide by -1 and flip: $x > 4$.',
+            answer: 'x > 4'
+        },
+        {
+            type: 'question', id: 's3_q10', q_type: 'order',
+            q_text: '10. Order the steps to solve $5 - 2x \\le 15$:',
+            q_id: 'Urutkan langkah penyelesaian',
+            options: ['Subtract 5: $-2x \\le 10$', 'Start: $5 - 2x \\le 15$', 'Divide by -2 and flip sign: $x \\ge -5$'],
+            explanation: 'First isolate the x-term by subtracting 5. Then divide by the negative coefficient (-2) and flip the sign.',
+            answer: ['Start: $5 - 2x \\le 15$', 'Subtract 5: $-2x \\le 10$', 'Divide by -2 and flip sign: $x \\ge -5$']
+        }
+    ];
+
+    lessonData["sec4"] = [
+        {
+            type: 'theory', icon: '🧹',
+            title: 'The Great Clearing',
+            subtitle_id: 'Metode Penghilangan Penyebut',
+            content: 'Equations with fractions look messy! Our strategy is "The Great Clearing." Find the Least Common Multiple (LCM) of the denominators and multiply the ENTIRE equation by it to kill the fractions instantly.',
+            math: '$$\\frac{2(x - 3)}{4} + \\frac{1}{2} = \\frac{3x + 1}{3} \\quad \\xrightarrow{\\times 12} \\quad 6(x-3) + 6 = 4(3x+1)$$'
+        },
+        {
+            type: 'question', id: 's4_q1', q_type: 'fill',
+            q_text: '1. What is the LCM of 4 and 3?',
+            q_id: 'Berapa KPK dari 4 dan 3?',
+            explanation: 'Multiples of 4: 4, 8, 12... Multiples of 3: 3, 6, 9, 12... The least common is 12.',
+            answer: '12'
+        },
+        {
+            type: 'question', id: 's4_q2', q_type: 'mcq',
+            q_text: '2. What is the LCM of the denominators 4, 2, and 3?',
+            q_id: 'Berapa KPK dari penyebut 4, 2, dan 3?',
+            options: ['6', '8', '12', '24'],
+            explanation: '12 is divisible by 4, 2, and 3. It is the smallest such number.',
+            answer: '12'
+        },
+        {
+            type: 'question', id: 's4_q3', q_type: 'fill',
+            q_text: '3. If you multiply $\\frac{2(x-3)}{4}$ by 12, the denominator cancels. What does the expression become?',
+            q_id: 'Berapa hasil kalinya?',
+            explanation: '$12 \\times \\frac{2(x-3)}{4} = 3 \\times 2(x-3) = 6(x-3)$.',
+            answer: '6(x-3)'
+        },
+        {
+            type: 'question', id: 's4_q4', q_type: 'checkbox',
+            q_text: '4. Which of these numbers are denominators in the equation $\\frac{2(x - 3)}{4} + \\frac{1}{2} = \\frac{3x + 1}{3}$?',
+            q_id: 'Manakah yang menjadi penyebut?',
+            options: ['4', '2', '3', '5'],
+            explanation: 'The fractions have denominators of 4, 2, and 3.',
+            answer: ['4', '2', '3']
+        },
+        {
+            type: 'question', id: 's4_q5', q_type: 'fill',
+            q_text: '5. Multiply $\\frac{1}{2}$ by the LCM (12). What do you get?',
+            q_id: 'Kalikan 1/2 dengan 12',
+            explanation: '$12 \\times \\frac{1}{2} = 6$.',
+            answer: '6'
+        },
+        {
+            type: 'question', id: 's4_q6', q_type: 'fill',
+            q_text: '6. Multiply $\\frac{3x + 1}{3}$ by the LCM (12). What does it become?',
+            q_id: 'Kalikan suku ketiga dengan 12',
+            explanation: '$12 \\times \\frac{3x + 1}{3} = 4(3x + 1)$.',
+            answer: '4(3x+1)'
+        },
+        {
+            type: 'question', id: 's4_q7', q_type: 'pair',
+            q_text: '7. Match the fraction to its result after multiplying by 12.',
+            q_id: 'Cocokkan pecahan dengan hasil kalinya',
+            pairs: [
+                {left: '$\\frac{x}{4}$', right: '$3x$'},
+                {left: '$\\frac{x}{2}$', right: '$6x$'},
+                {left: '$\\frac{x}{3}$', right: '$4x$'}
+            ],
+            correctPairs: ["L0-R0", "L1-R1", "L2-R2"],
+            explanation: 'Divide 12 by the denominator, then multiply by the numerator. (12/4)x=3x, (12/2)x=6x, (12/3)x=4x.'
+        },
+        {
+            type: 'question', id: 's4_q8', q_type: 'order',
+            q_text: '8. Order the steps of "The Great Clearing" method:',
+            q_id: 'Urutkan langkah metode Penghilangan',
+            options: ['Identify all denominators', 'Find the LCM of denominators', 'Multiply every term by the LCM', 'Solve the resulting simpler equation'],
+            explanation: 'First spot denominators, find their LCM, distribute the LCM to clear fractions, then solve normally.',
+            answer: ['Identify all denominators', 'Find the LCM of denominators', 'Multiply every term by the LCM', 'Solve the resulting simpler equation']
+        },
+        {
+            type: 'question', id: 's4_q9', q_type: 'mcq',
+            q_text: '9. Why do we use the LCM to clear fractions?',
+            q_id: 'Mengapa menggunakan KPK?',
+            options: ['It makes the equation look scarier', 'It removes parentheses', 'It clears all denominators making the equation easier', 'It flips the inequality signs'],
+            explanation: 'Multiplying by the LCM perfectly cancels out all denominators, leaving a simple integer equation.',
+            answer: 'It clears all denominators making the equation easier'
+        },
+        {
+            type: 'question', id: 's4_q10', q_type: 'fill',
+            q_text: '10. After clearing fractions in $\\frac{2(x-3)}{4} + \\frac{1}{2} = \\frac{3x+1}{3}$, we get $6(x-3) + 6 = 4(3x+1)$. Distribute and simplify the LEFT side: $6x - 18 + 6$. What is the simplified left side?',
+            q_id: 'Sederhanakan ruas kiri',
+            explanation: 'Combine the constant terms on the left: $-18 + 6 = -12$. So, $6x - 12$.',
+            answer: '6x - 12'
+        }
+    ];
+
+    // --- LESSON DATA (Part 3) ---
+
+    lessonData["sec5"] = [
+        {
+            type: 'theory', icon: '🧑‍🏫',
+            title: 'Guided Practice',
+            subtitle_id: 'Latihan Terbimbing',
+            content: 'Let\'s solve and graph: $5 - 3(x + 2) \\ge 20$. First, distribute the $-3$ carefully! Then, isolate the $x$-term. Watch out for the sign-flip at the final step. Finally, we will draw an open or closed circle on the number line.',
+            math: '$$5 - 3(x + 2) \\ge 20$$'
+        },
+        {
+            type: 'question', id: 's5_q1', q_type: 'fill',
+            q_text: '1. Distribute the $-3$ in the expression $-3(x + 2)$. What do you get?',
+            q_id: 'Jabarkan -3(x + 2)',
+            explanation: 'Multiply $-3$ by $x$ to get $-3x$, and $-3$ by $2$ to get $-6$. Result: $-3x - 6$.',
+            answer: '-3x - 6'
+        },
+        {
+            type: 'question', id: 's5_q2', q_type: 'fill',
+            q_text: '2. Substitute the distributed expression back: $5 - 3x - 6 \\ge 20$. Combine the constant terms on the left side (5 and -6).',
+            q_id: 'Gabungkan konstanta di ruas kiri',
+            explanation: '$5 - 6 = -1$. So the inequality becomes $-1 - 3x \\ge 20$.',
+            answer: '-1 - 3x >= 20'
+        },
+        {
+            type: 'question', id: 's5_q3', q_type: 'fill',
+            q_text: '3. Now, isolate the $x$-term. Add 1 to both sides of $-1 - 3x \\ge 20$. What is the result?',
+            q_id: 'Pindahkan -1 ke ruas kanan',
+            explanation: '$-1 + 1 - 3x \\ge 20 + 1 \\implies -3x \\ge 21$.',
+            answer: '-3x >= 21'
+        },
+        {
+            type: 'question', id: 's5_q4', q_type: 'mcq',
+            q_text: '4. To solve $-3x \\ge 21$, you must divide by $-3$. What happens to the inequality sign?',
+            q_id: 'Apa yang terjadi pada tanda pertidaksamaan?',
+            options: ['It stays $\\ge$', 'It flips to $\\le$', 'It flips to $>$', 'It becomes $=$'],
+            explanation: 'When dividing both sides of an inequality by a negative number, you MUST flip the sign. $\\ge$ becomes $\\le$.',
+            answer: 'It flips to $\\le$'
+        },
+        {
+            type: 'question', id: 's5_q5', q_type: 'fill',
+            q_text: '5. Solve $-3x \\ge 21$ for $x$. What is the final inequality?',
+            q_id: 'Selesaikan untuk x',
+            explanation: 'Divide 21 by -3 to get -7, and flip the sign: $x \\le -7$.',
+            answer: 'x <= -7'
+        },
+        {
+            type: 'question', id: 's5_q6', q_type: 'dropdown',
+            q_text: '6. When graphing $x \\le -7$, do we use an open or closed circle at $-7$?',
+            q_id: 'Lingkaran terbuka atau tertutup?',
+            options: ['Open circle', 'Closed circle'],
+            explanation: 'Because of the "equal to" line ($\\le$), $-7$ is included in the solution. We use a closed circle.',
+            answer: 'Closed circle'
+        },
+        {
+            type: 'question', id: 's5_q7', q_type: 'dropdown',
+            q_text: '7. When graphing $x \\le -7$, which direction should the arrow point on the number line?',
+            q_id: 'Arah panah kemana?',
+            options: ['Right (towards positive)', 'Left (towards negative)'],
+            explanation: '$x \\le -7$ means $x$ is less than $-7$, so the values are to the left of $-7$ on the number line.',
+            answer: 'Left (towards negative)'
+        },
+        {
+            type: 'question', id: 's5_q8', q_type: 'pair',
+            q_text: '8. Match the inequality symbol to its graphing component.',
+            q_id: 'Cocokkan simbol dengan grafiknya',
+            pairs: [
+                {left: '$>$', right: 'Open circle, shade right'},
+                {left: '$\\le$', right: 'Closed circle, shade left'},
+                {left: '$\\ge$', right: 'Closed circle, shade right'},
+                {left: '$<$', right: 'Open circle, shade left'}
+            ],
+            correctPairs: ["L0-R0", "L1-R1", "L2-R2", "L3-R3"],
+            explanation: '"Greater/less than" uses open circles; "Greater/less than or equal to" uses closed circles. The arrow points in the direction of the solutions.'
+        },
+        {
+            type: 'question', id: 's5_q9', q_type: 'checkbox',
+            q_text: '9. Which of the following numbers are solutions to $x \\le -7$? (Select all that apply)',
+            q_id: 'Manakah yang merupakan solusinya?',
+            options: ['$-7$', '$-10$', '$0$', '$7$'],
+            explanation: '$-7$ works (because of $=$), $-10$ works (it is less than $-7$). $0$ and $7$ are greater than $-7$, so they fail.',
+            answer: ['$-7$', '$-10$']
+        },
+        {
+            type: 'question', id: 's5_q10', q_type: 'order',
+            q_text: '10. Order the steps to solve and graph a multi-step inequality:',
+            q_id: 'Urutkan langkah penyelesaian',
+            options: ['Distribute to remove parentheses', 'Combine like terms', 'Isolate the variable term', 'Divide and flip sign if negative', 'Draw number line graph'],
+            explanation: 'Standard order: Distribute -> Combine -> Isolate -> Divide (flip if needed) -> Graph.',
+            answer: ['Distribute to remove parentheses', 'Combine like terms', 'Isolate the variable term', 'Divide and flip sign if negative', 'Draw number line graph']
+        }
+    ];
+
+    lessonData["sec6"] = [
+        {
+            type: 'theory', icon: '🚁',
+            title: 'Independent Practice',
+            subtitle_id: 'Latihan Mandiri',
+            content: 'Time to tackle challenges on your own! We have fractional equations, complex inequalities, and a word problem about a drone\'s battery life. Use the LCM method and watch for sign flips. Type HINT if you need a nudge (just kidding, read the explanations carefully!).',
+            math: '$$\\text{Challenge 1: } \\frac{x}{3} + 4 = 10 \\quad \\text{Challenge 2: } 2x - 7 < 5x + 8$$'
+        },
+        {
+            type: 'question', id: 's6_q1', q_type: 'fill',
+            q_text: '1. Solve the fractional equation: $\\frac{x}{3} + 4 = 10$',
+            q_id: 'Selesaikan persamaan pecahan',
+            explanation: 'Subtract 4: $\\frac{x}{3} = 6$. Multiply by 3: $x = 18$.',
+            answer: '18'
+        },
+        {
+            type: 'question', id: 's6_q2', q_type: 'fill',
+            q_text: '2. Solve the inequality: $2x - 7 < 5x + 8$',
+            q_id: 'Selesaikan pertidaksamaan',
+            explanation: 'Subtract $2x$ from both sides: $-7 < 3x + 8$. Subtract 8: $-15 < 3x$. Divide by 3: $-5 < x$ (which is $x > -5$).',
+            answer: 'x > -5'
+        },
+        {
+            type: 'question', id: 's6_q3', q_type: 'fill',
+            q_text: '3. Find the LCM of the denominators in: $\\frac{3(2x-1)}{5} - \\frac{x+3}{2} = 1$',
+            q_id: 'Temukan KPK dari penyebutnya',
+            explanation: 'The denominators are 5 and 2. The smallest number they both divide into is 10.',
+            answer: '10'
+        },
+        {
+            type: 'question', id: 's6_q4', q_type: 'fill',
+            q_text: '4. Multiply $\\frac{3(2x-1)}{5}$ by the LCM (10). What does the term become?',
+            q_id: 'Kalikan suku pertama dengan KPK',
+            explanation: '$10 \\times \\frac{3(2x-1)}{5} = 2 \\times 3(2x-1) = 6(2x-1)$.',
+            answer: '6(2x-1)'
+        },
+        {
+            type: 'question', id: 's6_q5', q_type: 'fill',
+            q_text: '5. Solve: $4(x - 2) + 3 = 19$',
+            q_id: 'Selesaikan persamaan',
+            explanation: 'Distribute: $4x - 8 + 3 = 19 \\implies 4x - 5 = 19$. Add 5: $4x = 24$. Divide by 4: $x = 6$.',
+            answer: '6'
+        },
+        {
+            type: 'question', id: 's6_q6', q_type: 'mcq',
+            q_text: '6. A drone\'s battery lasts 30 minutes. A safety margin of 5 minutes must remain. Each flight test takes 4 minutes. Which inequality shows the max number of tests ($t$)?',
+            q_id: 'Pertidaksamaan mana yang benar untuk drone?',
+            options: ['$4t + 5 \\le 30$', '$4t - 5 \\le 30$', '$4t + 5 \\ge 30$', '$4t \\le 30 - 5$'],
+            explanation: 'Time used ($4t$) plus safety margin (5) must be less than or equal to total battery (30). $4t + 5 \\le 30$.',
+            answer: '$4t + 5 \\le 30$'
+        },
+        {
+            type: 'question', id: 's6_q7', q_type: 'fill',
+            q_text: '7. Solve the drone inequality $4t + 5 \\le 30$ to find the maximum number of tests ($t$).',
+            q_id: 'Selesaikan pertidaksamaan drone',
+            explanation: 'Subtract 5: $4t \\le 25$. Divide by 4: $t \\le 6.25$. Since you can\'t do a partial test, max tests = 6.',
+            answer: '6'
+        },
+        {
+            type: 'question', id: 's6_q8', q_type: 'checkbox',
+            q_text: '8. Solve: $-x + 4 \\ge 2$. Which of the following are solutions? (Select all that apply)',
+            q_id: 'Manakah yang merupakan solusinya?',
+            options: ['$1$', '$2$', '$3$', '$4$'],
+            explanation: 'Subtract 4: $-x \\ge -2$. Divide by -1 and flip: $x \\le 2$. So 1 and 2 are solutions.',
+            answer: ['$1$', '$2$']
+        },
+        {
+            type: 'question', id: 's6_q9', q_type: 'pair',
+            q_text: '9. Match the equation/inequality to its correct solution.',
+            q_id: 'Cocokkan dengan solusinya',
+            pairs: [
+                {left: '$\\frac{x}{3} + 4 = 10$', right: '$x = 18$'},
+                {left: '$2x - 7 < 5x + 8$', right: '$x > -5$'},
+                {left: '$4(x-2)+3=19$', right: '$x = 6$'}
+            ],
+            correctPairs: ["L0-R0", "L1-R1", "L2-R2"],
+            explanation: 'Solve each one step-by-step using distribution, LCM clearing, and sign-flipping rules.'
+        },
+        {
+            type: 'question', id: 's6_q10', q_type: 'dropdown',
+            q_text: '10. When solving $\\frac{3(2x-1)}{5} - \\frac{x+3}{2} = 1$, after multiplying by 10, you get $6(2x-1) - 5(x+3) = 10$. What is the next step?',
+            q_id: 'Langkah selanjutnya apa?',
+            options: ['Combine like terms', 'Distribute the 6 and -5', 'Divide by x', 'Flip the sign'],
+            explanation: 'You must distribute the numbers into the parentheses first before you can combine like terms.',
+            answer: 'Distribute the 6 and -5'
+        }
+    ];
+	
+    // --- LESSON DATA (Part 4) ---
+
+    lessonData["assess"] = [
+        // ================== ASSESSMENT GROUP 1 ==================
+        { type: 'theory', icon: '📝', title: 'Assessment Group 1', subtitle_id: 'Penilaian Grup 1: Persamaan & Pertidaksamaan Dasar', content: 'Answer 10 questions to test your basic understanding. Good luck!', math: '' },
+        {
+            type: 'question', id: 'assess1_q1', q_type: 'fill',
+            q_text: '1. Solve for $x$: $3x - 4 = 11$',
+            q_id: 'Selesaikan untuk x',
+            explanation: 'Add 4: $3x = 15$. Divide by 3: $x = 5$.',
+            answer: '5'
+        },
+        {
+            type: 'question', id: 'assess1_q2', q_type: 'mcq',
+            q_text: '2. Solve the inequality: $2x + 1 > 7$',
+            q_id: 'Selesaikan pertidaksamaan',
+            options: ['$x > 3$', '$x > 4$', '$x < 3$', '$x < 4$'],
+            explanation: 'Subtract 1: $2x > 6$. Divide by 2: $x > 3$.',
+            answer: '$x > 3$'
+        },
+        {
+            type: 'question', id: 'assess1_q3', q_type: 'fill',
+            q_text: '3. Solve for $x$: $-4x \\le 20$',
+            q_id: 'Selesaikan pertidaksamaan',
+            explanation: 'Divide by -4 and flip the sign: $x \\ge -5$.',
+            answer: 'x >= -5'
+        },
+        {
+            type: 'question', id: 'assess1_q4', q_type: 'dropdown',
+            q_text: '4. Which inequality symbol represents "at most"?',
+            q_id: 'Simbol mana yang berarti "paling banyak"?',
+            options: ['$>$', '$\\ge$', '$<$', '$\\le$'],
+            explanation: '"At most" means the maximum value, so it is less than or equal to ($\\le$).',
+            answer: '$\\le$'
+        },
+        {
+            type: 'question', id: 'assess1_q5', q_type: 'checkbox',
+            q_text: '5. Which of the following are solutions to $x < 4$? (Select all that apply)',
+            q_id: 'Manakah yang merupakan solusinya?',
+            options: ['$3$', '$4$', '$-2$', '$0$'],
+            explanation: '3, -2, and 0 are strictly less than 4. 4 is not.',
+            answer: ['$3$', '$-2$', '$0$']
+        },
+        {
+            type: 'question', id: 'assess1_q6', q_type: 'fill',
+            q_text: '6. Solve for $x$: $5 - x = 10$',
+            q_id: 'Selesaikan persamaan',
+            explanation: 'Subtract 5: $-x = 5$. Divide by -1: $x = -5$.',
+            answer: '-5'
+        },
+        {
+            type: 'question', id: 'assess1_q7', q_type: 'order',
+            q_text: '7. Order the steps to solve $x - 3 < 5$:',
+            q_id: 'Urutkan langkah penyelesaian',
+            options: ['Start: $x - 3 < 5$', 'Add 3 to both sides', 'Result: $x < 8$'],
+            explanation: 'Isolate $x$ by adding 3 to both sides.',
+            answer: ['Start: $x - 3 < 5$', 'Add 3 to both sides', 'Result: $x < 8$']
+        },
+        {
+            type: 'question', id: 'assess1_q8', q_type: 'mcq',
+            q_text: '8. If $-a > 5$, then:',
+            q_id: 'Jika -a > 5, maka:',
+            options: ['$a > -5$', '$a < -5$', '$a > 5$', '$a < 5$'],
+            explanation: 'Divide by -1 and flip the sign: $a < -5$.',
+            answer: '$a < -5$'
+        },
+        {
+            type: 'question', id: 'assess1_q9', q_type: 'fill',
+            q_text: '9. Solve for $x$: $2(x + 1) = 8$',
+            q_id: 'Selesaikan persamaan',
+            explanation: 'Distribute: $2x + 2 = 8$. Subtract 2: $2x = 6$. Divide by 2: $x = 3$.',
+            answer: '3'
+        },
+        {
+            type: 'question', id: 'assess1_q10', q_type: 'pair',
+            q_text: '10. Match the inequality to its meaning.',
+            q_id: 'Cocokkan pertidaksamaan dengan maknanya',
+            pairs: [
+                {left: '$x \\le 10$', right: 'Maximum of 10'},
+                {left: '$x > 10$', right: 'Strictly over 10'},
+                {left: '$x \\ge 10$', right: 'Minimum of 10'}
+            ],
+            correctPairs: ["L0-R0", "L1-R1", "L2-R2"],
+            explanation: '$\\le$ means at most (max), $>$ means strictly greater (over), $\\ge$ means at least (min).'
+        },
+        { type: 'assessment-result', groupName: 'Basic Equations & Inequalities', groupIndex: 1 },
+
+        // ================== ASSESSMENT GROUP 2 ==================
+        { type: 'theory', icon: '🧩', title: 'Assessment Group 2', subtitle_id: 'Penilaian Grup 2: Pecahan & LCM', content: 'Time to clear those fractions! Use the LCM method to solve these.', math: '' },
+        {
+            type: 'question', id: 'assess2_q1', q_type: 'fill',
+            q_text: '1. What is the LCM of 2 and 5?',
+            q_id: 'Berapa KPK dari 2 dan 5?',
+            explanation: 'The smallest number divisible by both 2 and 5 is 10.',
+            answer: '10'
+        },
+        {
+            type: 'question', id: 'assess2_q2', q_type: 'fill',
+            q_text: '2. What is the LCM of 3, 4, and 6?',
+            q_id: 'Berapa KPK dari 3, 4, dan 6?',
+            explanation: 'Multiples of 4: 4, 8, 12. 12 is divisible by 3 and 6. LCM = 12.',
+            answer: '12'
+        },
+        {
+            type: 'question', id: 'assess2_q3', q_type: 'mcq',
+            q_text: '3. Multiply $\\frac{x}{4} + \\frac{1}{2} = 3$ by 4. What is the result?',
+            q_id: 'Kalikan persamaan dengan 4',
+            options: ['$x + 2 = 12$', '$x + 1 = 12$', '$4x + 2 = 12$', '$x + 2 = 3$'],
+            explanation: '$4(\\frac{x}{4}) + 4(\\frac{1}{2}) = 4(3) \\implies x + 2 = 12$.',
+            answer: '$x + 2 = 12$'
+        },
+        {
+            type: 'question', id: 'assess2_q4', q_type: 'fill',
+            q_text: '4. Solve for $x$: $\\frac{x}{5} = 3$',
+            q_id: 'Selesaikan persamaan pecahan',
+            explanation: 'Multiply by 5: $x = 15$.',
+            answer: '15'
+        },
+        {
+            type: 'question', id: 'assess2_q5', q_type: 'fill',
+            q_text: '5. Solve for $x$: $\\frac{x}{3} + 2 = 5$',
+            q_id: 'Selesaikan persamaan pecahan',
+            explanation: 'Subtract 2: $\\frac{x}{3} = 3$. Multiply by 3: $x = 9$.',
+            answer: '9'
+        },
+        {
+            type: 'question', id: 'assess2_q6', q_type: 'dropdown',
+            q_text: '6. To clear fractions in $\\frac{2x}{5} - \\frac{1}{2} = 1$, you should first:',
+            q_id: 'Langkah pertama yang harus dilakukan',
+            options: ['Subtract 1/2', 'Multiply everything by 10', 'Divide by 2x', 'Flip the sign'],
+            explanation: 'The LCM of 5 and 2 is 10. Multiply the whole equation by 10 to clear fractions.',
+            answer: 'Multiply everything by 10'
+        },
+        {
+            type: 'question', id: 'assess2_q7', q_type: 'pair',
+            q_text: '7. Match the fraction multiplied by 12 to its result.',
+            q_id: 'Cocokkan perkalian pecahan dengan hasilnya',
+            pairs: [
+                {left: '$12 \\times \\frac{x}{4}$', right: '$3x$'},
+                {left: '$12 \\times \\frac{x}{6}$', right: '$2x$'},
+                {left: '$12 \\times \\frac{x}{3}$', right: '$4x$'}
+            ],
+            correctPairs: ["L0-R0", "L1-R1", "L2-R2"],
+            explanation: 'Divide 12 by the denominator, then multiply by the numerator.'
+        },
+        {
+            type: 'question', id: 'assess2_q8', q_type: 'fill',
+            q_text: '8. Solve: $\\frac{3x}{4} = 9$',
+            q_id: 'Selesaikan persamaan',
+            explanation: 'Multiply by 4: $3x = 36$. Divide by 3: $x = 12$.',
+            answer: '12'
+        },
+        {
+            type: 'question', id: 'assess2_q9', q_type: 'checkbox',
+            q_text: '9. Which of these are valid LCMs for the denominators 2 and 4? (Select all that apply)',
+            q_id: 'Manakah yang merupakan KPK yang valid?',
+            options: ['4', '8', '12', '2'],
+            explanation: '4, 8, and 12 are all multiples of both 2 and 4. 2 is not a multiple of 4.',
+            answer: ['4', '8', '12']
+        },
+        {
+            type: 'question', id: 'assess2_q10', q_type: 'fill',
+            q_text: '10. Solve for $x$: $\\frac{x-2}{3} = 4$',
+            q_id: 'Selesaikan persamaan',
+            explanation: 'Multiply by 3: $x - 2 = 12$. Add 2: $x = 14$.',
+            answer: '14'
+        },
+        { type: 'assessment-result', groupName: 'Fractions & LCM', groupIndex: 2 },
+
+        // ================== ASSESSMENT GROUP 3 ==================
+        { type: 'theory', icon: '🧱', title: 'Assessment Group 3', subtitle_id: 'Penilaian Grup 3: Distribusi & Kurung Kompleks', content: 'Distribute carefully, especially with negative signs outside the brackets!', math: '' },
+        {
+            type: 'question', id: 'assess3_q1', q_type: 'fill',
+            q_text: '1. Expand: $-2(x - 4)$',
+            q_id: 'Jabarkan ekspresi',
+            explanation: '$-2 \\times x = -2x$, $-2 \\times -4 = 8$. Result: $-2x + 8$.',
+            answer: '-2x + 8'
+        },
+        {
+            type: 'question', id: 'assess3_q2', q_type: 'fill',
+            q_text: '2. Solve for $x$: $3(2x - 1) = 15$',
+            q_id: 'Selesaikan persamaan',
+            explanation: 'Distribute: $6x - 3 = 15$. Add 3: $6x = 18$. Divide by 6: $x = 3$.',
+            answer: '3'
+        },
+        {
+            type: 'question', id: 'assess3_q3', q_type: 'mcq',
+            q_text: '3. Solve for $x$: $5 - 2(x + 3) = 1$',
+            q_id: 'Selesaikan persamaan',
+            options: ['$x = -1$', '$x = 1$', '$x = -3$', '$x = 3$'],
+            explanation: 'Distribute: $5 - 2x - 6 = 1 \\implies -2x - 1 = 1$. Add 1: $-2x = 2$. Divide by -2: $x = -1$.',
+            answer: '$x = -1$'
+        },
+        {
+            type: 'question', id: 'assess3_q4', q_type: 'fill',
+            q_text: '4. Solve for $x$: $-4(x - 2) = -12$',
+            q_id: 'Selesaikan persamaan',
+            explanation: 'Distribute: $-4x + 8 = -12$. Subtract 8: $-4x = -20$. Divide by -4: $x = 5$.',
+            answer: '5'
+        },
+        {
+            type: 'question', id: 'assess3_q5', q_type: 'order',
+            q_text: '5. Order the steps to solve $2(x+1) - 3 = 7$:',
+            q_id: 'Urutkan langkah penyelesaian',
+            options: ['Distribute the 2: $2x + 2 - 3 = 7$', 'Start: $2(x+1) - 3 = 7$', 'Combine constants: $2x - 1 = 7$', 'Add 1 and divide by 2: $x = 4$'],
+            explanation: 'Start -> Distribute -> Combine constants -> Isolate $x$.',
+            answer: ['Start: $2(x+1) - 3 = 7$', 'Distribute the 2: $2x + 2 - 3 = 7$', 'Combine constants: $2x - 1 = 7$', 'Add 1 and divide by 2: $x = 4$']
+        },
+        {
+            type: 'question', id: 'assess3_q6', q_type: 'fill',
+            q_text: '6. Expand the fraction: $\\frac{1}{2}(4x - 6)$',
+            q_id: 'Jabarkan pecahan',
+            explanation: 'Multiply $\\frac{1}{2}$ by $4x$ to get $2x$, and $\\frac{1}{2}$ by $-6$ to get $-3$. Result: $2x - 3$.',
+            answer: '2x - 3'
+        },
+        {
+            type: 'question', id: 'assess3_q7', q_type: 'mcq',
+            q_text: '7. In the inequality $-3(2 - x) > 12$, after distributing, you get:',
+            q_id: 'Setelah dijabarkan',
+            options: ['$-6 - 3x > 12$', '$-6 + 3x > 12$', '$6 - 3x > 12$', '$6 + 3x > 12$'],
+            explanation: '$-3 \\times 2 = -6$ and $-3 \\times -x = +3x$. So $-6 + 3x > 12$.',
+            answer: '$-6 + 3x > 12$'
+        },
+        {
+            type: 'question', id: 'assess3_q8', q_type: 'fill',
+            q_text: '8. Solve for $x$: $2(3x + 1) - 4 = 10$',
+            q_id: 'Selesaikan persamaan',
+            explanation: 'Distribute: $6x + 2 - 4 = 10 \\implies 6x - 2 = 10$. Add 2: $6x = 12$. Divide by 6: $x = 2$.',
+            answer: '2'
+        },
+        {
+            type: 'question', id: 'assess3_q9', q_type: 'pair',
+            q_text: '9. Match the expression to its expanded form.',
+            q_id: 'Cocokkan dengan bentuk jabarnya',
+            pairs: [
+                {left: '$-1(x - 5)$', right: '$-x + 5$'},
+                {left: '$2(3 - x)$', right: '$6 - 2x$'},
+                {left: '$-x(2 + x)$', right: '$-2x - x^2$'}
+            ],
+            correctPairs: ["L0-R0", "L1-R1", "L2-R2"],
+            explanation: 'Be careful with negative signs during distribution.'
+        },
+        {
+            type: 'question', id: 'assess3_q10', q_type: 'dropdown',
+            q_text: '10. What is the number one trap when distributing a negative number?',
+            q_id: 'Apa jebakan utamanya?',
+            options: ['Forgetting to flip the inequality sign', 'Forgetting to change the signs of the terms inside the brackets', 'Multiplying the constants twice', 'Adding instead of multiplying'],
+            explanation: 'The most common mistake is not flipping the signs of the terms inside the brackets (e.g., $-1(x-3)$ becoming $-x-3$ instead of $-x+3$).',
+            answer: 'Forgetting to change the signs of the terms inside the brackets'
+        },
+        { type: 'assessment-result', groupName: 'Distribution & Complex Brackets', groupIndex: 3 },
+
+        // ================== ASSESSMENT GROUP 4 ==================
+        { type: 'theory', icon: '📈', title: 'Assessment Group 4', subtitle_id: 'Penilaian Grup 4: Grafik Pertidaksamaan', content: 'Translate inequalities into visual number lines. Choose between open/closed circles and the right direction!', math: '' },
+        {
+            type: 'question', id: 'assess4_q1', q_type: 'dropdown',
+            q_text: '1. The inequality $x \\ge 2$ uses which type of circle on the number line?',
+            q_id: 'Lingkaran apa yang digunakan?',
+            options: ['Open circle', 'Closed circle'],
+            explanation: 'The "$\\ge$" (greater than or equal to) means 2 is included, so we use a closed circle.',
+            answer: 'Closed circle'
+        },
+        {
+            type: 'question', id: 'assess4_q2', q_type: 'mcq',
+            q_text: '2. How is $x < 5$ represented on a number line?',
+            q_id: 'Bagaimana cara merepresentasikannya?',
+            options: ['Open circle at 5, arrow left', 'Closed circle at 5, arrow left', 'Open circle at 5, arrow right', 'Closed circle at 5, arrow right'],
+            explanation: '$x < 5$ means values strictly less than 5. Open circle at 5, shading to the left.',
+            answer: 'Open circle at 5, arrow left'
+        },
+        {
+            type: 'question', id: 'assess4_q3', q_type: 'fill',
+            q_text: '3. If a graph has a closed circle at -1 and points right, what is the inequality?',
+            q_id: 'Tulis pertidaksamaannya',
+            explanation: 'Closed circle means $\\ge$ or $\\le$. Pointing right means greater than. So $x \\ge -1$.',
+            answer: 'x >= -1'
+        },
+        {
+            type: 'question', id: 'assess4_q4', q_type: 'checkbox',
+            q_text: '4. Which statements are true about the graph of $x > 0$? (Select all that apply)',
+            q_id: 'Pernyataan mana yang benar?',
+            options: ['0 is included in the solution', 'The arrow points to the right', 'There is an open circle at 0', 'Negative numbers are solutions'],
+            explanation: '0 is NOT included (open circle), arrow points right towards positives, negative numbers are not greater than 0.',
+            answer: ['The arrow points to the right', 'There is an open circle at 0']
+        },
+        {
+            type: 'question', id: 'assess4_q5', q_type: 'order',
+            q_text: '5. Order the steps to graph an inequality:',
+            q_id: 'Urutkan langkah membuat grafik',
+            options: ['Solve the inequality for $x$', 'Determine if the circle is open or closed', 'Draw the circle at the boundary number', 'Shade the line in the correct direction'],
+            explanation: 'Solve first, then identify the boundary and circle type, draw, and shade.',
+            answer: ['Solve the inequality for $x$', 'Determine if the circle is open or closed', 'Draw the circle at the boundary number', 'Shade the line in the correct direction']
+        },
+        {
+            type: 'question', id: 'assess4_q6', q_type: 'pair',
+            q_text: '6. Match the inequality to its graphical component at the boundary.',
+            q_id: 'Cocokkan pertidaksamaan dengan komponen grafiknya',
+            pairs: [
+                {left: '$x > 4$', right: 'Open circle at 4'},
+                {left: '$x \\le -2$', right: 'Closed circle at -2'},
+                {left: '$x \\ge 0$', right: 'Closed circle at 0'}
+            ],
+            correctPairs: ["L0-R0", "L1-R1", "L2-R2"],
+            explanation: '"$<$" or "$>$" uses open circles. "$\\le$" or "$\\ge$" uses closed circles.'
+        },
+        {
+            type: 'question', id: 'assess4_q7', q_type: 'dropdown',
+            q_text: '7. Solve $-2x \\ge 6$. The graph will start at -3 with a:',
+            q_id: 'Grafik dimulai dengan?',
+            options: ['Open circle, shading left', 'Closed circle, shading left', 'Open circle, shading right', 'Closed circle, shading right'],
+            explanation: 'Divide by -2 and flip: $x \\le -3$. "$\\le$" means closed circle, and "less than" means shading left.',
+            answer: 'Closed circle, shading left'
+        },
+        {
+            type: 'question', id: 'assess4_q8', q_type: 'mcq',
+            q_text: '8. What does a closed circle on a number line represent?',
+            q_id: 'Apa arti lingkaran tertutup?',
+            options: ['The boundary number is not a solution', 'The boundary number is a solution', 'The variable equals zero', 'The inequality is strict'],
+            explanation: 'A closed circle indicates that the boundary number IS included in the solution set ($\\le$ or $\\ge$).',
+            answer: 'The boundary number is a solution'
+        },
+        {
+            type: 'question', id: 'assess4_q9', q_type: 'fill',
+            q_text: '9. Solve $3x - 1 < 8$. The graph shades to the [left/right].',
+            q_id: 'Grafik mengarah ke kiri atau kanan?',
+            explanation: 'Add 1: $3x < 9$. Divide by 3: $x < 3$. Less than means shading to the LEFT.',
+            answer: 'left'
+        },
+        {
+            type: 'question', id: 'assess4_q10', q_type: 'dropdown',
+            q_text: '10. The graph of $x \\le 10$ consists of a closed circle at 10 and an arrow pointing in which direction?',
+            q_id: 'Arah panah kemana?',
+            options: ['Right', 'Left'],
+            explanation: '$x \\le 10$ means values smaller than 10, which are located to the LEFT on the number line.',
+            answer: 'Left'
+        },
+        { type: 'assessment-result', groupName: 'Graphing Inequalities', groupIndex: 4 },
+
+        // ================== ASSESSMENT GROUP 5 ==================
+        { type: 'theory', icon: '🚀', title: 'Assessment Group 5', subtitle_id: 'Penilaian Grup 5: Soal Cerita & Optimasi', content: 'Apply your skills to real-world scenarios. Define variables, set up inequalities, and solve!', math: '' },
+        {
+            type: 'question', id: 'assess5_q1', q_type: 'mcq',
+            q_text: '1. A company has a budget of $500. Each item costs $20. Which inequality shows the max number of items ($i$) they can buy?',
+            q_id: 'Pertidaksamaan mana yang benar?',
+            options: ['$20i > 500$', '$20i \\le 500$', '$20i < 500$', '$20i \\ge 500$'],
+            explanation: 'Total cost ($20i$) must be less than or equal to the budget ($500$). So $20i \\le 500$.',
+            answer: '$20i \\le 500$'
+        },
+        {
+            type: 'question', id: 'assess5_q2', q_type: 'fill',
+            q_text: '2. Using the budget inequality $20i \\le 500$, what is the maximum number of items they can buy?',
+            q_id: 'Berapa jumlah barang maksimum?',
+            explanation: 'Divide by 20: $i \\le 25$. Max items is 25.',
+            answer: '25'
+        },
+        {
+            type: 'question', id: 'assess5_q3', q_type: 'fill',
+            q_text: '3. An app makes $5 per user. Rent is $100. Profit is $P = 5u - 100$. If the profit must be at least $200, write the inequality.',
+            q_id: 'Tulis pertidaksamaannya',
+            explanation: '"At least 200" means $\\ge 200$. So $5u - 100 \\ge 200$.',
+            answer: '5u - 100 >= 200'
+        },
+        {
+            type: 'question', id: 'assess5_q4', q_type: 'dropdown',
+            q_text: '4. A drone battery lasts 60 mins. Landing reserve is 4 mins. Each flight takes 8 mins. Which inequality finds the number of flights ($f$)?',
+            q_id: 'Pertidaksamaan mana yang benar untuk drone?',
+            options: ['$8f + 4 \\le 60$', '$8f - 4 \\le 60$', '$8f + 4 \\ge 60$', '$60 - 8f \\ge 4$'],
+            explanation: 'Time used ($8f$) plus reserve (4) must be less than or equal to total battery (60). $8f + 4 \\le 60$.',
+            answer: '$8f + 4 \\le 60$'
+        },
+        {
+            type: 'question', id: 'assess5_q5', q_type: 'fill',
+            q_text: '5. Solve $8f + 4 \\le 60$ to find the maximum full flights the drone can make.',
+            q_id: 'Berapa jumlah penerbangan maksimum?',
+            explanation: 'Subtract 4: $8f \\le 56$. Divide by 8: $f \\le 7$. Maximum full flights is 7.',
+            answer: '7'
+        },
+        {
+            type: 'question', id: 'assess5_q6', q_type: 'pair',
+            q_text: '6. Match the phrase with its mathematical inequality symbol.',
+            q_id: 'Cocokkan frasa dengan simbolnya',
+            pairs: [
+                {left: 'No more than', right: '$\\le$'},
+                {left: 'Strictly above', right: '$>$'},
+                {left: 'At minimum', right: '$\\ge$'}
+            ],
+            correctPairs: ["L0-R0", "L1-R1", "L2-R2"],
+            explanation: '"No more than" implies a cap ($\\le$). "Strictly above" is $>$. "At minimum" implies a floor ($\\ge$).'
+        },
+        {
+            type: 'question', id: 'assess5_q7', q_type: 'mcq',
+            q_text: '7. A server costs $150/mo and setup is $500. Budget is $2000. The inequality is $150s + 500 \\le 2000$. What does $s$ represent?',
+            q_id: 'Apa yang dimaksud dengan s?',
+            options: ['Total budget', 'Number of servers', 'Months of operation', 'Setup cost'],
+            explanation: 'Since it is multiplied by the monthly cost per server, $s$ is the number of servers.',
+            answer: 'Number of servers'
+        },
+        {
+            type: 'question', id: 'assess5_q8', q_type: 'fill',
+            q_text: '8. Solve $150s + 500 \\le 2000$ to find the maximum number of servers.',
+            q_id: 'Berapa jumlah server maksimum?',
+            explanation: 'Subtract 500: $150s \\le 1500$. Divide by 150: $s \\le 10$. Max is 10.',
+            answer: '10'
+        },
+        {
+            type: 'question', id: 'assess5_q9', q_type: 'order',
+            q_text: '9. Order the steps to translate a word problem into an inequality:',
+            q_id: 'Urutkan langkah penerjemahan soal cerita',
+            options: ['Identify the unknown variable', 'Write an expression for cost/revenue', 'Determine the limit condition (e.g., budget)', 'Set up the inequality', 'Solve for the variable'],
+            explanation: 'Define variable -> Expression -> Condition -> Inequality -> Solve.',
+            answer: ['Identify the unknown variable', 'Write an expression for cost/revenue', 'Determine the limit condition (e.g., budget)', 'Set up the inequality', 'Solve for the variable']
+        },
+        {
+            type: 'question', id: 'assess5_q10', q_type: 'checkbox',
+            q_text: '10. Which values satisfy the server inequality $150s + 500 \\le 2000$? (Select all that apply)',
+            q_id: 'Nilai mana yang memenuhi?',
+            options: ['8 servers', '9 servers', '10 servers', '11 servers'],
+            explanation: 'Max is 10 ($s \\le 10$). So 8, 9, and 10 are valid. 11 would cost $2150, exceeding the budget.',
+            answer: ['8 servers', '9 servers', '10 servers']
+        },
+        { type: 'assessment-result', groupName: 'Word Problems & Optimization', groupIndex: 5 }
+    ];
+
+    lessonData["sec7"] = [
+        {
+            type: 'reflection', icon: '🏆',
+            title: 'Consolidation & Reflection',
+            subtitle_id: 'Kesimpulan & Refleksi',
+            content: 'Epic work today! You mastered the LCM method for fractions and survived the "sign-flip" trap. Before you log off, remember: join the post-session quiz on your learning platform. What was the most challenging part of today\'s problems for you?'
+        }
+    ];
+
+    // Init app
+    document.addEventListener("DOMContentLoaded", () => {
+        if (typeof renderMathInElement !== 'undefined') {
+            renderMathInElement(document.body, { delimiters: [{left: '$$', right: '$$', display: true}, {left: '$', right: '$', display: false}] });
+        }
+    });
+</script>
+
+</body>
+</html>

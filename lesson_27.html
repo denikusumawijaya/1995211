@@ -1,0 +1,1700 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MATH TUTORING by Deni - Quadratic Equations</title>
+    <!-- KaTeX CSS -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.8/dist/katex.min.css">
+    <!-- Font Awesome for Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        :root {
+            --primary: #58cc02;
+            --primary-dark: #46a302;
+            --secondary: #1cb0f6;
+            --danger: #ff4b4b;
+            --warning: #ffc800;
+            --bg: #131f24;
+            --bg-card: #1a2e35;
+            --text-main: #ffffff;
+            --text-sub: #8b9ea7;
+            --border: #37464f;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+
+        body {
+            background-color: var(--bg);
+            color: var(--text-main);
+            display: flex;
+            height: 100vh;
+            overflow: hidden;
+        }
+
+        /* Sidebar Navigation */
+        #sidebar {
+            width: 300px;
+            background-color: var(--bg-card);
+            border-right: 2px solid var(--border);
+            padding: 20px;
+            overflow-y: auto;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        #sidebar h2 {
+            font-size: 1.2rem;
+            margin-bottom: 5px;
+            text-align: center;
+            color: var(--primary);
+        }
+
+        #sidebar .topic {
+            font-size: 0.9rem;
+            color: var(--text-sub);
+            margin-bottom: 20px;
+            text-align: center;
+        }
+
+        .path-node {
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            background-color: var(--border);
+            margin: 15px 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            cursor: pointer;
+            position: relative;
+            transition: all 0.3s ease;
+            border: 3px solid transparent;
+            z-index: 2;
+        }
+
+        .path-node::before {
+            content: '';
+            position: absolute;
+            width: 4px;
+            height: 40px;
+            background-color: var(--border);
+            top: -42px;
+            left: 50%;
+            transform: translateX(-50%);
+            z-index: 1;
+        }
+
+        .path-node:first-child::before {
+            display: none;
+        }
+
+        .path-node.active {
+            border-color: var(--secondary);
+            background-color: var(--bg);
+            transform: scale(1.1);
+            box-shadow: 0 0 15px rgba(28, 176, 246, 0.5);
+        }
+
+        .path-node.completed {
+            background-color: var(--primary);
+            border-color: var(--primary-dark);
+        }
+
+        .path-node i {
+            color: white;
+            font-size: 1.2rem;
+        }
+
+        .node-tooltip {
+            position: absolute;
+            left: 60px;
+            background-color: var(--bg);
+            padding: 5px 10px;
+            border-radius: 5px;
+            font-size: 0.8rem;
+            white-space: nowrap;
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 0.2s;
+            border: 1px solid var(--border);
+        }
+
+        .path-node:hover .node-tooltip {
+            opacity: 1;
+        }
+
+        #reset-all-btn {
+            margin-top: auto;
+            padding: 10px 20px;
+            background-color: var(--danger);
+            color: white;
+            border: none;
+            border-radius: 10px;
+            cursor: pointer;
+            font-weight: bold;
+            border-bottom: 4px solid #cc3b3b;
+            transition: all 0.2s;
+        }
+
+        #reset-all-btn:active {
+            transform: translateY(2px);
+            border-bottom: 2px solid #cc3b3b;
+        }
+
+        /* Main Content Area */
+        #main-content {
+            flex: 1;
+            padding: 40px;
+            overflow-y: auto;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        .section-container {
+            max-width: 800px;
+            width: 100%;
+            animation: fadeIn 0.5s ease;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        /* Theory Card */
+        .theory-card {
+            background-color: var(--bg-card);
+            border: 2px solid var(--border);
+            border-radius: 15px;
+            padding: 25px;
+            margin-bottom: 30px;
+            position: relative;
+        }
+
+        .theory-card h3 {
+            color: var(--secondary);
+            margin-bottom: 15px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .theory-card p {
+            line-height: 1.6;
+            margin-bottom: 10px;
+        }
+
+        .translation {
+            font-size: 0.8rem;
+            color: var(--text-sub);
+            font-style: italic;
+            display: block;
+            margin-top: -5px;
+            margin-bottom: 10px;
+        }
+
+        .math-block {
+            background-color: rgba(0,0,0,0.3);
+            padding: 15px;
+            border-radius: 8px;
+            text-align: center;
+            margin: 15px 0;
+            font-size: 1.2rem;
+        }
+
+        /* Exercise Card */
+        .exercise-card {
+            background-color: var(--bg-card);
+            border: 2px solid var(--warning);
+            border-radius: 15px;
+            padding: 25px;
+            margin-bottom: 30px;
+        }
+
+        .exercise-card h4 {
+            color: var(--warning);
+            margin-bottom: 15px;
+        }
+
+        .input-group {
+            display: flex;
+            gap: 10px;
+            margin-top: 15px;
+        }
+
+        .math-input {
+            flex: 1;
+            padding: 12px;
+            border-radius: 10px;
+            border: 2px solid var(--border);
+            background-color: var(--bg);
+            color: white;
+            font-size: 1rem;
+            outline: none;
+            transition: border-color 0.2s;
+        }
+
+        .math-input:focus {
+            border-color: var(--secondary);
+        }
+
+        .check-btn {
+            padding: 12px 25px;
+            background-color: var(--primary);
+            color: white;
+            border: none;
+            border-radius: 10px;
+            font-weight: bold;
+            cursor: pointer;
+            border-bottom: 4px solid var(--primary-dark);
+            transition: all 0.2s;
+        }
+
+        .check-btn:active {
+            transform: translateY(2px);
+            border-bottom: 2px solid var(--primary-dark);
+        }
+
+        .check-btn:disabled {
+            background-color: var(--border);
+            border-bottom-color: var(--border);
+            cursor: not-allowed;
+        }
+
+        /* Feedback */
+        .feedback {
+            margin-top: 15px;
+            padding: 15px;
+            border-radius: 10px;
+            display: none;
+        }
+
+        .feedback.correct {
+            background-color: rgba(88, 204, 2, 0.2);
+            border: 1px solid var(--primary);
+            color: var(--primary);
+        }
+
+        .feedback.incorrect {
+            background-color: rgba(255, 75, 75, 0.2);
+            border: 1px solid var(--danger);
+            color: var(--danger);
+        }
+
+        .explanation-details {
+            margin-top: 10px;
+            background-color: rgba(0,0,0,0.2);
+            padding: 10px;
+            border-radius: 5px;
+        }
+
+        .explanation-details summary {
+            cursor: pointer;
+            font-weight: bold;
+        }
+
+        .explanation-details p {
+            margin-top: 10px;
+            font-size: 0.9rem;
+            line-height: 1.5;
+        }
+
+        /* Navigation Buttons */
+        .nav-buttons {
+            display: flex;
+            justify-content: space-between;
+            margin-top: 30px;
+        }
+
+        .nav-btn {
+            padding: 12px 25px;
+            background-color: var(--secondary);
+            color: white;
+            border: none;
+            border-radius: 10px;
+            font-weight: bold;
+            cursor: pointer;
+            border-bottom: 4px solid #1390c7;
+            transition: all 0.2s;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .nav-btn.reset-step-btn {
+            background-color: var(--warning);
+            border-bottom-color: #cc9f00;
+            color: black;
+        }
+
+        .nav-btn:active {
+            transform: translateY(2px);
+            border-bottom-width: 2px;
+        }
+
+        /* Print Styles for Assignment */
+        #print-area {
+            display: none;
+        }
+
+        @media print {
+            body * {
+                visibility: hidden;
+            }
+            #print-area, #print-area * {
+                visibility: visible;
+            }
+            #print-area {
+                position: absolute;
+                left: 0;
+                top: 0;
+                width: 100%;
+                display: block;
+                background: white;
+                color: black;
+                font-family: Arial, sans-serif;
+                font-size: 10pt;
+                padding: 20mm;
+            }
+            #print-area table {
+                width: 100%;
+                border-collapse: collapse;
+                margin-top: 10px;
+            }
+            #print-area th, #print-area td {
+                border: 1px solid black;
+                padding: 4px;
+                text-align: left;
+            }
+            #print-area h2 {
+                margin-bottom: 10px;
+            }
+            .print-info {
+                margin-bottom: 10px;
+            }
+            .print-footer {
+                margin-top: 30px;
+                text-align: right;
+            }
+        }
+
+        .svg-container {
+            text-align: center;
+            margin: 15px 0;
+        }
+    </style>
+</head>
+<body>
+
+    <!-- Sidebar Navigation -->
+    <div id="sidebar">
+        <h2>MATH TUTORING by Deni</h2>
+        <div class="topic">Topic: Introduction to Quadratic Equations</div>
+        
+        <div id="path-container">
+            <!-- Nodes generated by JS -->
+        </div>
+
+        <button id="reset-all-btn" onclick="resetAllProgress()"><i class="fas fa-trash-alt"></i> Reset All Progress</button>
+    </div>
+
+    <!-- Main Content -->
+    <div id="main-content">
+        <div class="section-container" id="content-area">
+            <!-- Dynamic Content Goes Here -->
+        </div>
+    </div>
+
+    <!-- Hidden Print Area -->
+    <div id="print-area"></div>
+
+    <!-- KaTeX JS -->
+    <script src="https://cdn.jsdelivr.net/npm/katex@0.16.8/dist/katex.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/katex@0.16.8/dist/contrib/auto-render.min.js"></script>
+
+    <script>
+        // --- DATA STRUCTURE ---
+        const lessonData = [
+            { id: 'home', title: 'Home', icon: 'fa-house', time: '00:00' },
+            { id: 'section1', title: 'Spiral Review Warm-up', icon: 'fa-rotate', time: '00:00-00:10', steps: [] },
+            { id: 'section2', title: 'Introduction & Real-World', icon: 'fa-rocket', time: '00:10-00:15', steps: [] },
+            { id: 'section3', title: 'Review of Prior Knowledge', icon: 'fa-brain', time: '00:15-00:20', steps: [] },
+            { id: 'section4', title: 'Problem Introduction', icon: 'fa-square-root-variable', time: '00:20-00:30', steps: [] },
+            { id: 'section5', title: 'Guided Practice', icon: 'fa-hand-holding-heart', time: '00:30-00:45', steps: [] },
+            { id: 'section6', title: 'Independent Practice', icon: 'fa-person-running', time: '00:50-01:00', steps: [] },
+            { id: 'assign1', title: 'Assignment 1', icon: 'fa-pen', time: '', steps: [] },
+            { id: 'assign2', title: 'Assignment 2', icon: 'fa-pen', time: '', steps: [] },
+            { id: 'assign3', title: 'Assignment 3', icon: 'fa-pen', time: '', steps: [] },
+            { id: 'assign4', title: 'Assignment 4', icon: 'fa-pen', time: '', steps: [] },
+            { id: 'assign5', title: 'Assignment 5', icon: 'fa-pen', time: '', steps: [] },
+            { id: 'consolidation', title: 'Consolidation & Reflection', icon: 'fa-flag-checkered', time: '01:00-01:05' }
+        ];
+
+        // --- SECTION 1 CONTENT ---
+        lessonData[1].steps = [
+            {
+                type: 'theory',
+                content: `
+                    <p>Before we dive into today's new challenge, let's sharpen your tools with a quick brain warm-up on logarithms. <span class="translation">Sebelum kita menyelami tantangan baru hari ini, mari asah alatmu dengan pemanasan otak cepat tentang logaritma.</span></p>
+                    <p>A logarithm is the inverse operation of exponentiation. If $b^y = x$, then $\\log_b x = y$. <span class="translation">Logaritma adalah operasi invers dari perpangkatan. Jika $b^y = x$, maka $\\log_b x = y$.</span></p>
+                    <div class="math-block">$\\log_b x = y \\iff b^y = x$</div>
+                `
+            },
+            {
+                type: 'exercise',
+                question: 'Evaluate: $\\log_2 8 = ...$ <span class="translation">Evaluasi: $\\log_2 8 = ...$</span>',
+                answer: ['3'],
+                explanation: 'Because $2^3 = 8$, then $\\log_2 8 = 3$. <span class="translation">Karena $2^3 = 8$, maka $\\log_2 8 = 3$.</span>'
+            },
+            {
+                type: 'exercise',
+                question: 'Evaluate: $\\log_3 81 = ...$ <span class="translation">Evaluasi: $\\log_3 81 = ...$</span>',
+                answer: ['4'],
+                explanation: 'Because $3^4 = 81$, then $\\log_3 81 = 4$. <span class="translation">Karena $3^4 = 81$, maka $\\log_3 81 = 4$.</span>'
+            },
+            {
+                type: 'exercise',
+                question: 'Write $5^2 = 25$ in logarithmic form. <span class="translation">Tuliskan $5^2 = 25$ dalam bentuk logaritma.</span>',
+                answer: ['log_5 25 = 2', 'log_5(25)=2'],
+                explanation: 'The logarithmic form of $a^b = c$ is $\\log_a c = b$. So the answer is $\\log_5 25 = 2$. <span class="translation">Bentuk logaritma dari $a^b = c$ adalah $\\log_a c = b$. Jadi jawabannya $\\log_5 25 = 2$.</span>'
+            },
+            {
+                type: 'theory',
+                content: `
+                    <p>When the calculator base is not available, we use the <strong>Change of Base Formula</strong>. <span class="translation">Saat basis kalkulator tidak tersedia, kita menggunakan Rumus Perubahan Basis.</span></p>
+                    <div class="math-block">$\\log_a b = \\frac{\\log_c b}{\\log_c a}$</div>
+                    <p>Usually, we use base 10 ($c=10$) which is often simply written as $\\log$ on a calculator. <span class="translation">Biasanya kita menggunakan basis 10 ($c=10$) yang sering ditulis sebagai $\\log$ saja di kalkulator.</span></p>
+                `
+            },
+            {
+                type: 'exercise',
+                question: 'Evaluate $\\log_8 32$ using change of base. The result is $\\frac{p}{q}$. What is $p+q$ if $p/q$ is simplified? <span class="translation">Evaluasi $\\log_8 32$ menggunakan perubahan basis. Hasilnya adalah $\\frac{p}{q}$. Berapa nilai $p+q$ jika $p/q$ sudah disederhanakan?</span>',
+                answer: ['8'],
+                explanation: '$\\log_8 32 = \\frac{\\log 32}{\\log 8} = \\frac{\\log 2^5}{\\log 2^3} = \\frac{5}{3}$. So $p=5, q=3$, then $p+q = 8$. <span class="translation">$\\log_8 32 = \\frac{\\log 32}{\\log 8} = \\frac{\\log 2^5}{\\log 2^3} = \\frac{5}{3}$. Jadi $p=5, q=3$, maka $p+q = 8$.</span>'
+            },
+            {
+                type: 'exercise',
+                question: 'Write $\\log_4 8$ in the form of base 10 logarithm division! <span class="translation">Tuliskan $\\log_4 8$ dalam bentuk pembagian logaritma basis 10!</span>',
+                answer: ['log 8 / log 4', 'log(8)/log(4)', 'log8/log4'],
+                explanation: 'Using the change of base formula: $\\log_4 8 = \\frac{\\log 8}{\\log 4}$. <span class="translation">Menggunakan rumus perubahan basis: $\\log_4 8 = \\frac{\\log 8}{\\log 4}$.</span>'
+            },
+            {
+                type: 'exercise',
+                question: 'True or False: $\\log_5 10 = \\frac{\\ln 10}{\\ln 5}$ <span class="translation">Benar atau Salah: $\\log_5 10 = \\frac{\\ln 10}{\\ln 5}$</span>',
+                answer: ['true', 'benar'],
+                explanation: 'True! The base $c$ in the change of base formula can be any positive number, including base $e$ (ln). <span class="translation">Benar! Basis $c$ pada rumus perubahan basis bisa berupa bilangan positif apa pun, termasuk basis $e$ (ln).</span>'
+            },
+            {
+                type: 'theory',
+                content: `
+                    <p>Next, we recall the <strong>Properties of Logarithms</strong>. <span class="translation">Selanjutnya, kita ingat Sifat-sifat Logaritma.</span></p>
+                    <ul>
+                        <li>Product: $\\log(xy) = \\log x + \\log y$</li>
+                        <li>Quotient: $\\log(\\frac{x}{y}) = \\log x - \\log y$</li>
+                        <li>Power: $\\log(x^n) = n \\log x$</li>
+                    </ul>
+                `
+            },
+            {
+                type: 'exercise',
+                question: 'Simplify: $\\log(x^3) - \\log(x)$ <span class="translation">Sederhanakan: $\\log(x^3) - \\log(x)$</span>',
+                answer: ['2 log x', '2log(x)', '2logx', 'log(x^2)'],
+                explanation: '$\\log(x^3) - \\log(x) = 3\\log x - 1\\log x = 2\\log x$. Or using quotient: $\\log(\\frac{x^3}{x}) = \\log(x^2) = 2\\log x$. <span class="translation">$\\log(x^3) - \\log(x) = 3\\log x - 1\\log x = 2\\log x$. Atau menggunakan pembagian: $\\log(\\frac{x^3}{x}) = \\log(x^2) = 2\\log x$.</span>'
+            },
+            {
+                type: 'exercise',
+                question: 'Expand $\\log(5ab^2)$ (Separate with + sign, e.g., log 5 + log a + ...) <span class="translation">Ekspansi $\\log(5ab^2)$ (Pisahkan dengan tanda +)</span>',
+                answer: ['log 5 + log a + 2 log b', 'log5+loga+2logb'],
+                explanation: '$\\log(5ab^2) = \\log 5 + \\log a + \\log(b^2) = \\log 5 + \\log a + 2\\log b$. <span class="translation">$\\log(5ab^2) = \\log 5 + \\log a + \\log(b^2) = \\log 5 + \\log a + 2\\log b$.</span>'
+            },
+            {
+                type: 'exercise',
+                question: 'Simplify: $2\\log 5 + \\log 4$ <span class="translation">Sederhanakan: $2\\log 5 + \\log 4$</span>',
+                answer: ['2', 'log 100'],
+                explanation: '$2\\log 5 + \\log 4 = \\log(5^2) + \\log 4 = \\log 25 + \\log 4 = \\log(25 \\times 4) = \\log 100 = 2$. <span class="translation">$2\\log 5 + \\log 4 = \\log(5^2) + \\log 4 = \\log 25 + \\log 4 = \\log(25 \\times 4) = \\log 100 = 2$.</span>'
+            },
+            {
+                type: 'exercise',
+                question: 'If $\\log 2 \\approx 0.301$ and $\\log 3 \\approx 0.477$, what is the value of $\\log 6$? <span class="translation">Jika $\\log 2 \\approx 0.301$ dan $\\log 3 \\approx 0.477$, berapa nilai $\\log 6$?</span>',
+                answer: ['0.778'],
+                explanation: '$\\log 6 = \\log(2 \\times 3) = \\log 2 + \\log 3 = 0.301 + 0.477 = 0.778$. <span class="translation">$\\log 6 = \\log(2 \\times 3) = \\log 2 + \\log 3 = 0.301 + 0.477 = 0.778$.</span>'
+            }
+        ];
+
+        // --- SECTION 2 CONTENT ---
+        lessonData[2].steps = [
+            {
+                type: 'theory',
+                content: `
+                    <p>Today, we transition to Quadratic Equations. We move from linear 'flat' math to 'curved' math that defines the physical world around us. <span class="translation">Hari ini, kita beralih ke Persamaan Kuadrat. Kita berpindah dari matematika 'datar' linear ke matematika 'melengkung' yang mendefinisikan dunia fisik di sekitar kita.</span></p>
+                    <p>These paths aren't straight lines; they are curves called <strong>Parabolas</strong>. <span class="translation">Jalur-jalur ini bukanlah garis lurus; ini adalah kurva yang disebut Parabola.</span></p>
+                    <div class="svg-container">
+                        <svg width="200" height="100" viewBox="0 0 200 100">
+                            <path d="M 10 90 Q 100 -20 190 90" fill="none" stroke="#1cb0f6" stroke-width="3"/>
+                            <circle cx="10" cy="90" r="3" fill="#ffc800"/>
+                            <circle cx="190" cy="90" r="3" fill="#ffc800"/>
+                        </svg>
+                    </div>
+                `
+            },
+            {
+                type: 'exercise',
+                question: 'Which one represents a straight line shape? (Answer a or b) <br> a) $y = 3x + 2$ <br> b) $y = x^2$ <span class="translation">Manakah yang merupakan bentuk garis lurus? (Jawab a atau b)</span>',
+                answer: ['a'],
+                explanation: 'The equation $y = 3x + 2$ is a linear equation (power of 1) whose graph is a straight line. <span class="translation">Persamaan $y = 3x + 2$ adalah persamaan linear (pangkat 1) yang grafiknya berupa garis lurus.</span>'
+            },
+            {
+                type: 'exercise',
+                question: 'What trajectory will the equation $y = x^2 - 4$ form? <span class="translation">Persamaan $y = x^2 - 4$ akan membentuk lintasan apa?</span>',
+                answer: ['parabola'],
+                explanation: 'The presence of the $x^2$ term (power of two) makes the graph shaped like a parabola (curved). <span class="translation">Adanya suku $x^2$ (pangkat dua) membuat grafiknya berbentuk parabola (melengkung).</span>'
+            },
+            {
+                type: 'exercise',
+                question: 'True or False: Quadratic equations always produce a U-shaped graph or parabola. <span class="translation">Benar atau Salah: Persamaan kuadrat selalu menghasilkan grafik berbentuk huruf U atau parabola.</span>',
+                answer: ['true', 'benar'],
+                explanation: 'True, the graph of a quadratic function is always a parabola (like a U or an upside-down U). <span class="translation">Benar, grafik dari fungsi kuadrat selalu berbentuk parabola (seperti huruf U atau U terbalik).</span>'
+            },
+            {
+                type: 'theory',
+                content: `
+                    <p>Imagine you are designing a suspension bridge or calculating the trajectory of a rocket. <span class="translation">Bayangkan kamu mendesain jembatan gantung atau menghitung lintasan roket.</span></p>
+                    <p>The path of a basketball shot isn't a straight line, but forms a curve. The cables on a suspension bridge also form a parabola. <span class="translation">Lintasan tembakan bola basket bukan garis lurus, melainkan membentuk lengkungan. Kabel pada jembatan gantung juga membentuk parabola.</span></p>
+                `
+            },
+            {
+                type: 'exercise',
+                question: 'The trajectory of a rocket shot upwards will form a... <span class="translation">Lintasan roket yang ditembakkan ke atas akan membentuk...</span>',
+                answer: ['parabola'],
+                explanation: 'The trajectory of an object thrown upwards and falling due to gravity forms a parabola. <span class="translation">Lintasan benda yang dilempar ke atas dan jatuh karena gravitasi membentuk parabola.</span>'
+            },
+            {
+                type: 'exercise',
+                question: 'On a suspension bridge, which part usually forms a parabola? <span class="translation">Pada jembatan gantung, bagian manakah yang biasanya membentuk parabola?</span>',
+                answer: ['cable', 'cables', 'kabel', 'tali'],
+                explanation: 'The main cables supporting the suspension bridge hang and form a parabola. <span class="translation">Kabel utama yang menyokong jembatan gantung menggantung dan membentuk parabola.</span>'
+            },
+            {
+                type: 'exercise',
+                question: 'Does the water trajectory from a fountain form a parabola? (Yes/No) <span class="translation">Apakah lintasan air dari air mancur membentuk parabola? (Ya/Tidak)</span>',
+                answer: ['yes', 'ya'],
+                explanation: 'Yes! Water coming out and pulled by gravity forms a parabolic trajectory. <span class="translation">Ya! Air yang keluar dan ditarik gravitasi membentuk lintasan parabola.</span>'
+            },
+            {
+                type: 'theory',
+                content: `
+                    <p>The math behind these curves is the <strong>Quadratic Equation</strong>. <span class="translation">Matematika di balik kurva ini disebut Persamaan Kuadrat.</span></p>
+                    <p>The standard form of a quadratic equation is: <span class="translation">Bentuk standar persamaan kuadrat adalah:</span></p>
+                    <div class="math-block">$ax^2 + bx + c = 0$</div>
+                    <p>Where $a$, $b$, and $c$ are real numbers, and most importantly: <strong>$a \\neq 0$</strong>. The $ax^2$ term is what makes it curve! <span class="translation">Di mana $a$, $b$, dan $c$ adalah bilangan real, dan yang paling penting: $a \\neq 0$. Suku $ax^2$ inilah yang membuatnya melengkung!</span></p>
+                `
+            },
+            {
+                type: 'exercise',
+                question: 'In the equation $x^2 + 5x + 6 = 0$, what is the value of $a$? <span class="translation">Pada persamaan $x^2 + 5x + 6 = 0$, berapakah nilai $a$?</span>',
+                answer: ['1'],
+                explanation: 'The number in front of $x^2$ is $a$. Since no number is written, it means the value is 1. <span class="translation">Bilangan di depan $x^2$ adalah $a$. Karena tidak ada angka tertulis, berarti nilainya 1.</span>'
+            },
+            {
+                type: 'exercise',
+                question: 'In the equation $x^2 + 5x + 6 = 0$, what is the value of $b$? <span class="translation">Pada persamaan $x^2 + 5x + 6 = 0$, berapakah nilai $b$?</span>',
+                answer: ['5'],
+                explanation: 'The number in front of $x$ is $b$, which is 5. <span class="translation">Bilangan di depan $x$ adalah $b$, yaitu 5.</span>'
+            },
+            {
+                type: 'exercise',
+                question: 'In the equation $x^2 + 5x + 6 = 0$, what is the value of $c$? <span class="translation">Pada persamaan $x^2 + 5x + 6 = 0$, berapakah nilai $c$?</span>',
+                answer: ['6'],
+                explanation: 'The constant number (without the $x$ variable) is $c$, which is 6. <span class="translation">Bilangan konstanta (tanpa variabel $x$) adalah $c$, yaitu 6.</span>'
+            },
+            {
+                type: 'exercise',
+                question: 'In the equation $-2x^2 + 3x - 5 = 0$, what is the value of $a$? <span class="translation">Pada persamaan $-2x^2 + 3x - 5 = 0$, berapakah nilai $a$?</span>',
+                answer: ['-2'],
+                explanation: 'The value of $a$ is the coefficient of $x^2$, which is -2 (including the negative sign). <span class="translation">Nilai $a$ adalah koefisien dari $x^2$, yaitu -2 (termasuk tanda negatifnya).</span>'
+            }
+        ];
+
+        // --- SECTION 3 CONTENT ---
+        lessonData[3].steps = [
+            {
+                type: 'theory',
+                content: `
+                    <p>Before we factor quadratics, we need to remember the <strong>Zero Product Property</strong>. <span class="translation">Sebelum kita memfaktorkan kuadrat, kita perlu mengingat Sifat Perkalian Nol.</span></p>
+                    <p>If two numbers multiplied together equal zero, then one of those numbers must be zero. <span class="translation">Jika dua bilangan dikalikan hasilnya nol, maka salah satu bilangan tersebut pasti nol.</span></p>
+                    <div class="math-block">If $A \\times B = 0$, then $A = 0$ or $B = 0$</div>
+                `
+            },
+            {
+                type: 'exercise',
+                question: 'If $A \\times B = 0$ and $A \\neq 0$, what is the value of $B$? <span class="translation">Jika $A \\times B = 0$ dan $A \\neq 0$, berapa nilai $B$?</span>',
+                answer: ['0'],
+                explanation: 'Based on the zero product property, if the product is zero and one is not zero, the other must be zero. <span class="translation">Berdasarkan sifat perkalian nol, jika hasil kali nol dan salah satu bukan nol, maka yang lain pasti nol.</span>'
+            },
+            {
+                type: 'exercise',
+                question: 'Solve: $(x - 3)(x + 2) = 0$. If $x - 3 = 0$, then $x = ...$ <span class="translation">Selesaikan: $(x - 3)(x + 2) = 0$. Jika $x - 3 = 0$, maka $x = ...$</span>',
+                answer: ['3'],
+                explanation: 'Move -3 to the right side to become +3. <span class="translation">Pindahkan -3 ke ruas kanan menjadi +3.</span>'
+            },
+            {
+                type: 'exercise',
+                question: 'Solve: $(x - 3)(x + 2) = 0$. If $x + 2 = 0$, then $x = ...$ <span class="translation">Selesaikan: $(x - 3)(x + 2) = 0$. Jika $x + 2 = 0$, maka $x = ...$</span>',
+                answer: ['-2'],
+                explanation: 'Move +2 to the right side to become -2. <span class="translation">Pindahkan +2 ke ruas kanan menjadi -2.</span>'
+            },
+            {
+                type: 'theory',
+                content: `
+                    <p>Next, we remember how to multiply binomials (often called the FOIL method) in reverse. <span class="translation">Selanjutnya, kita ingat cara mengalikan binomial (sering disebut metode FOIL) secara terbalik.</span></p>
+                    <div class="math-block">$(x + p)(x + q) = x^2 + (p+q)x + pq$</div>
+                    <p>The sum of the factors ($p+q$) becomes the coefficient of $x$, and the product of the factors ($pq$) becomes the constant. <span class="translation">Jumlah faktor ($p+q$) menjadi koefisien $x$, dan hasil kali faktor ($pq$) menjadi konstanta.</span></p>
+                `
+            },
+            {
+                type: 'exercise',
+                question: 'Expand $(x + 1)(x + 2)$. What is the coefficient of $x$? <span class="translation">Jabarkan $(x + 1)(x + 2)$. Berapakah koefisien dari $x$?</span>',
+                answer: ['3'],
+                explanation: '$(x+1)(x+2) = x^2 + 3x + 2$. The coefficient of $x$ is $1+2=3$. <span class="translation">$(x+1)(x+2) = x^2 + 3x + 2$. Koefisien $x$ adalah $1+2=3$.</span>'
+            },
+            {
+                type: 'exercise',
+                question: 'Expand $(x - 4)(x + 4)$. What is the constant term? <span class="translation">Jabarkan $(x - 4)(x + 4)$. Berapakah suku konstantanya?</span>',
+                answer: ['-16'],
+                explanation: '$(x-4)(x+4) = x^2 - 16$. The constant term is $(-4) \\times 4 = -16$. <span class="translation">$(x-4)(x+4) = x^2 - 16$. Suku konstanta adalah $(-4) \\times 4 = -16$.</span>'
+            },
+            {
+                type: 'exercise',
+                question: 'Expand $(x + 5)(x + 5)$. What is the coefficient of $x$? <span class="translation">Jabarkan $(x + 5)(x + 5)$. Berapakah koefisien dari $x$?</span>',
+                answer: ['10'],
+                explanation: '$(x+5)(x+5) = x^2 + 10x + 25$. The coefficient of $x$ is $5+5=10$. <span class="translation">$(x+5)(x+5) = x^2 + 10x + 25$. Koefisien $x$ adalah $5+5=10$.</span>'
+            },
+            {
+                type: 'theory',
+                content: `
+                    <p>Now we reverse the FOIL process! This is called <strong>Factoring</strong>. <span class="translation">Sekarang kita membalik proses FOIL! Ini disebut Faktorisasi.</span></p>
+                    <p>If we have $x^2 + bx + c = 0$, we want to find two numbers that when <strong>multiplied</strong> equal $c$, and when <strong>added</strong> equal $b$. <span class="translation">Jika kita punya $x^2 + bx + c = 0$, kita ingin mencari dua bilangan yang jika dikalikan hasilnya $c$, dan jika dijumlahkan hasilnya $b$.</span></p>
+                    <div class="math-block">Find $p$ and $q$ such that $p \\times q = c$ and $p + q = b$</div>
+                `
+            },
+            {
+                type: 'exercise',
+                question: 'Find two numbers that multiply to 6 and add to 5. Write the smaller number first. (Format: a and b) <span class="translation">Temukan dua bilangan yang dikalikan menghasilkan 6 dan dijumlahkan menghasilkan 5. Tulis bilangan terkecil dulu.</span>',
+                answer: ['2 and 3', '2 & 3', '2, 3'],
+                explanation: 'Because $2 \\times 3 = 6$ and $2 + 3 = 5$. <span class="translation">Karena $2 \\times 3 = 6$ dan $2 + 3 = 5$.</span>'
+            },
+            {
+                type: 'exercise',
+                question: 'Find two numbers that multiply to 12 and add to 7. Write the smaller number first. <span class="translation">Temukan dua bilangan yang dikalikan menghasilkan 12 dan dijumlahkan menghasilkan 7. Tulis bilangan terkecil dulu.</span>',
+                answer: ['3 and 4', '3 & 4', '3, 4'],
+                explanation: 'Because $3 \\times 4 = 12$ and $3 + 4 = 7$. <span class="translation">Karena $3 \\times 4 = 12$ dan $3 + 4 = 7$.</span>'
+            },
+            {
+                type: 'exercise',
+                question: 'Find two numbers that multiply to -8 and add to 2. Write the negative number first. <span class="translation">Temukan dua bilangan yang dikalikan menghasilkan -8 dan dijumlahkan menghasilkan 2. Tulis bilangan negatif dulu.</span>',
+                answer: ['-2 and 4', '-2 & 4', '-2, 4'],
+                explanation: 'Because $-2 \\times 4 = -8$ and $-2 + 4 = 2$. <span class="translation">Karena $-2 \\times 4 = -8$ dan $-2 + 4 = 2$.</span>'
+            },
+            {
+                type: 'exercise',
+                question: 'True or False: To factor $x^2 + bx + c$, we look for numbers that multiply to $b$ and add to $c$. <span class="translation">Benar atau Salah: Untuk memfaktorkan $x^2 + bx + c$, kita mencari bilangan yang dikalikan menghasilkan $b$ dan dijumlahkan menghasilkan $c$.</span>',
+                answer: ['false', 'salah'],
+                explanation: 'False. Multiplied must equal $c$, and added must equal $b$. <span class="translation">Salah. Dikalikan harus hasilnya $c$, dan dijumlahkan hasilnya $b$.</span>'
+            }
+        ];
+
+        // --- SECTION 4 CONTENT ---
+        lessonData[4].steps = [
+            // Theory 1
+            {
+                type: 'theory',
+                content: `
+                    <p>Let's look at the Standard Form of a quadratic equation. <span class="translation">Mari kita lihat Bentuk Standar dari persamaan kuadrat.</span></p>
+                    <div class="math-block">$ax^2 + bx + c = 0$</div>
+                    <p>Notice the 'squared' term ($ax^2$); that's what makes it quadratic. Our goal is to find the 'roots'—the values of $x$ that make the equation true (equal to zero). <span class="translation">Perhatikan suku 'kuadrat' ($ax^2$); itulah yang membuatnya kuadrat. Tujuan kita adalah menemukan 'akar'—nilai $x$ yang membuat persamaan benar (sama dengan nol).</span></p>
+                    <p>We can do this by 'un-multiplying' (factoring) the equation into two binomials. <span class="translation">Kita bisa melakukan ini dengan 'membatalkan perkalian' (memfaktorkan) persamaan menjadi dua binomial.</span></p>
+                `
+            },
+            // Exercise 1, 2, 3
+            {
+                type: 'exercise',
+                question: 'In the equation $2x^2 - 5x + 3 = 0$, what is the value of $b$? <span class="translation">Pada persamaan $2x^2 - 5x + 3 = 0$, berapakah nilai $b$?</span>',
+                answer: ['-5'],
+                explanation: 'The coefficient of $x$ is $b$. Here, it is -5 (don\'t forget the negative sign!). <span class="translation">Koefisien dari $x$ adalah $b$. Di sini, nilainya -5 (jangan lupa tanda negatifnya!).</span>'
+            },
+            {
+                type: 'exercise',
+                question: 'In the equation $x^2 + 4x = 0$, what is the value of $c$? <span class="translation">Pada persamaan $x^2 + 4x = 0$, berapakah nilai $c$?</span>',
+                answer: ['0'],
+                explanation: 'There is no constant term visible, which means $c = 0$. <span class="translation">Tidak ada suku konstanta yang terlihat, artinya $c = 0$.</span>'
+            },
+            {
+                type: 'exercise',
+                question: 'Is $3x + 5 = x^2$ a quadratic equation? Write "yes" or "no". <span class="translation">Apakah $3x + 5 = x^2$ persamaan kuadrat? Tulis "yes" atau "no".</span>',
+                answer: ['yes', 'ya'],
+                explanation: 'Yes! If we rearrange it to standard form, it becomes $x^2 - 3x - 5 = 0$, which has an $x^2$ term. <span class="translation">Ya! Jika kita mengaturnya ke bentuk standar, akan menjadi $x^2 - 3x - 5 = 0$, yang memiliki suku $x^2$.</span>'
+            },
+            // Theory 2
+            {
+                type: 'theory',
+                content: `
+                    <p>To factor easily, we use the <strong>Diamond Method</strong>. We need to find two numbers that have a product equal to $c$ and a sum equal to $b$. <span class="translation">Untuk memfaktorkan dengan mudah, kita menggunakan Metode Diamond. Kita perlu mencari dua bilangan yang hasil kalinya sama dengan $c$ dan jumlahnya sama dengan $b$.</span></p>
+                    <div class="svg-container">
+                        <svg width="150" height="150" viewBox="0 0 150 150">
+                            <polygon points="75,10 140,75 75,140 10,75" fill="none" stroke="#ffc800" stroke-width="2"/>
+                            <text x="75" y="30" text-anchor="middle" fill="#1cb0f6" font-size="14" font-weight="bold">Product (c)</text>
+                            <text x="75" y="145" text-anchor="middle" fill="#1cb0f6" font-size="14" font-weight="bold">Sum (b)</text>
+                            <text x="25" y="80" text-anchor="middle" fill="#ffffff" font-size="14">Factor 1</text>
+                            <text x="125" y="80" text-anchor="middle" fill="#ffffff" font-size="14">Factor 2</text>
+                        </svg>
+                    </div>
+                `
+            },
+            // Exercise 4, 5, 6
+            {
+                type: 'exercise',
+                question: 'We need two numbers that multiply to 6 and add to 5. What are the two numbers? (Write the smaller number first, e.g., "2 and 3") <span class="translation">Kita butuh dua bilangan yang dikalikan menghasilkan 6 dan dijumlahkan menghasilkan 5. Berapa kedua bilangan tersebut? (Tulis yang lebih kecil dulu)</span>',
+                answer: ['2 and 3', '2 & 3', '2, 3'],
+                explanation: 'Because $2 \\times 3 = 6$ and $2 + 3 = 5$. <span class="translation">Karena $2 \\times 3 = 6$ dan $2 + 3 = 5$.</span>'
+            },
+            {
+                type: 'exercise',
+                question: 'We need two numbers that multiply to 8 and add to 6. What are the two numbers? (Write the smaller number first) <span class="translation">Kita butuh dua bilangan yang dikalikan menghasilkan 8 dan dijumlahkan menghasilkan 6. Berapa kedua bilangan tersebut?</span>',
+                answer: ['2 and 4', '2 & 4', '2, 4'],
+                explanation: 'Because $2 \\times 4 = 8$ and $2 + 4 = 6$. <span class="translation">Karena $2 \\times 4 = 8$ dan $2 + 4 = 6$.</span>'
+            },
+            {
+                type: 'exercise',
+                question: 'We need two numbers that multiply to -8 and add to 2. What are the two numbers? (Write the negative number first) <span class="translation">Kita butuh dua bilangan yang dikalikan menghasilkan -8 dan dijumlahkan menghasilkan 2. Berapa kedua bilangan tersebut?</span>',
+                answer: ['-2 and 4', '-2 & 4', '-2, 4'],
+                explanation: 'Because $-2 \\times 4 = -8$ and $-2 + 4 = 2$. <span class="translation">Karena $-2 \\times 4 = -8$ dan $-2 + 4 = 2$.</span>'
+            },
+            // Theory 3
+            {
+                type: 'theory',
+                content: `
+                    <p>Let's connect the diamond method to factoring! If we have $x^2 + 5x + 6 = 0$, our diamond gives us 2 and 3. <span class="translation">Mari hubungkan metode diamond dengan faktorisasi! Jika kita punya $x^2 + 5x + 6 = 0$, diamond kita memberikan 2 dan 3.</span></p>
+                    <p>We write them as binomials: $(x + 2)(x + 3) = 0$. <span class="translation">Kita menulisnya sebagai binomial: $(x + 2)(x + 3) = 0$.</span></p>
+                    <p>Using the Zero Product Property, we know $x+2=0$ or $x+3=0$, so the roots are $x=-2$ and $x=-3$. <span class="translation">Menggunakan Sifat Perkalian Nol, kita tahu $x+2=0$ atau $x+3=0$, jadi akarnya adalah $x=-2$ dan $x=-3$.</span></p>
+                `
+            },
+            // Exercise 7, 8, 9, 10
+            {
+                type: 'exercise',
+                question: 'What are the two numbers for the diamond method of $x^2 + 7x + 12 = 0$? (Smaller number first) <span class="translation">Berapa dua bilangan untuk metode diamond dari $x^2 + 7x + 12 = 0$?</span>',
+                answer: ['3 and 4', '3 & 4', '3, 4'],
+                explanation: 'Because $3 \\times 4 = 12$ and $3 + 4 = 7$. <span class="translation">Karena $3 \\times 4 = 12$ dan $3 + 4 = 7$.</span>'
+            },
+            {
+                type: 'exercise',
+                question: 'What is the factored form of $x^2 + 7x + 12 = 0$? <span class="translation">Apa bentuk faktor dari $x^2 + 7x + 12 = 0$?</span>',
+                answer: ['(x+3)(x+4)=0', '(x+4)(x+3)=0'],
+                explanation: 'Using the numbers 3 and 4, we write $(x+3)(x+4)=0$. <span class="translation">Menggunakan bilangan 3 dan 4, kita menulis $(x+3)(x+4)=0$.</span>'
+            },
+            {
+                type: 'exercise',
+                question: 'What are the roots of $(x+3)(x+4)=0$? Write the smaller root first. <span class="translation">Apa akar-akar dari $(x+3)(x+4)=0$? (Tulis yang lebih kecil dulu)</span>',
+                answer: ['-4 and -3', '-4, -3'],
+                explanation: 'If $x+3=0$, $x=-3$. If $x+4=0$, $x=-4$. <span class="translation">Jika $x+3=0$, $x=-3$. Jika $x+4=0$, $x=-4$.</span>'
+            },
+            {
+                type: 'exercise',
+                question: 'What is the factored form of $x^2 - 4x + 3 = 0$? <span class="translation">Apa bentuk faktor dari $x^2 - 4x + 3 = 0$?</span>',
+                answer: ['(x-1)(x-3)=0', '(x-3)(x-1)=0'],
+                explanation: 'We need numbers that multiply to 3 and add to -4. They are -1 and -3. So $(x-1)(x-3)=0$. <span class="translation">Kita butuh bilangan yang dikali 3 dan dijumlahkan -4. Mereka adalah -1 dan -3. Jadi $(x-1)(x-3)=0$.</span>'
+            }
+        ];
+
+        // --- SECTION 5 CONTENT ---
+        lessonData[5].steps = [
+            // Theory 1
+            {
+                type: 'theory',
+                content: `
+                    <p>Let's try a harder one together: $x^2 - 2x - 8 = 0$. <span class="translation">Mari kita coba yang lebih sulit bersama: $x^2 - 2x - 8 = 0$.</span></p>
+                    <p>First, identify our targets. Our product target ($c$) is -8. Our sum target ($b$) is -2. <span class="translation">Pertama, identifikasi target kita. Target perkalian ($c$) adalah -8. Target penjumlahan ($b$) adalah -2.</span></p>
+                    <p>Since the product is negative, one factor must be positive and one negative. <span class="translation">Karena hasil kalinya negatif, satu faktor harus positif dan satu negatif.</span></p>
+                `
+            },
+            // Exercise 1, 2, 3
+            {
+                type: 'exercise',
+                question: 'For $x^2 - 2x - 8 = 0$, we need two numbers that multiply to -8 and add to -2. What are the two numbers? (Write the negative number first) <span class="translation">Untuk $x^2 - 2x - 8 = 0$, kita butuh dua bilangan yang dikalikan -8 dan dijumlahkan -2. Berapa kedua bilangan tersebut?</span>',
+                answer: ['-4 and 2', '-4, 2'],
+                explanation: 'Because $-4 \\times 2 = -8$ and $-4 + 2 = -2$. <span class="translation">Karena $-4 \\times 2 = -8$ dan $-4 + 2 = -2$.</span>'
+            },
+            {
+                type: 'exercise',
+                question: 'What is the factored form of $x^2 - 2x - 8 = 0$? <span class="translation">Apa bentuk faktor dari $x^2 - 2x - 8 = 0$?</span>',
+                answer: ['(x-4)(x+2)=0', '(x+2)(x-4)=0'],
+                explanation: 'Using -4 and 2, we write $(x-4)(x+2)=0$. <span class="translation">Menggunakan -4 dan 2, kita menulis $(x-4)(x+2)=0$.</span>'
+            },
+            {
+                type: 'exercise',
+                question: 'What are the roots of $x^2 - 2x - 8 = 0$? (Smaller root first) <span class="translation">Apa akar-akar dari $x^2 - 2x - 8 = 0$?</span>',
+                answer: ['-2 and 4', '-2, 4'],
+                explanation: 'If $x+2=0 \\implies x=-2$. If $x-4=0 \\implies x=4$. <span class="translation">Jika $x+2=0 \\implies x=-2$. Jika $x-4=0 \\implies x=4$.</span>'
+            },
+            // Theory 2
+            {
+                type: 'theory',
+                content: `
+                    <p>Let's practice another one: $x^2 + 3x - 10 = 0$. <span class="translation">Mari berlatih satu lagi: $x^2 + 3x - 10 = 0$.</span></p>
+                    <p>Product ($c$) is -10. Sum ($b$) is 3. We need factors of -10. <span class="translation">Perkalian ($c$) adalah -10. Penjumlahan ($b$) adalah 3. Kita butuh faktor dari -10.</span></p>
+                `
+            },
+            // Exercise 4, 5, 6
+            {
+                type: 'exercise',
+                question: 'What two numbers multiply to -10 and add to 3? <span class="translation">Dua bilangan apa yang dikalikan -10 dan dijumlahkan 3?</span>',
+                answer: ['-2 and 5', '-2, 5'],
+                explanation: 'Because $-2 \\times 5 = -10$ and $-2 + 5 = 3$. <span class="translation">Karena $-2 \\times 5 = -10$ dan $-2 + 5 = 3$.</span>'
+            },
+            {
+                type: 'exercise',
+                question: 'What is the factored form of $x^2 + 3x - 10 = 0$? <span class="translation">Apa bentuk faktor dari $x^2 + 3x - 10 = 0$?</span>',
+                answer: ['(x-2)(x+5)=0', '(x+5)(x-2)=0'],
+                explanation: 'Using -2 and 5, we write $(x-2)(x+5)=0$. <span class="translation">Menggunakan -2 dan 5, kita menulis $(x-2)(x+5)=0$.</span>'
+            },
+            {
+                type: 'exercise',
+                question: 'What are the roots of $x^2 - 5x - 24 = 0$? (Smaller root first) <span class="translation">Apa akar-akar dari $x^2 - 5x - 24 = 0$?</span>',
+                answer: ['-3 and 8', '-3, 8'],
+                explanation: 'Numbers that multiply to -24 and add to -5 are -8 and 3. Wait, $-8 \\times 3 = -24$ and $-8+3=-5$. So $(x-8)(x+3)=0$. Roots are $x=8, x=-3$. <span class="translation">Bilangan yang dikali -24 dan dijumlahkan -5 adalah -8 dan 3. Jadi $(x-8)(x+3)=0$. Akarnya $x=8, x=-3$.</span>'
+            },
+            // Theory 3
+            {
+                type: 'theory',
+                content: `
+                    <p>Let's connect algebra to geometry! When we graph a quadratic equation $y = ax^2 + bx + c$, it forms a parabola. <span class="translation">Mari hubungkan aljabar dengan geometri! Saat kita menggambar persamaan kuadrat $y = ax^2 + bx + c$, ia membentuk parabola.</span></p>
+                    <p>The <strong>roots</strong> of the equation are exactly the <strong>x-intercepts</strong> of the graph (where the curve touches the x-axis). <span class="translation">Akar-akar dari persamaan adalah tepat titik potong sumbu-x (x-intercept) dari grafik (di mana kurva menyentuh sumbu x).</span></p>
+                    <div class="svg-container">
+                        <svg width="200" height="120" viewBox="0 0 200 120">
+                            <line x1="10" y1="100" x2="190" y2="100" stroke="#8b9ea7" stroke-width="2"/>
+                            <line x1="100" y1="10" x2="100" y2="110" stroke="#8b9ea7" stroke-width="2"/>
+                            <path d="M 20 20 Q 100 140 180 20" fill="none" stroke="#1cb0f6" stroke-width="3"/>
+                            <circle cx="40" cy="100" r="4" fill="#ffc800"/>
+                            <circle cx="160" cy="100" r="4" fill="#ffc800"/>
+                            <text x="40" y="115" text-anchor="middle" fill="#ffc800" font-size="12">x₁</text>
+                            <text x="160" y="115" text-anchor="middle" fill="#ffc800" font-size="12">x₂</text>
+                        </svg>
+                    </div>
+                `
+            },
+            // Exercise 7, 8, 9, 10
+            {
+                type: 'exercise',
+                question: 'If a parabola crosses the x-axis at $x = 2$ and $x = -3$, what are the roots of the quadratic equation? (Smaller root first) <span class="translation">Jika parabola memotong sumbu-x di $x = 2$ dan $x = -3$, apa akar-akar dari persamaan kuadratnya?</span>',
+                answer: ['-3 and 2', '-3, 2'],
+                explanation: 'The x-intercepts are the roots of the equation. <span class="translation">Titik potong sumbu-x adalah akar-akar dari persamaan.</span>'
+            },
+            {
+                type: 'exercise',
+                question: 'If the factored form is $(x-5)(x+1)=0$, where does the parabola cross the x-axis? (Smaller value first) <span class="translation">Jika bentuk faktornya $(x-5)(x+1)=0$, di mana parabola memotong sumbu-x?</span>',
+                answer: ['-1 and 5', '-1, 5'],
+                explanation: 'The roots are $x=5$ and $x=-1$, which are the x-intercepts. <span class="translation">Akar-akarnya adalah $x=5$ dan $x=-1$, yang merupakan titik potong sumbu-x.</span>'
+            },
+            {
+                type: 'exercise',
+                question: 'True or False: The roots of a quadratic equation are the same as the x-intercepts of its graph. <span class="translation">Benar atau Salah: Akar-akar persamaan kuadrat sama dengan titik potong sumbu-x dari grafiknya.</span>',
+                answer: ['true', 'benar'],
+                explanation: 'True! Roots are the values of $x$ where $y=0$, which are the x-intercepts. <span class="translation">Benar! Akar adalah nilai $x$ di mana $y=0$, yaitu titik potong sumbu-x.</span>'
+            },
+            {
+                type: 'exercise',
+                question: 'A parabola has its vertex at $y=2$ and touches the x-axis at $x=4$ and $x=-2$. What are the roots? (Smaller root first) <span class="translation">Sebuah parabola memiliki puncak di $y=2$ dan menyentuh sumbu-x di $x=4$ dan $x=-2$. Apa akar-akarnya?</span>',
+                answer: ['-2 and 4', '-2, 4'],
+                explanation: 'The vertex does not change the roots. The roots are always the x-intercepts. <span class="translation">Puncak tidak mengubah akar. Akar selalu merupakan titik potong sumbu-x.</span>'
+            }
+        ];
+
+        // --- SECTION 6 CONTENT ---
+        lessonData[6].steps = [
+            // Theory 1
+            {
+                type: 'theory',
+                content: `
+                    <p>Sometimes, quadratic equations have a common factor in all their terms. We must factor out the <strong>Greatest Common Factor (GCF)</strong> first! <span class="translation">Terkadang, persamaan kuadrat memiliki faktor persekutuan di semua suku-nya. Kita harus memfaktorkan Faktor Persekutuan Terbesar (GCF) terlebih dahulu!</span></p>
+                    <p>For example: $2x^2 - 10x + 12 = 0$. All terms are divisible by 2. <span class="translation">Contoh: $2x^2 - 10x + 12 = 0$. Semua suku habis dibagi 2.</span></p>
+                    <div class="math-block">$2(x^2 - 5x + 6) = 0$</div>
+                `
+            },
+            // Exercise 1, 2, 3
+            {
+                type: 'exercise',
+                question: 'What is the GCF of the terms in $3x^2 + 6x = 0$? <span class="translation">Berapa GCF dari suku-suku dalam $3x^2 + 6x = 0$?</span>',
+                answer: ['3x'],
+                explanation: 'Both $3x^2$ and $6x$ are divisible by $3x$. <span class="translation">$3x^2$ dan $6x$ keduanya habis dibagi $3x$.</span>'
+            },
+            {
+                type: 'exercise',
+                question: 'Factor out the GCF from $4x^2 - 8x = 0$. What is the expression left inside the parentheses? <span class="translation">Faktorkan GCF dari $4x^2 - 8x = 0$. Ekspresi apa yang tersisa di dalam kurung?</span>',
+                answer: ['x^2 - 2x', 'x^2-2x'],
+                explanation: '$4x^2 - 8x = 4x(x - 2)$. Wait, the inside of $4x(x-2)$ is just $x-2$, but factoring just the number 4 gives $4(x^2 - 2x)$. Both are valid steps! <span class="translation">$4x^2 - 8x = 4x(x - 2)$. Tapi memfaktorkan angka 4 saja memberi $4(x^2 - 2x)$. Keduanya langkah yang valid!</span>'
+            },
+            {
+                type: 'exercise',
+                question: 'After factoring out the 2 from $2x^2 - 10x + 12 = 0$, what is the quadratic equation inside the parentheses? <span class="translation">Setelah memfaktorkan 2 dari $2x^2 - 10x + 12 = 0$, apa persamaan kuadrat di dalam kurung?</span>',
+                answer: ['x^2 - 5x + 6 = 0', 'x^2-5x+6=0'],
+                explanation: 'Divide each term by 2: $2x^2/2 = x^2$, $-10x/2 = -5x$, $12/2 = 6$. So it becomes $x^2 - 5x + 6 = 0$. <span class="translation">Bagi setiap suku dengan 2. Jadi menjadi $x^2 - 5x + 6 = 0$.</span>'
+            },
+            // Theory 2
+            {
+                type: 'theory',
+                content: `
+                    <p>Once you factor out the GCF, you can factor the remaining quadratic inside the parentheses normally! <span class="translation">Setelah Anda memfaktorkan GCF, Anda bisa memfaktorkan kuadrat yang tersisa di dalam kurung seperti biasa!</span></p>
+                    <p>For $2(x^2 - 5x + 6) = 0$, the diamond for the inside gives us -2 and -3. <span class="translation">Untuk $2(x^2 - 5x + 6) = 0$, diamond untuk bagian dalam memberi kita -2 dan -3.</span></p>
+                    <div class="math-block">$2(x - 2)(x - 3) = 0$</div>
+                    <p>Notice that the GCF (which is 2) does NOT create a new root, because $2 \\neq 0$. The roots are still $x=2$ and $x=3$. <span class="translation">Perhatikan bahwa GCF (yang adalah 2) TIDAK menciptakan akar baru, karena $2 \\neq 0$. Akarnya tetap $x=2$ dan $x=3$.</span></p>
+                `
+            },
+            // Exercise 4, 5, 6
+            {
+                type: 'exercise',
+                question: 'Solve $2(x-3)(x-4)=0$. What are the roots? (Smaller root first) <span class="translation">Selesaikan $2(x-3)(x-4)=0$. Apa akar-akarnya?</span>',
+                answer: ['3 and 4', '3, 4'],
+                explanation: 'The 2 is ignored for finding roots. $x-3=0 \\implies x=3$, $x-4=0 \\implies x=4$. <span class="translation">Angka 2 diabaikan untuk mencari akar. $x-3=0 \\implies x=3$, $x-4=0 \\implies x=4$.</span>'
+            },
+            {
+                type: 'exercise',
+                question: 'Factor $3x^2 - 12x + 12 = 0$ completely. What is the factored form? <span class="translation">Faktorkan $3x^2 - 12x + 12 = 0$ sepenuhnya. Apa bentuk faktornya?</span>',
+                answer: ['3(x-2)(x-2)=0', '3(x-2)^2=0'],
+                explanation: 'GCF is 3. Inside: $x^2 - 4x + 4$, which is $(x-2)(x-2)$. So $3(x-2)(x-2)=0$. <span class="translation">GCF adalah 3. Di dalam: $x^2 - 4x + 4$, yang adalah $(x-2)(x-2)$. Jadi $3(x-2)(x-2)=0$.</span>'
+            },
+            {
+                type: 'exercise',
+                question: 'Factor $2x^2 + 6x + 4 = 0$ completely. What is the factored form? <span class="translation">Faktorkan $2x^2 + 6x + 4 = 0$ sepenuhnya. Apa bentuk faktornya?</span>',
+                answer: ['2(x+1)(x+2)=0', '2(x+2)(x+1)=0'],
+                explanation: 'GCF is 2. Inside: $x^2 + 3x + 2$, which factors to $(x+1)(x+2)$. <span class="translation">GCF adalah 2. Di dalam: $x^2 + 3x + 2$, yang difaktorkan menjadi $(x+1)(x+2)$.</span>'
+            },
+            // Theory 3
+            {
+                type: 'theory',
+                content: `
+                    <p>What if the leading coefficient ($a$) is negative? Like $-x^2 + 5x + 14 = 0$. <span class="translation">Bagaimana jika koefisien utamanya ($a$) negatif? Seperti $-x^2 + 5x + 14 = 0$.</span></p>
+                    <p>It's easiest to <strong>factor out a -1</strong> first. This flips all the signs inside! <span class="translation">Paling mudah memfaktorkan -1 terlebih dahulu. Ini membalik semua tanda di dalamnya!</span></p>
+                    <div class="math-block">$-1(x^2 - 5x - 14) = 0$</div>
+                    <p>Now our inside equation is $x^2 - 5x - 14$, which is much easier to factor. <span class="translation">Sekarang persamaan di dalam kita adalah $x^2 - 5x - 14$, yang jauh lebih mudah difaktorkan.</span></p>
+                `
+            },
+            // Exercise 7, 8, 9, 10
+            {
+                type: 'exercise',
+                question: 'Factor out -1 from $-x^2 + 4x - 3 = 0$. What is the expression inside the parentheses? <span class="translation">Faktorkan -1 dari $-x^2 + 4x - 3 = 0$. Ekspresi apa yang ada di dalam kurung?</span>',
+                answer: ['x^2 - 4x + 3', 'x^2-4x+3'],
+                explanation: 'Factoring out -1 flips all signs: $-x^2 \\implies x^2$, $+4x \\implies -4x$, $-3 \\implies +3$. <span class="translation">Memfaktorkan -1 membalikkan semua tanda: $-x^2 \\implies x^2$, $+4x \\implies -4x$, $-3 \\implies +3$.</span>'
+            },
+            {
+                type: 'exercise',
+                question: 'Factor $-x^2 + 5x + 14 = 0$ completely. What is the factored form? (Ignore the -1 in your final answer format, just write the binomials with =0) <span class="translation">Faktorkan $-x^2 + 5x + 14 = 0$ sepenuhnya. Apa bentuk faktornya?</span>',
+                answer: ['(x-7)(x+2)=0', '(x+2)(x-7)=0'],
+                explanation: 'Factor -1: $-(x^2 - 5x - 14) = 0$. Factors of -14 that add to -5 are -7 and 2. So $-(x-7)(x+2)=0$. <span class="translation">Faktor -1: $-(x^2 - 5x - 14) = 0$. Faktor dari -14 yang dijumlahkan -5 adalah -7 dan 2. Jadi $-(x-7)(x+2)=0$.</span>'
+            },
+            {
+                type: 'exercise',
+                question: 'What are the roots of $-x^2 + 5x + 14 = 0$? (Smaller root first) <span class="translation">Apa akar-akar dari $-x^2 + 5x + 14 = 0$?</span>',
+                answer: ['-2 and 7', '-2, 7'],
+                explanation: 'From $(x-7)(x+2)=0$, $x-7=0 \\implies x=7$ and $x+2=0 \\implies x=-2$. The -1 outside does not change the roots. <span class="translation">Dari $(x-7)(x+2)=0$, $x-7=0 \\implies x=7$ dan $x+2=0 \\implies x=-2$. -1 di luar tidak mengubah akar.</span>'
+            },
+            {
+                type: 'exercise',
+                question: 'Solve for $x$: $x(x - 5) = 14$. (Hint: You must make the right side 0 first! Write smaller root first) <span class="translation">Selesaikan untuk $x$: $x(x - 5) = 14$. (Petunjuk: Anda harus membuat ruas kanan menjadi 0 terlebih dahulu! Tulis akar terkecil dulu)</span>',
+                answer: ['-2 and 7', '-2, 7'],
+                explanation: 'Expand and move 14: $x^2 - 5x - 14 = 0$. This factors to $(x-7)(x+2)=0$. Roots are -2 and 7. <span class="translation">Jabarkan dan pindahkan 14: $x^2 - 5x - 14 = 0$. Ini difaktorkan menjadi $(x-7)(x+2)=0$. Akarnya -2 dan 7.</span>'
+            }
+        ];
+		
+        // --- ASSIGNMENT 1 CONTENT (Basic Factoring a=1, positive c) ---
+        lessonData[7].steps = [
+            {
+                type: 'exercise',
+                question: 'Solve by factoring: $x^2 + 5x + 6 = 0$. Write the smaller root first. <span class="translation">Selesaikan dengan faktorisasi: $x^2 + 5x + 6 = 0$. Tulis akar terkecil dulu.</span>',
+                answer: ['-3 and -2', '-3, -2', '-3 & -2'],
+                explanation: 'Factors of 6 that add to 5 are 2 and 3. $(x+2)(x+3)=0$. Roots are $x=-3, -2$. <span class="translation">Faktor dari 6 yang dijumlahkan 5 adalah 2 dan 3. $(x+2)(x+3)=0$. Akar-akarnya $x=-3, -2$.</span>'
+            },
+            {
+                type: 'exercise',
+                question: 'Solve by factoring: $x^2 + 7x + 12 = 0$. Write the smaller root first. <span class="translation">Selesaikan dengan faktorisasi: $x^2 + 7x + 12 = 0$. Tulis akar terkecil dulu.</span>',
+                answer: ['-4 and -3', '-4, -3', '-4 & -3'],
+                explanation: 'Factors of 12 that add to 7 are 3 and 4. $(x+3)(x+4)=0$. Roots are $x=-4, -3$. <span class="translation">Faktor dari 12 yang dijumlahkan 7 adalah 3 dan 4. $(x+3)(x+4)=0$. Akar-akarnya $x=-4, -3$.</span>'
+            },
+            {
+                type: 'exercise',
+                question: 'Solve by factoring: $x^2 + 8x + 15 = 0$. Write the smaller root first. <span class="translation">Selesaikan dengan faktorisasi: $x^2 + 8x + 15 = 0$. Tulis akar terkecil dulu.</span>',
+                answer: ['-5 and -3', '-5, -3', '-5 & -3'],
+                explanation: 'Factors of 15 that add to 8 are 3 and 5. $(x+3)(x+5)=0$. Roots are $x=-5, -3$. <span class="translation">Faktor dari 15 yang dijumlahkan 8 adalah 3 dan 5. $(x+3)(x+5)=0$. Akar-akarnya $x=-5, -3$.</span>'
+            },
+            {
+                type: 'exercise',
+                question: 'Solve by factoring: $x^2 + 6x + 8 = 0$. Write the smaller root first. <span class="translation">Selesaikan dengan faktorisasi: $x^2 + 6x + 8 = 0$. Tulis akar terkecil dulu.</span>',
+                answer: ['-4 and -2', '-4, -2', '-4 & -2'],
+                explanation: 'Factors of 8 that add to 6 are 2 and 4. $(x+2)(x+4)=0$. Roots are $x=-4, -2$. <span class="translation">Faktor dari 8 yang dijumlahkan 6 adalah 2 dan 4. $(x+2)(x+4)=0$. Akar-akarnya $x=-4, -2$.</span>'
+            },
+            {
+                type: 'exercise',
+                question: 'Solve by factoring: $x^2 + 9x + 20 = 0$. Write the smaller root first. <span class="translation">Selesaikan dengan faktorisasi: $x^2 + 9x + 20 = 0$. Tulis akar terkecil dulu.</span>',
+                answer: ['-5 and -4', '-5, -4', '-5 & -4'],
+                explanation: 'Factors of 20 that add to 9 are 4 and 5. $(x+4)(x+5)=0$. Roots are $x=-5, -4$. <span class="translation">Faktor dari 20 yang dijumlahkan 9 adalah 4 dan 5. $(x+4)(x+5)=0$. Akar-akarnya $x=-5, -4$.</span>'
+            },
+            {
+                type: 'exercise',
+                question: 'Solve by factoring: $x^2 + 10x + 24 = 0$. Write the smaller root first. <span class="translation">Selesaikan dengan faktorisasi: $x^2 + 10x + 24 = 0$. Tulis akar terkecil dulu.</span>',
+                answer: ['-6 and -4', '-6, -4', '-6 & -4'],
+                explanation: 'Factors of 24 that add to 10 are 4 and 6. $(x+4)(x+6)=0$. Roots are $x=-6, -4$. <span class="translation">Faktor dari 24 yang dijumlahkan 10 adalah 4 dan 6. $(x+4)(x+6)=0$. Akar-akarnya $x=-6, -4$.</span>'
+            },
+            {
+                type: 'exercise',
+                question: 'Solve by factoring: $x^2 + 7x + 10 = 0$. Write the smaller root first. <span class="translation">Selesaikan dengan faktorisasi: $x^2 + 7x + 10 = 0$. Tulis akar terkecil dulu.</span>',
+                answer: ['-5 and -2', '-5, -2', '-5 & -2'],
+                explanation: 'Factors of 10 that add to 7 are 2 and 5. $(x+2)(x+5)=0$. Roots are $x=-5, -2$. <span class="translation">Faktor dari 10 yang dijumlahkan 7 adalah 2 dan 5. $(x+2)(x+5)=0$. Akar-akarnya $x=-5, -2$.</span>'
+            },
+            {
+                type: 'exercise',
+                question: 'Solve by factoring: $x^2 + 4x + 3 = 0$. Write the smaller root first. <span class="translation">Selesaikan dengan faktorisasi: $x^2 + 4x + 3 = 0$. Tulis akar terkecil dulu.</span>',
+                answer: ['-3 and -1', '-3, -1', '-3 & -1'],
+                explanation: 'Factors of 3 that add to 4 are 1 and 3. $(x+1)(x+3)=0$. Roots are $x=-3, -1$. <span class="translation">Faktor dari 3 yang dijumlahkan 4 adalah 1 dan 3. $(x+1)(x+3)=0$. Akar-akarnya $x=-3, -1$.</span>'
+            },
+            {
+                type: 'exercise',
+                question: 'Solve by factoring: $x^2 + 11x + 30 = 0$. Write the smaller root first. <span class="translation">Selesaikan dengan faktorisasi: $x^2 + 11x + 30 = 0$. Tulis akar terkecil dulu.</span>',
+                answer: ['-6 and -5', '-6, -5', '-6 & -5'],
+                explanation: 'Factors of 30 that add to 11 are 5 and 6. $(x+5)(x+6)=0$. Roots are $x=-6, -5$. <span class="translation">Faktor dari 30 yang dijumlahkan 11 adalah 5 dan 6. $(x+5)(x+6)=0$. Akar-akarnya $x=-6, -5$.</span>'
+            },
+            {
+                type: 'exercise',
+                question: 'Solve by factoring: $x^2 + 8x + 16 = 0$. Write the root. <span class="translation">Selesaikan dengan faktorisasi: $x^2 + 8x + 16 = 0$. Tulis akarnya.</span>',
+                answer: ['-4', 'x=-4'],
+                explanation: 'This is a perfect square: $(x+4)^2 = 0$. The only root is $x=-4$. <span class="translation">Ini adalah kuadrat sempurna: $(x+4)^2 = 0$. Satu-satunya akar adalah $x=-4$.</span>'
+            }
+        ];
+
+        // --- ASSIGNMENT 2 CONTENT (Basic Factoring a=1, negative c) ---
+        lessonData[8].steps = [
+            {
+                type: 'exercise',
+                question: 'Solve by factoring: $x^2 + 2x - 24 = 0$. Write the smaller root first. <span class="translation">Selesaikan dengan faktorisasi: $x^2 + 2x - 24 = 0$. Tulis akar terkecil dulu.</span>',
+                answer: ['-6 and 4', '-6, 4', '-6 & 4'],
+                explanation: 'Factors of -24 that add to 2 are -4 and 6. $(x-4)(x+6)=0$. Roots are $x=-6, 4$. <span class="translation">Faktor dari -24 yang dijumlahkan 2 adalah -4 dan 6. $(x-4)(x+6)=0$. Akar-akarnya $x=-6, 4$.</span>'
+            },
+            {
+                type: 'exercise',
+                question: 'Solve by factoring: $x^2 - 9x + 20 = 0$. Write the smaller root first. <span class="translation">Selesaikan dengan faktorisasi: $x^2 - 9x + 20 = 0$. Tulis akar terkecil dulu.</span>',
+                answer: ['4 and 5', '4, 5', '4 & 5'],
+                explanation: 'Factors of 20 that add to -9 are -4 and -5. $(x-4)(x-5)=0$. Roots are $x=4, 5$. <span class="translation">Faktor dari 20 yang dijumlahkan -9 adalah -4 dan -5. $(x-4)(x-5)=0$. Akar-akarnya $x=4, 5$.</span>'
+            },
+            {
+                type: 'exercise',
+                question: 'Solve by factoring: $x^2 - 2x - 8 = 0$. Write the smaller root first. <span class="translation">Selesaikan dengan faktorisasi: $x^2 - 2x - 8 = 0$. Tulis akar terkecil dulu.</span>',
+                answer: ['-2 and 4', '-2, 4', '-2 & 4'],
+                explanation: 'Factors of -8 that add to -2 are -4 and 2. $(x-4)(x+2)=0$. Roots are $x=-2, 4$. <span class="translation">Faktor dari -8 yang dijumlahkan -2 adalah -4 dan 2. $(x-4)(x+2)=0$. Akar-akarnya $x=-2, 4$.</span>'
+            },
+            {
+                type: 'exercise',
+                question: 'Solve by factoring: $x^2 + 3x - 10 = 0$. Write the smaller root first. <span class="translation">Selesaikan dengan faktorisasi: $x^2 + 3x - 10 = 0$. Tulis akar terkecil dulu.</span>',
+                answer: ['-5 and 2', '-5, 2', '-5 & 2'],
+                explanation: 'Factors of -10 that add to 3 are -2 and 5. $(x-2)(x+5)=0$. Roots are $x=-5, 2$. <span class="translation">Faktor dari -10 yang dijumlahkan 3 adalah -2 dan 5. $(x-2)(x+5)=0$. Akar-akarnya $x=-5, 2$.</span>'
+            },
+            {
+                type: 'exercise',
+                question: 'Solve by factoring: $x^2 - 5x - 24 = 0$. Write the smaller root first. <span class="translation">Selesaikan dengan faktorisasi: $x^2 - 5x - 24 = 0$. Tulis akar terkecil dulu.</span>',
+                answer: ['-3 and 8', '-3, 8', '-3 & 8'],
+                explanation: 'Factors of -24 that add to -5 are -8 and 3. $(x-8)(x+3)=0$. Roots are $x=-3, 8$. <span class="translation">Faktor dari -24 yang dijumlahkan -5 adalah -8 dan 3. $(x-8)(x+3)=0$. Akar-akarnya $x=-3, 8$.</span>'
+            },
+            {
+                type: 'exercise',
+                question: 'Solve by factoring: $x^2 - x - 12 = 0$. Write the smaller root first. <span class="translation">Selesaikan dengan faktorisasi: $x^2 - x - 12 = 0$. Tulis akar terkecil dulu.</span>',
+                answer: ['-3 and 4', '-3, 4', '-3 & 4'],
+                explanation: 'Factors of -12 that add to -1 are -4 and 3. $(x-4)(x+3)=0$. Roots are $x=-3, 4$. <span class="translation">Faktor dari -12 yang dijumlahkan -1 adalah -4 dan 3. $(x-4)(x+3)=0$. Akar-akarnya $x=-3, 4$.</span>'
+            },
+            {
+                type: 'exercise',
+                question: 'Solve by factoring: $x^2 + 4x - 21 = 0$. Write the smaller root first. <span class="translation">Selesaikan dengan faktorisasi: $x^2 + 4x - 21 = 0$. Tulis akar terkecil dulu.</span>',
+                answer: ['-7 and 3', '-7, 3', '-7 & 3'],
+                explanation: 'Factors of -21 that add to 4 are -3 and 7. $(x-3)(x+7)=0$. Roots are $x=-7, 3$. <span class="translation">Faktor dari -21 yang dijumlahkan 4 adalah -3 dan 7. $(x-3)(x+7)=0$. Akar-akarnya $x=-7, 3$.</span>'
+            },
+            {
+                type: 'exercise',
+                question: 'Solve by factoring: $x^2 - 6x + 8 = 0$. Write the smaller root first. <span class="translation">Selesaikan dengan faktorisasi: $x^2 - 6x + 8 = 0$. Tulis akar terkecil dulu.</span>',
+                answer: ['2 and 4', '2, 4', '2 & 4'],
+                explanation: 'Factors of 8 that add to -6 are -2 and -4. $(x-2)(x-4)=0$. Roots are $x=2, 4$. <span class="translation">Faktor dari 8 yang dijumlahkan -6 adalah -2 dan -4. $(x-2)(x-4)=0$. Akar-akarnya $x=2, 4$.</span>'
+            },
+            {
+                type: 'exercise',
+                question: 'Solve by factoring: $x^2 + 6x - 27 = 0$. Write the smaller root first. <span class="translation">Selesaikan dengan faktorisasi: $x^2 + 6x - 27 = 0$. Tulis akar terkecil dulu.</span>',
+                answer: ['-9 and 3', '-9, 3', '-9 & 3'],
+                explanation: 'Factors of -27 that add to 6 are -3 and 9. $(x-3)(x+9)=0$. Roots are $x=-9, 3$. <span class="translation">Faktor dari -27 yang dijumlahkan 6 adalah -3 dan 9. $(x-3)(x+9)=0$. Akar-akarnya $x=-9, 3$.</span>'
+            },
+            {
+                type: 'exercise',
+                question: 'Solve by factoring: $x^2 - 4x - 12 = 0$. Write the smaller root first. <span class="translation">Selesaikan dengan faktorisasi: $x^2 - 4x - 12 = 0$. Tulis akar terkecil dulu.</span>',
+                answer: ['-2 and 6', '-2, 6', '-2 & 6'],
+                explanation: 'Factors of -12 that add to -4 are -6 and 2. $(x-6)(x+2)=0$. Roots are $x=-2, 6$. <span class="translation">Faktor dari -12 yang dijumlahkan -4 adalah -6 dan 2. $(x-6)(x+2)=0$. Akar-akarnya $x=-2, 6$.</span>'
+            }
+        ];
+
+        // --- ASSIGNMENT 3 CONTENT (Standard Form & Graphing) ---
+        lessonData[9].steps = [
+            {
+                type: 'exercise',
+                question: 'Identify $a$, $b$, and $c$ in the equation: $5x^2 - 2x = -7$. Write your answer as a, b, c (e.g., 1, 2, 3). <span class="translation">Identifikasi $a$, $b$, dan $c$ pada persamaan: $5x^2 - 2x = -7$. Tulis jawaban sebagai a, b, c.</span>',
+                answer: ['5, -2, 7'],
+                explanation: 'First, move -7 to the left side: $5x^2 - 2x + 7 = 0$. So $a=5, b=-2, c=7$. <span class="translation">Pertama, pindahkan -7 ke ruas kiri: $5x^2 - 2x + 7 = 0$. Jadi $a=5, b=-2, c=7$.</span>'
+            },
+            {
+                type: 'exercise',
+                question: 'Identify $a$, $b$, and $c$ in the equation: $-3x^2 + 8 = 0$. Write your answer as a, b, c. <span class="translation">Identifikasi $a$, $b$, dan $c$ pada persamaan: $-3x^2 + 8 = 0$. Tulis jawaban sebagai a, b, c.</span>',
+                answer: ['-3, 0, 8'],
+                explanation: 'There is no $x$ term, so $b=0$. Thus $a=-3, b=0, c=8$. <span class="translation">Tidak ada suku $x$, jadi $b=0$. Maka $a=-3, b=0, c=8$.</span>'
+            },
+            {
+                type: 'exercise',
+                question: 'A parabola crosses the x-axis at $x = 4$ and $x = -3$. Write the quadratic equation in factored form. (Format: (x-a)(x-b)=0) <span class="translation">Sebuah parabola memotong sumbu-x di $x = 4$ dan $x = -3$. Tulis persamaan kuadratnya dalam bentuk faktor.</span>',
+                answer: ['(x-4)(x+3)=0', '(x+3)(x-4)=0'],
+                explanation: 'The roots are 4 and -3, so the factors are $(x-4)$ and $(x+3)$. <span class="translation">Akar-akarnya adalah 4 dan -3, jadi faktornya adalah $(x-4)$ dan $(x+3)$.</span>'
+            },
+            {
+                type: 'exercise',
+                question: 'A parabola crosses the x-axis at $x = 0$ and $x = 5$. Write the quadratic equation in factored form. (Format: x(x-a)=0) <span class="translation">Sebuah parabola memotong sumbu-x di $x = 0$ dan $x = 5$. Tulis persamaan kuadratnya dalam bentuk faktor.</span>',
+                answer: ['x(x-5)=0'],
+                explanation: 'The roots are 0 and 5, so the factors are $x$ and $(x-5)$. <span class="translation">Akar-akarnya adalah 0 dan 5, jadi faktornya adalah $x$ dan $(x-5)$.</span>'
+            },
+            {
+                type: 'exercise',
+                question: 'The roots of a quadratic are 2 and -6. Write the quadratic equation in standard form without spaces. (e.g. x^2+5x+6=0) <span class="translation">Akar-akar kuadrat adalah 2 dan -6. Tulis persamaan kuadratnya dalam bentuk standar tanpa spasi.</span>',
+                answer: ['x^2+4x-12=0'],
+                explanation: 'Factored form is $(x-2)(x+6)=0$. Expanding (FOIL): $x^2 + 6x - 2x - 12 = x^2 + 4x - 12 = 0$. <span class="translation">Bentuk faktor adalah $(x-2)(x+6)=0$. Dijabarkan: $x^2 + 6x - 2x - 12 = x^2 + 4x - 12 = 0$.</span>'
+            },
+            {
+                type: 'exercise',
+                question: 'The roots of a quadratic are -1 and -4. Write the quadratic equation in standard form without spaces. <span class="translation">Akar-akar kuadrat adalah -1 dan -4. Tulis persamaan kuadratnya dalam bentuk standar tanpa spasi.</span>',
+                answer: ['x^2+5x+4=0'],
+                explanation: 'Factored form is $(x+1)(x+4)=0$. Expanding: $x^2 + 4x + x + 4 = x^2 + 5x + 4 = 0$. <span class="translation">Bentuk faktor adalah $(x+1)(x+4)=0$. Dijabarkan: $x^2 + 4x + x + 4 = x^2 + 5x + 4 = 0$.</span>'
+            },
+            {
+                type: 'exercise',
+                question: 'What are the x-intercepts of the graph $y = x^2 - 16$? Write the smaller root first. <span class="translation">Apa titik potong sumbu-x dari grafik $y = x^2 - 16$? Tulis akar terkecil dulu.</span>',
+                answer: ['-4 and 4', '-4, 4', '-4 & 4'],
+                explanation: 'Set $y=0$: $x^2 - 16 = 0$. This is a difference of squares: $(x-4)(x+4)=0$. Roots are -4 and 4. <span class="translation">Setel $y=0$: $x^2 - 16 = 0$. Ini adalah selisih kuadrat: $(x-4)(x+4)=0$. Akar-akarnya -4 dan 4.</span>'
+            },
+            {
+                type: 'exercise',
+                question: 'If a parabola has its vertex at $y=-2$ and roots at $x=1$ and $x=5$, what are the x-intercepts? Write the smaller value first. <span class="translation">Jika parabola memiliki puncak di $y=-2$ dan akar di $x=1$ dan $x=5$, apa titik potong sumbu-xnya?</span>',
+                answer: ['1 and 5', '1, 5', '1 & 5'],
+                explanation: 'The roots ARE the x-intercepts. So the x-intercepts are 1 and 5. <span class="translation">Akar ADALAH titik potong sumbu-x. Jadi titik potong sumbu-xnya adalah 1 dan 5.</span>'
+            },
+            {
+                type: 'exercise',
+                question: 'Identify $a$, $b$, and $c$ in the equation: $x^2 = 9$. Write your answer as a, b, c. <span class="translation">Identifikasi $a$, $b$, dan $c$ pada persamaan: $x^2 = 9$. Tulis jawaban sebagai a, b, c.</span>',
+                answer: ['1, 0, -9'],
+                explanation: 'Move 9 to the left: $x^2 - 9 = 0$. So $a=1, b=0, c=-9$. <span class="translation">Pindahkan 9 ke kiri: $x^2 - 9 = 0$. Jadi $a=1, b=0, c=-9$.</span>'
+            },
+            {
+                type: 'exercise',
+                question: 'Identify $a$, $b$, and $c$ in the equation: $4x - x^2 = 0$. Write your answer as a, b, c. <span class="translation">Identifikasi $a$, $b$, dan $c$ pada persamaan: $4x - x^2 = 0$. Tulis jawaban sebagai a, b, c.</span>',
+                answer: ['-1, 4, 0'],
+                explanation: 'Rewrite in standard form: $-x^2 + 4x + 0 = 0$. So $a=-1, b=4, c=0$. <span class="translation">Tulis ulang dalam bentuk standar: $-x^2 + 4x + 0 = 0$. Jadi $a=-1, b=4, c=0$.</span>'
+            }
+        ];
+
+        // --- ASSIGNMENT 4 CONTENT (Advanced Factoring: GCF, a>1, a<0) ---
+        lessonData[10].steps = [
+            {
+                type: 'exercise',
+                question: 'Solve by factoring: $2x^2 + 7x + 3 = 0$. Write the smaller root first. <span class="translation">Selesaikan dengan faktorisasi: $2x^2 + 7x + 3 = 0$. Tulis akar terkecil dulu.</span>',
+                answer: ['-3 and -0.5', '-3, -1/2', '-3 & -1/2', '-3, -0.5'],
+                explanation: 'Factors of $2 \\times 3 = 6$ that add to 7 are 1 and 6. Split middle term: $2x^2 + 6x + x + 3 = 2x(x+3) + 1(x+3) = (2x+1)(x+3) = 0$. Roots are $x=-3, -1/2$. <span class="translation">Faktor dari $2 \\times 3 = 6$ yang dijumlahkan 7 adalah 1 dan 6. Bagi suku tengah: $2x^2 + 6x + x + 3 = 2x(x+3) + 1(x+3) = (2x+1)(x+3) = 0$. Akar-akarnya $x=-3, -1/2$.</span>'
+            },
+            {
+                type: 'exercise',
+                question: 'Solve by factoring: $3x^2 - 10x + 8 = 0$. Write the smaller root first. <span class="translation">Selesaikan dengan faktorisasi: $3x^2 - 10x + 8 = 0$. Tulis akar terkecil dulu.</span>',
+                answer: ['4/3 and 2', '4/3, 2', '1.33 and 2'],
+                explanation: 'Factors of $3 \\times 8 = 24$ that add to -10 are -4 and -6. Split: $3x^2 - 6x - 4x + 8 = 3x(x-2) - 4(x-2) = (3x-4)(x-2) = 0$. Roots are $x=4/3, 2$. <span class="translation">Faktor dari $3 \\times 8 = 24$ yang dijumlahkan -10 adalah -4 dan -6. Bagi: $3x^2 - 6x - 4x + 8 = 3x(x-2) - 4(x-2) = (3x-4)(x-2) = 0$. Akar-akarnya $x=4/3, 2$.</span>'
+            },
+            {
+                type: 'exercise',
+                question: 'Solve by factoring: $-x^2 + 5x + 14 = 0$ (Hint: factor out -1 first). Write the smaller root first. <span class="translation">Selesaikan dengan faktorisasi: $-x^2 + 5x + 14 = 0$ (Petunjuk: faktorkan -1 dulu). Tulis akar terkecil dulu.</span>',
+                answer: ['-2 and 7', '-2, 7', '-2 & 7'],
+                explanation: 'Factor -1: $-(x^2 - 5x - 14) = 0$. Factors of -14 that add to -5 are -7 and 2. $-(x-7)(x+2) = 0$. Roots are $x=-2, 7$. <span class="translation">Faktor -1: $-(x^2 - 5x - 14) = 0$. Faktor dari -14 yang dijumlahkan -5 adalah -7 dan 2. $-(x-7)(x+2) = 0$. Akar-akarnya $x=-2, 7$.</span>'
+            },
+            {
+                type: 'exercise',
+                question: 'Solve by factoring: $2x^2 - 10x + 12 = 0$ (Hint: factor out GCF first). Write the smaller root first. <span class="translation">Selesaikan dengan faktorisasi: $2x^2 - 10x + 12 = 0$ (Petunjuk: faktorkan GCF dulu). Tulis akar terkecil dulu.</span>',
+                answer: ['2 and 3', '2, 3', '2 & 3'],
+                explanation: 'Factor out 2: $2(x^2 - 5x + 6) = 0$. Factors of 6 that add to -5 are -2 and -3. $2(x-2)(x-3) = 0$. Roots are $x=2, 3$. <span class="translation">Faktorkan 2: $2(x^2 - 5x + 6) = 0$. Faktor dari 6 yang dijumlahkan -5 adalah -2 dan -3. $2(x-2)(x-3) = 0$. Akar-akarnya $x=2, 3$.</span>'
+            },
+            {
+                type: 'exercise',
+                question: 'Solve by factoring: $4x^2 - 4x - 3 = 0$. Write the smaller root first. <span class="translation">Selesaikan dengan faktorisasi: $4x^2 - 4x - 3 = 0$. Tulis akar terkecil dulu.</span>',
+                answer: ['-0.5 and 1.5', '-1/2 and 3/2', '-1/2, 3/2', '-0.5, 1.5'],
+                explanation: 'Factors of $4 \\times -3 = -12$ that add to -4 are -6 and 2. Split: $4x^2 + 2x - 6x - 3 = 2x(2x+1) - 3(2x+1) = (2x+1)(2x-3) = 0$. Roots are $x=-1/2, 3/2$. <span class="translation">Faktor dari $4 \\times -3 = -12$ yang dijumlahkan -4 adalah -6 dan 2. Bagi: $4x^2 + 2x - 6x - 3 = 2x(2x+1) - 3(2x+1) = (2x+1)(2x-3) = 0$. Akar-akarnya $x=-1/2, 3/2$.</span>'
+            },
+            {
+                type: 'exercise',
+                question: 'Solve by factoring: $3x^2 + 6x + 3 = 0$ (Hint: factor out GCF first). Write the root. <span class="translation">Selesaikan dengan faktorisasi: $3x^2 + 6x + 3 = 0$ (Petunjuk: faktorkan GCF dulu). Tulis akarnya.</span>',
+                answer: ['-1', 'x=-1'],
+                explanation: 'Factor out 3: $3(x^2 + 2x + 1) = 0$. Perfect square: $3(x+1)^2 = 0$. The only root is $x=-1$. <span class="translation">Faktorkan 3: $3(x^2 + 2x + 1) = 0$. Kuadrat sempurna: $3(x+1)^2 = 0$. Satu-satunya akar adalah $x=-1$.</span>'
+            },
+            {
+                type: 'exercise',
+                question: 'Solve by factoring: $-2x^2 + 7x - 3 = 0$ (Hint: factor out -1 first). Write the smaller root first. <span class="translation">Selesaikan dengan faktorisasi: $-2x^2 + 7x - 3 = 0$ (Petunjuk: faktorkan -1 dulu). Tulis akar terkecil dulu.</span>',
+                answer: ['0.5 and 3', '1/2 and 3', '1/2, 3', '0.5, 3'],
+                explanation: 'Factor -1: $-(2x^2 - 7x + 3) = 0$. Factors of $2 \\times 3 = 6$ that add to -7 are -6 and -1. Split: $-(2x^2 - 6x - x + 3) = -(2x(x-3) - 1(x-3)) = -(2x-1)(x-3) = 0$. Roots are $x=1/2, 3$. <span class="translation">Faktor -1: $-(2x^2 - 7x + 3) = 0$. Faktor dari 6 yang dijumlahkan -7 adalah -6 dan -1. Akar-akarnya $x=1/2, 3$.</span>'
+            },
+            {
+                type: 'exercise',
+                question: 'Solve by factoring: $5x^2 - 15x + 10 = 0$ (Hint: factor out GCF first). Write the smaller root first. <span class="translation">Selesaikan dengan faktorisasi: $5x^2 - 15x + 10 = 0$ (Petunjuk: faktorkan GCF dulu). Tulis akar terkecil dulu.</span>',
+                answer: ['1 and 2', '1, 2', '1 & 2'],
+                explanation: 'Factor out 5: $5(x^2 - 3x + 2) = 0$. Factors of 2 that add to -3 are -1 and -2. $5(x-1)(x-2) = 0$. Roots are $x=1, 2$. <span class="translation">Faktorkan 5: $5(x^2 - 3x + 2) = 0$. Faktor dari 2 yang dijumlahkan -3 adalah -1 dan -2. $5(x-1)(x-2) = 0$. Akar-akarnya $x=1, 2$.</span>'
+            },
+            {
+                type: 'exercise',
+                question: 'Solve by factoring: $2x^2 - 18 = 0$ (Hint: factor out GCF, then difference of squares). Write the smaller root first. <span class="translation">Selesaikan dengan faktorisasi: $2x^2 - 18 = 0$ (Petunjuk: faktorkan GCF, lalu selisih kuadrat). Tulis akar terkecil dulu.</span>',
+                answer: ['-3 and 3', '-3, 3', '-3 & 3'],
+                explanation: 'Factor out 2: $2(x^2 - 9) = 0$. Difference of squares: $2(x-3)(x+3) = 0$. Roots are $x=-3, 3$. <span class="translation">Faktorkan 2: $2(x^2 - 9) = 0$. Selisih kuadrat: $2(x-3)(x+3) = 0$. Akar-akarnya $x=-3, 3$.</span>'
+            },
+            {
+                type: 'exercise',
+                question: 'Solve by factoring: $4x^2 + 8x = 0$ (Hint: factor out GCF). Write the smaller root first. <span class="translation">Selesaikan dengan faktorisasi: $4x^2 + 8x = 0$ (Petunjuk: faktorkan GCF). Tulis akar terkecil dulu.</span>',
+                answer: ['-2 and 0', '-2, 0', '-2 & 0'],
+                explanation: 'Factor out 4x: $4x(x + 2) = 0$. Roots are $x=0, -2$. <span class="translation">Faktorkan 4x: $4x(x + 2) = 0$. Akar-akarnya $x=0, -2$.</span>'
+            }
+        ];
+
+        // --- ASSIGNMENT 5 CONTENT (Mixed Review & Spiral) ---
+        lessonData[11].steps = [
+            {
+                type: 'exercise',
+                question: 'Evaluate using change of base: $\\log_8(32) = \\frac{p}{q}$. What is $p+q$? <span class="translation">Evaluasi menggunakan perubahan basis: $\\log_8(32) = \\frac{p}{q}$. Berapa nilai $p+q$?</span>',
+                answer: ['8'],
+                explanation: '$\\log_8(32) = \\frac{\\log 2^5}{\\log 2^3} = \\frac{5}{3}$. So $p=5, q=3$, $p+q=8$. <span class="translation">$\\log_8(32) = \\frac{\\log 2^5}{\\log 2^3} = \\frac{5}{3}$. Jadi $p=5, q=3$, $p+q=8$.</span>'
+            },
+            {
+                type: 'exercise',
+                question: 'Determine the roots of $x^2 - 16 = 0$ by factoring as a difference of squares. Write the smaller root first. <span class="translation">Tentukan akar-akar dari $x^2 - 16 = 0$ dengan memfaktorkan sebagai selisih kuadrat. Tulis akar terkecil dulu.</span>',
+                answer: ['-4 and 4', '-4, 4', '-4 & 4'],
+                explanation: '$x^2 - 16 = (x-4)(x+4) = 0$. Roots are -4 and 4. <span class="translation">$x^2 - 16 = (x-4)(x+4) = 0$. Akar-akarnya -4 dan 4.</span>'
+            },
+            {
+                type: 'exercise',
+                question: 'Solve for $x$: $x(x - 5) = 14$. Write the smaller root first. <span class="translation">Selesaikan untuk $x$: $x(x - 5) = 14$. Tulis akar terkecil dulu.</span>',
+                answer: ['-2 and 7', '-2, 7', '-2 & 7'],
+                explanation: 'Expand and set to 0: $x^2 - 5x - 14 = 0$. Factor: $(x-7)(x+2)=0$. Roots are -2 and 7. <span class="translation">Jabarkan dan setel ke 0: $x^2 - 5x - 14 = 0$. Faktor: $(x-7)(x+2)=0$. Akar-akarnya -2 dan 7.</span>'
+            },
+            {
+                type: 'exercise',
+                question: 'Simplify the logarithm expression: $\\log(x^3) - \\log(x)$. <span class="translation">Sederhanakan ekspresi logaritma: $\\log(x^3) - \\log(x)$.</span>',
+                answer: ['2 log x', '2log(x)', '2logx', 'log(x^2)'],
+                explanation: 'Using quotient property: $\\log(\\frac{x^3}{x}) = \\log(x^2) = 2\\log x$. <span class="translation">Menggunakan sifat pembagian: $\\log(\\frac{x^3}{x}) = \\log(x^2) = 2\\log x$.</span>'
+            },
+            {
+                type: 'exercise',
+                question: 'Solve by factoring: $x^2 - 10x + 25 = 0$. Write the root. <span class="translation">Selesaikan dengan faktorisasi: $x^2 - 10x + 25 = 0$. Tulis akarnya.</span>',
+                answer: ['5', 'x=5'],
+                explanation: 'Perfect square: $(x-5)^2 = 0$. The only root is $x=5$. <span class="translation">Kuadrat sempurna: $(x-5)^2 = 0$. Satu-satunya akar adalah $x=5$.</span>'
+            },
+            {
+                type: 'exercise',
+                question: 'If $x^2 - 5x + k = 0$ has a root at $x = 2$, what is the value of $k$? <span class="translation">Jika $x^2 - 5x + k = 0$ memiliki akar di $x = 2$, berapakah nilai $k$?</span>',
+                answer: ['6'],
+                explanation: 'Substitute $x=2$: $(2)^2 - 5(2) + k = 0 \\implies 4 - 10 + k = 0 \\implies -6 + k = 0 \\implies k = 6$. <span class="translation">Substitusikan $x=2$: $(2)^2 - 5(2) + k = 0 \\implies 4 - 10 + k = 0 \\implies -6 + k = 0 \\implies k = 6$.</span>'
+            },
+            {
+                type: 'exercise',
+                question: 'Write $\\log_2(7)$ using the change of base formula with common logs (base 10). <span class="translation">Tuliskan $\\log_2(7)$ menggunakan rumus perubahan basis dengan logaritma biasa (basis 10).</span>',
+                answer: ['log 7 / log 2', 'log(7)/log(2)', 'log7/log2'],
+                explanation: 'Change of base formula: $\\log_a b = \\frac{\\log b}{\\log a}$. So $\\log_2 7 = \\frac{\\log 7}{\\log 2}$. <span class="translation">Rumus perubahan basis: $\\log_a b = \\frac{\\log b}{\\log a}$. Jadi $\\log_2 7 = \\frac{\\log 7}{\\log 2}$.</span>'
+            },
+            {
+                type: 'exercise',
+                question: 'Simplify: $2\\log(5) + \\log(4)$. <span class="translation">Sederhanakan: $2\\log(5) + \\log(4)$.</span>',
+                answer: ['2', 'log 100'],
+                explanation: 'Power rule then product rule: $\\log(5^2) + \\log(4) = \\log(25) + \\log(4) = \\log(25 \\times 4) = \\log(100) = 2$. <span class="translation">Aturan pangkat lalu aturan perkalian: $\\log(5^2) + \\log(4) = \\log(25) + \\log(4) = \\log(25 \\times 4) = \\log(100) = 2$.</span>'
+            },
+            {
+                type: 'exercise',
+                question: 'Solve by factoring: $x^2 + 8x + 15 = 0$. Write the smaller root first. <span class="translation">Selesaikan dengan faktorisasi: $x^2 + 8x + 15 = 0$. Tulis akar terkecil dulu.</span>',
+                answer: ['-5 and -3', '-5, -3', '-5 & -3'],
+                explanation: 'Factors of 15 that add to 8 are 3 and 5. $(x+3)(x+5)=0$. Roots are $x=-5, -3$. <span class="translation">Faktor dari 15 yang dijumlahkan 8 adalah 3 dan 5. $(x+3)(x+5)=0$. Akar-akarnya $x=-5, -3$.</span>'
+            },
+            {
+                type: 'exercise',
+                question: 'Solve by factoring: $3x^2 + 12x = 0$. Write the smaller root first. <span class="translation">Selesaikan dengan faktorisasi: $3x^2 + 12x = 0$. Tulis akar terkecil dulu.</span>',
+                answer: ['-4 and 0', '-4, 0', '-4 & 0'],
+                explanation: 'Factor out 3x: $3x(x + 4) = 0$. Roots are $x=-4, 0$. <span class="translation">Faktorkan 3x: $3x(x + 4) = 0$. Akar-akarnya $x=-4, 0$.</span>'
+            }
+        ];
+		
+        // --- STATE MANAGEMENT ---
+        let currentState = {
+            currentSectionIndex: 0,
+            currentStepIndex: 0,
+            answers: {},
+            completedSteps: {}
+        };
+
+        function loadState() {
+            const saved = localStorage.getItem('mathTutorState');
+            if (saved) {
+                currentState = JSON.parse(saved);
+            }
+        }
+
+        function saveState() {
+            localStorage.setItem('mathTutorState', JSON.stringify(currentState));
+        }
+
+        function resetAllProgress() {
+            if(confirm("Are you sure you want to reset all progress? / Apakah kamu yakin ingin mereset semua kemajuan?")) {
+                localStorage.removeItem('mathTutorState');
+                currentState = {
+                    currentSectionIndex: 0,
+                    currentStepIndex: 0,
+                    answers: {},
+                    completedSteps: {}
+                };
+                renderPath();
+                navigateTo(0, 0);
+            }
+        }
+
+        // --- NAVIGATION & RENDERING ---
+        function renderPath() {
+            const container = document.getElementById('path-container');
+            container.innerHTML = '';
+
+            lessonData.forEach((section, index) => {
+                const node = document.createElement('div');
+                node.className = 'path-node';
+                
+                const isCompleted = currentState.completedSteps[section.id] === true;
+                const isActive = index === currentState.currentSectionIndex;
+
+                if (isCompleted) node.classList.add('completed');
+                if (isActive) node.classList.add('active');
+
+                node.innerHTML = `
+                    <i class="fas ${section.icon}"></i>
+                    <div class="node-tooltip">${section.title} ${section.time ? '('+section.time+')' : ''}</div>
+                `;
+                
+                node.onclick = () => navigateTo(index, 0);
+                container.appendChild(node);
+            });
+        }
+
+        function navigateTo(sectionIndex, stepIndex) {
+            currentState.currentSectionIndex = sectionIndex;
+            currentState.currentStepIndex = stepIndex;
+            saveState();
+            renderPath();
+            renderContent();
+        }
+
+        function renderContent() {
+            const area = document.getElementById('content-area');
+            const section = lessonData[currentState.currentSectionIndex];
+            const stepIdx = currentState.currentStepIndex;
+
+            if (section.id === 'home') {
+                renderHome(area);
+            } else if (section.id === 'consolidation') {
+                renderConsolidation(area);
+            } else if (section.id.startsWith('assign')) {
+                renderAssignment(area, section, stepIdx);
+            } else {
+                renderSectionStep(area, section, stepIdx);
+            }
+
+            // Render Math
+            renderMathInElement(area, {
+                delimiters: [
+                    {left: '$$', right: '$$', display: true},
+                    {left: '$', right: '$', display: false}
+                ],
+                throwOnError: false
+            });
+        }
+
+        function renderHome(area) {
+            area.innerHTML = `
+                <div class="theory-card">
+                    <h3><i class="fas fa-house"></i> Welcome! <span class="translation">Selamat Datang!</span></h3>
+                    <p>Topic: Introduction to Quadratic Equations <span class="translation">Topik: Pengantar Persamaan Kuadrat</span></p>
+                    <p>Class Rules: <span class="translation">Aturan Kelas:</span></p>
+                    <ul style="margin-left: 20px; margin-top: 10px;">
+                        <li>Take turns speaking <span class="translation">Berbicara secara bergantian</span></li>
+                        <li>Ask permission if you want to leave the class <span class="translation">Meminta izin jika ingin meninggalkan kelas</span></li>
+                        <li>Turn on camera and microphone if needed <span class="translation">Menyalakan kamera dan microphone jika diperlukan</span></li>
+                    </ul>
+                </div>
+                <div class="nav-buttons">
+                    <button class="nav-btn" onclick="navigateTo(1, 0)">Start Lesson <i class="fas fa-arrow-right"></i></button>
+                </div>
+            `;
+        }
+
+        function renderConsolidation(area) {
+            area.innerHTML = `
+                <div class="theory-card">
+                    <h3><i class="fas fa-flag-checkered"></i> Consolidation & Reflection <span class="translation">Konsolidasi & Refleksi</span></h3>
+                    <p>Brilliant session! You've mastered how to take a complex curve and break it down into simple linear factors. <span class="translation">Sesi luar biasa! Kamu telah menguasai cara mengambil kurva yang kompleks dan membaginya menjadi faktor linier yang sederhana.</span></p>
+                    <p>Remember, the roots are just the points where our path hits the ground. <span class="translation">Ingat, akar-akarnya hanyalah titik-titik di mana jalur kita menyentuh tanah.</span></p>
+                    <p>Summary: Standard Form vs Factored Form <span class="translation">Ringkasan: Bentuk Standar vs Bentuk Faktor</span></p>
+                    <div class="math-block">$ax^2 + bx + c = 0 \\iff a(x-r_1)(x-r_2) = 0$</div>
+                </div>
+                <div class="nav-buttons">
+                    <button class="nav-btn" style="background-color: #58cc02; border-bottom-color: #46a302;" onclick="window.open('https://learn.algonova.id/login', '_blank')"><i class="fas fa-external-link-alt"></i> Open Algonova Dashboard</button>
+                </div>
+            `;
+        }
+
+        function renderSectionStep(area, section, stepIdx) {
+            const step = section.steps[stepIdx];
+            if(!step) {
+                navigateTo(currentState.currentSectionIndex + 1, 0);
+                return;
+            }
+
+            // FIX: Deklarasikan isChecked dan ansKey di level atas agar bisa diakses di bagian navigasi
+            let isChecked = false;
+            let ansKey = '';
+
+            let html = `<h2>${section.title} <span class="translation" style="font-size: 0.9rem;">${section.time ? '('+section.time+')' : ''}</span></h2>`;
+
+            if (step.type === 'theory') {
+                html += `
+                    <div class="theory-card">
+                        <h3><i class="fas fa-book-open"></i> Theory ${stepIdx + 1} <span class="translation">Teori ${stepIdx + 1}</span></h3>
+                        ${step.content}
+                    </div>
+                `;
+            } else if (step.type === 'exercise') {
+                ansKey = `${section.id}_step${stepIdx}`;
+                const userAns = currentState.answers[ansKey] || '';
+                isChecked = userAns !== '' && userAns !== undefined;
+                const isCorrect = isChecked && checkAnswer(userAns, step.answer);
+
+                html += `
+                    <div class="exercise-card">
+                        <h4><i class="fas fa-pencil-alt"></i> Exercise ${stepIdx + 1} <span class="translation">Latihan ${stepIdx + 1}</span></h4>
+                        <p>${step.question}</p>
+                        <div class="input-group">
+                            <input type="text" class="math-input" id="input-${ansKey}" value="${userAns}" placeholder="Type your answer here..." onchange="handleInput('${ansKey}', this.value)" onkeydown="if(event.key === 'Enter') { event.preventDefault(); checkStep('${ansKey}', '${section.id}', ${stepIdx}); }" ${isChecked ? 'disabled' : ''}>
+                            <button class="check-btn" onclick="checkStep('${ansKey}', '${section.id}', ${stepIdx})" ${isChecked ? 'disabled' : ''}>
+                                ${isChecked ? 'Checked' : 'Check'}
+                            </button>
+                        </div>
+                        <div class="feedback ${isChecked ? (isCorrect ? 'correct' : 'incorrect') : ''}" style="display: ${isChecked ? 'block' : 'none'}">
+                            <strong>${isCorrect ? 'Correct!' : 'Incorrect'}</strong>
+                            <details class="explanation-details">
+                                <summary>View Explanation <span class="translation">Lihat Penjelasan</span></summary>
+                                <p>${step.explanation}</p>
+                            </details>
+                        </div>
+                    </div>
+                `;
+            }
+
+            const totalSteps = section.steps.length;
+            const isLastStep = stepIdx === totalSteps - 1;
+
+            html += `
+                <div class="nav-buttons">
+                    <div>
+                        ${stepIdx > 0 ? `<button class="nav-btn" onclick="navigateTo(${currentState.currentSectionIndex}, ${stepIdx - 1})"><i class="fas fa-arrow-left"></i> Back</button>` : ''}
+                    </div>
+                    <div style="display: flex; gap: 10px;">
+                        ${isChecked ? `<button class="nav-btn reset-step-btn" onclick="resetStep('${ansKey}', '${section.id}', ${stepIdx})"><i class="fas fa-redo"></i> Reset</button>` : ''}
+                        ${isLastStep ? 
+                            `<button class="nav-btn" onclick="completeSection('${section.id}')">Complete Section <i class="fas fa-check"></i></button>` :
+                            `<button class="nav-btn" onclick="navigateTo(${currentState.currentSectionIndex}, ${stepIdx + 1})">Next <i class="fas fa-arrow-right"></i></button>`
+                        }
+                    </div>
+                </div>
+            `;
+
+            area.innerHTML = html;
+        }
+
+        function renderAssignment(area, section, stepIdx) {
+            const step = section.steps[stepIdx];
+            if(!step) {
+                navigateTo(currentState.currentSectionIndex + 1, 0);
+                return;
+            }
+
+            const ansKey = `${section.id}_step${stepIdx}`;
+            const userAns = currentState.answers[ansKey] || '';
+            const isChecked = userAns !== '' && userAns !== undefined;
+            const isCorrect = isChecked && checkAnswer(userAns, step.answer);
+
+            let html = `
+                <h2>${section.title}</h2>
+                <div class="exercise-card">
+                    <h4>Question ${stepIdx + 1} / ${section.steps.length}</h4>
+                    <p>${step.question}</p>
+                    <div class="input-group">
+                        <input type="text" class="math-input" id="input-${ansKey}" value="${userAns}" placeholder="Answer..." onchange="handleInput('${ansKey}', this.value)" onkeydown="if(event.key === 'Enter') { event.preventDefault(); checkStep('${ansKey}', '${section.id}', ${stepIdx}); }" ${isChecked ? 'disabled' : ''}>
+                        <button class="check-btn" onclick="checkStep('${ansKey}', '${section.id}', ${stepIdx})" ${isChecked ? 'disabled' : ''}>
+                            ${isChecked ? 'Checked' : 'Check'}
+                        </button>
+                    </div>
+                    <div class="feedback ${isChecked ? (isCorrect ? 'correct' : 'incorrect') : ''}" style="display: ${isChecked ? 'block' : 'none'}">
+                        <strong>${isCorrect ? 'Correct!' : 'Incorrect'}</strong>
+                        <details class="explanation-details">
+                            <summary>Explanation</summary>
+                            <p>${step.explanation}</p>
+                        </details>
+                    </div>
+                </div>
+            `;
+
+            const isLastStep = stepIdx === section.steps.length - 1;
+
+            html += `
+                <div class="nav-buttons">
+                    <div>
+                        ${stepIdx > 0 ? `<button class="nav-btn" onclick="navigateTo(${currentState.currentSectionIndex}, ${stepIdx - 1})"><i class="fas fa-arrow-left"></i> Back</button>` : ''}
+                    </div>
+                    <div style="display: flex; gap: 10px;">
+                        ${isChecked ? `<button class="nav-btn reset-step-btn" onclick="resetStep('${ansKey}', '${section.id}', ${stepIdx})"><i class="fas fa-redo"></i> Reset</button>` : ''}
+                        ${isLastStep ? 
+                            `<button class="nav-btn" style="background-color: var(--warning); border-bottom-color: #cc9f00; color: black;" onclick="completeAssignment('${section.id}')"><i class="fas fa-print"></i> Print Result & Next</button>` :
+                            `<button class="nav-btn" onclick="navigateTo(${currentState.currentSectionIndex}, ${stepIdx + 1})">Next <i class="fas fa-arrow-right"></i></button>`
+                        }
+                    </div>
+                </div>
+            `;
+
+            area.innerHTML = html;
+        }
+
+        // --- LOGIC FUNCTIONS ---
+        function handleInput(key, value) {
+            currentState.answers[key] = value.trim();
+            saveState();
+        }
+
+        function checkAnswer(userAns, correctAnswers) {
+            if (!userAns) return false;
+            // Normalisasi spasi: mengubah spasi ganda menjadi spasi tunggal
+            const normalizedUserAns = userAns.replace(/\s+/g, ' ').trim().toLowerCase();
+            return correctAnswers.some(ans => ans.replace(/\s+/g, ' ').trim().toLowerCase() === normalizedUserAns);
+        }
+
+        function checkStep(ansKey, sectionId, stepIdx) {
+            const inputEl = document.getElementById(`input-${ansKey}`);
+            if(!inputEl.value.trim()) return alert("Please fill in the answer first. / Silakan isi jawaban terlebih dahulu.");
+            
+            currentState.answers[ansKey] = inputEl.value.trim();
+            saveState();
+            renderContent();
+        }
+
+        function resetStep(ansKey, sectionId, stepIdx) {
+            delete currentState.answers[ansKey];
+            saveState();
+            renderContent();
+        }
+
+        function completeSection(sectionId) {
+            currentState.completedSteps[sectionId] = true;
+            saveState();
+            navigateTo(currentState.currentSectionIndex + 1, 0);
+        }
+
+        function completeAssignment(sectionId) {
+            currentState.completedSteps[sectionId] = true;
+            printAssignmentResult(sectionId);
+            saveState();
+            navigateTo(currentState.currentSectionIndex + 1, 0);
+        }
+
+        function printAssignmentResult(sectionId) {
+            const section = lessonData.find(s => s.id === sectionId);
+            let score = 0;
+            let tableRows = '';
+
+            section.steps.forEach((step, idx) => {
+                const ansKey = `${section.id}_step${idx}`;
+                const userAns = currentState.answers[ansKey] || '-';
+                const isCorrect = checkAnswer(userAns, step.answer);
+                if(isCorrect) score++;
+
+                // Bersihkan tag HTML dari pertanyaan agar cetakannya rapi (tidak ada <span> dll)
+                const tempDiv = document.createElement("div");
+                tempDiv.innerHTML = step.question;
+                const cleanQuestion = tempDiv.textContent || tempDiv.innerText || "";
+
+                tableRows += `
+                    <tr>
+                        <td style="text-align:center; width:30px;">${idx+1}</td>
+                        <td>${cleanQuestion}</td>
+                        <td>${userAns}</td>
+                        <td>${step.answer[0]}</td>
+                        <td style="text-align:center;">${isCorrect ? '&#10004;' : '&#10008;'}</td>
+                    </tr>
+                `;
+            });
+
+            const printArea = document.getElementById('print-area');
+            printArea.innerHTML = `
+                <h2>MATH TUTORING by Deni</h2>
+                <div class="print-info">
+                    <strong>Name:</strong> _______________________<br>
+                    <strong>Date:</strong> _______________________<br>
+                    <strong>Topic:</strong> Introduction to Quadratic Equations<br>
+                    <strong>Assignment Group:</strong> ${section.title}<br>
+                    <strong>Score:</strong> ${score} / ${section.steps.length}
+                </div>
+                <table>
+                    <thead>
+                        <tr>
+                            <th>No.</th>
+                            <th>Question</th>
+                            <th>Student Answer</th>
+                            <th>Correct Answer</th>
+                            <th>Note</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        ${tableRows}
+                    </tbody>
+                </table>
+                <div class="print-footer">
+                    <p>Checked by,</p>
+                    <br><br>
+                    <p><strong>Deni</strong></p>
+                </div>
+            `;
+
+            // Render KaTeX di area cetak SEBELUM menampilkan dialog print
+            renderMathInElement(printArea, {
+                delimiters: [
+                    {left: '$$', right: '$$', display: true},
+                    {left: '$', right: '$', display: false}
+                ],
+                throwOnError: false
+            });
+
+            setTimeout(() => {
+                window.print();
+            }, 600); // Delay sedikit lebih lama agar KaTeX selesai merender gambar matematika
+        }
+
+        // --- INITIALIZATION ---
+        loadState();
+        renderPath();
+        renderContent();
+
+    </script>
+</body>
+</html>
